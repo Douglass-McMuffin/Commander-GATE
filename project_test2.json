@@ -1,0 +1,16 @@
+{
+  "schema": "2.0",
+  "material_db_path": null,
+  "root": {
+    "name": "gate",
+    "node_type": "root",
+    "meta": {},
+    "parameters": [
+      {
+        "label": "Material Database",
+        "values": []
+      }
+    ],
+    "children": []
+  }
+}

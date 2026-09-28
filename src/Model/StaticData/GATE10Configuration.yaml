@@ -1,0 +1,1613 @@
+
+gate:
+  units:
+    LENGTH_UNITS : ['pc', 'km', 'm', 'cm', 'mm', 'mum', 'nm', 'Ang']
+    SURFACE_UNITS : ['km2', 'm2', 'cm2', 'mm2']
+    VOLUME_UNITS: ['km3', 'm3', 'cm3', 'mm3']
+    ANGLE_UNITS: ['rad', 'mrad', 'sr', 'deg']
+    TIME_UNITS: ['s', 'ms', 'mus', 'ns', 'ps']
+    SPEED_UNITS: ['m/s', 'cm/s', 'mm/s', 'm/min', 'cm/min', 'mm/min', 'm/h', 'cm/h', 'mm/h']
+    ANGULAR_SPEED_UNITS: ['rad/s', 'deg/s', 'rot/s', 'rad/min', 'deg/min', 'rot/min', 'rad/h', 'deg/h', 'rot/h']
+    ENERGY_UNITS: ['eV', 'KeV', 'MeV', 'GeV', 'TeV', 'PeV', 'j']
+    ACTIVITY_DOSE_UNITS: ['Bq', 'Ci', 'Gy']
+    AMOUNT_OF_SUBSTANCE_UNITS: ['mol']
+    MASS_UNITS: ['mg', 'g', 'kg']
+    VOLUMIC_MASS_UNITS: ['g/cm3', 'mg/cm3', 'kg/m3']
+    ELECTRIC_CHARGE_UNITS: ['e+', 'C', 'muA', 'nA']
+    ELECTRIC_CURRENT_UNITS: ['A', 'mA']
+    ELECTRIC_POTENTIAL_UNITS: ['V', 'kV', 'MV', 'kG']
+    MAGNETIC_FLUX_UNITS: ['Wb', 'T', 'G']
+    TEMPERATURE_UNITS: ['K']
+    FORCE_PRESSURE_UNITS: ['N', 'Pa', 'bar', 'atm']
+    POWER_UNITS: ['W']
+    FREQUENCY_UNITS: ['Hz', 'kHz', 'MHz']
+    NO_UNITS: []
+    AXIS_UNITS: [" - ", " X ", " Y ", " Z "]
+    COLORS: ["white", "gray", "black", "red", "green", "blue", "cyan", "magenta", "yellow"]
+    LINE_STYLE: ["dashed", "dotted", "unbroken"]
+    INC_EXC: ["exclude", "include"]
+    REPEATER_TYPES: [" - ", "linear", "ring", "cubicArray", "quadrant", "sphere", "genericRepeater"]
+    VIEWER_TYPES: [" - ", "OGL", "OGLS","OGLSQt", "OGLSX", "OGLI", "OGLIQt", "OGLIX", "DAWNFILE", "VRML2FILE"]
+    PHYSICS_LISTS: [" - ", "FTFP_BERT", "FTFP_BERT_ATL", "FTFP_BERT_HP", "FTFP_BERT_TRV", "FTFP_INCLXX", "FTFQGSP_BERT", "FTF_BIC", "LBE", "NuBeam", "QBBC", "QBBC_ABLA", "QGSP_BERT", "QGSP_BERT_HP", "QGSP_BIC", "QGSP_BIC_AllHP", "QGSP_BIC_HP", "QGSP_BIC_HPT", "QGSP_FTFP_BERT", "QGSP_INCLXX", "QGS_BIC", "Shielding", "ShieldingLEND"]
+    RANDOM_ENGINES: ["Ranlux64", "JamesRandom", "MixMaxRng", "MersenneTwister"]
+    RANDOM_SEED_MODE: ["default", "auto", "manual"]
+    SOURCE_PARTICLES: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
+    SOURCE_ENERGY_TYPES: ["Mono", "Lin", "Pow", "Exp", "Gauss", "Brem", "Bbody", "Cdg", "UserSpectrum", "Arb", "Epn", "Fluor18"]
+    SOURCE_ANG_TYPES: ["iso"]
+    SOURCE_DOMAINS: ["Point", "Beam", "Plane", "Surface", "Volume"]
+    SOURCE_VOLUME_SHAPES: ["Sphere", "Ellipsoid", "Cylinder", "Para"]
+    SPECIAL_SOURCE_TYPES: [" - ", "backtoback"]
+    ROTATION_DIRECTIONS: ["negative", "positive"]
+    EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
+
+  parameter:
+    volume:
+      box:
+        - label_list:
+            - label: "X Length"
+              path: "setXLength"
+            - label: "Y Length"
+              path: "setYLength"
+            - label: "Z Length"
+              path: "setZLength"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      sphere:
+        - label_list:
+            - label: "Internal Radius"
+              path: "setRmin"
+            - label: "External Radius"
+              path: "setRmax"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+        - label_list:
+            - label: "Start Phi Angle"
+              path: "setPhiStart"
+            - label: "Phi Angular Span"
+              path: "setDeltaPhi"
+            - label: "Start Theta Angle"
+              path: "setThetaStart"
+            - label: "Theta Angular Span"
+              path: "setDeltaTheta"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+      cylinder:
+        - label_list:
+            - label: "Internal Radius"
+              path: "setRmin"
+            - label: "External Radius"
+              path: "setRmax"
+            - label: "Height"
+              path: "setHeight"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+        - label_list:
+            - label: "Start Phi Angle"
+              path: "setPhiStart"
+            - label: "Phi Angular Span"
+              path: "setDeltaPhi"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+      cone:
+        - label_list:
+            - label: "Internal Radius 1"
+              path: "setRmin1"
+            - label: "External Radius 1"
+              path: "setRmax1"
+            - label: "Internal Radius 2"
+              path: "setRmin2"
+            - label: "External Radius 2"
+              path: "setRmax2"
+            - label: "Height"
+              path: "setHeight"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+        - label_list:
+            - label: "Start Phi Angle"
+              path: "setPhiStart"
+            - label: "Phi Angular Span"
+              path: "setDeltaPhi"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+      ellipsoid:
+        - label_list:
+            - label: "Half Axis Length X"
+              path: "setXLength"
+            - label: "Half Axis Length Y"
+              path: "setYLength"
+            - label: "Half Axis Length Z"
+              path: "setZLength"
+            - label: "Z Bottom Cut"
+              path: "setZBottomCut"
+            - label: "Z Top Cut"
+              path: "setZTopCut"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      elliptical tube:
+        - label_list:
+            - label: "Semimajor Axis Length"
+              path: "setLong"
+            - label: "Semiminor Axis Length"
+              path: "setShort"
+            - label: "Height"
+              path: "setHeight"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      hexagon:
+        - label_list:
+            - label: "Radius"
+              path: "setRadius"
+            - label: "Height"
+              path: "setHeight"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      wedge:
+        - label_list:
+            - label: "Shorter Side Length X"
+              path: "setNarrowerXLength"
+            - label: "Wedge Length X"
+              path: "setXLength"
+            - label: "Wedge Length Y"
+              path: "setYLength"
+            - label: "Wedge Length Z"
+              path: "setZLength"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      tet-mesh-box:
+        - label_list:
+            - label: "Path to .ele File"
+              path: "setPathToELEFile"
+          property:
+            type: select
+            default_value: [null]
+            units: NO_UNITS
+            default_unit_index: null
+        - label_list:
+            - label: "Unit of Length"
+              path: "setUnitOfLength"
+          property:
+            type: dropdown
+            default_value: [pc]
+            value_list: LENGTH_UNITS
+            default_unit_index: null
+        - label_list:
+            - label: "Path to Attribute Map"
+              path: "setPathToAttributeMap"
+          property:
+            type: select
+            default_value: [null]
+            units: NO_UNITS
+            default_unit_index: null
+    
+      volume_general:
+        volume_general_list: ["placement_parameters", "moving_parameters", "visualization_parameters"]
+
+        placement_parameters:
+          - label_list:
+            - label: "Placement Settings"
+              path: ""
+            property:
+              type: label
+
+          - label_list :
+            - label: "Set Translation"
+              path: "placement/setTranslation"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Phi Angle (XY Plane)"
+              path: "placement/setPhiOfTranslation"
+            - label: "Theta Angle (Z Axis)"
+              path: "placement/setThetaOfTranslation"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Translation Magnitude"
+              path: "placement/setMagOfTranslation"
+            property:
+              type: text
+              default_value: [0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Rotation Axis"
+              path: "placement/setRotationAxis"
+            property:
+              type: dropdown
+              default_value: [" - "]
+              value_list: AXIS_UNITS
+          
+          - label_list:
+            - label: "Rotation Angle"
+              path: "placement/setRotationAngle"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Axis"
+              path: "placement/setAxis"
+            - label: "Align To Axis"
+              path: "placement/alignToX"
+            property:
+              type: dropdown
+              default_value: [" - "]
+              value_list: AXIS_UNITS
+        
+        moving_parameters:
+          - label_list:
+            - label: "Moving Settings"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Enable Translational Movement"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Translation Speed"
+              path: "translation/setSpeed"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: SPEED_UNITS
+              default_unit_index: 1
+
+          - label_list:
+            - label: "Enable Rotational Movement"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Rotation Speed"
+              path: "rotation/setSpeed"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGULAR_SPEED_UNITS
+              default_unit_index: 0
+
+          - label_list:
+            - label: "Moving Rotation Axis"
+              path: "rotation/setAxis"
+            property:
+              type: dropdown
+              default_value: [" - "]
+              value_list: AXIS_UNITS
+
+          - label_list:
+            - label: "Enable Orbiting Movement"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Orbiting Speed"
+              path: "orbiting/setSpeed"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGULAR_SPEED_UNITS
+              default_unit_index: 0
+
+          - label_list:
+            - label: "Orbiting Point 1"
+              path: "orbiting/setPoint1"
+            - label: "Orbiting Point 2"
+              path: "orbiting/setPoint2"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Enable Wobbling Movement"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Wobbling Amplitude"
+              path: "osc-trans/setAmplitude"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Wobbling Frequency"
+              path: "osc-trans/setFrequency"
+            property:
+              type: text
+              default_value: [0]
+              units: FREQUENCY_UNITS
+              default_unit_index: 0
+
+          - label_list:
+            - label: "Wobbling Period"
+              path: "osc-trans/setPeriod"
+            property:
+              type: text
+              default_value: [0]
+              units: TIME_UNITS
+              default_unit_index: 0
+
+          - label_list:
+            - label: "Wobbling Phase"
+              path: "osc-trans/setPhase"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Enable Eccentric Rotation"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Eccentric Rot Shift"
+              path: "eccent-rot/setSpeed"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Eccentric Rot Speed"
+              path: "eccent-rot/setSpeed"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGULAR_SPEED_UNITS
+              default_unit_index: 0
+
+          - label_list:
+            - label: "Enable Generic Movement"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Generic Movement Filepath"
+              path: "genericMove/setPlacementsFilename"
+            property:
+              type: select
+              default_value: [null]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Enable Generic Repeater Move"
+              path: "moves/insert"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Generic Repeater Filepath"
+              path: "genericRepeaterMove/setPlacementsFilename"
+            property:
+              type: select
+              default_value: [null]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Use Relative Translation"
+              path: "genericRepeaterMove/useRelativeTranslation"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+        visualization_parameters:
+          - label_list:
+            - label: "Visualization Settings"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Color"
+              path: "setColor"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: COLORS
+          
+          - label_list:
+            - label: "IsVisible"
+              path: "setVisible"
+            property:
+              type: checkbox
+              default_value: [True]
+
+          - label_list:
+            - label: "Hide Daughters"
+              path: "setDaughtersInvisible"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Line Style"
+              path: "setLineStyle"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: LINE_STYLE
+
+          - label_list:
+            - label: "Line Width"
+              path: "setLineWidth"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Force Solid"
+              path: "forceSolid"
+            - label: "Force Wireframe"
+              path: "forceWireframe"
+            property:
+              type: checkbox
+              default_value: [False]
+
+      volume_repeater:
+        " - ": []
+
+        linear:
+          - label_list:
+            - label: "Insert Linear Repeater"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Repeat Number"
+              path: "linear/setRepeatNumber"
+            property:
+              type: text
+              default_value: [1]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Repeat Vector (X, Y, Z)"
+              path: "linear/setRepeatVector"
+            property:
+              type: text
+              default_value: [0, 0, 1]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Auto Center"
+              path: "linear/autoCenter"
+            property:
+              type: checkbox
+              default_value: [True]
+
+        ring:
+          - label_list:
+            - label: "Insert Ring Repeater"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Repeat Number"
+              path: "ring/setRepeatNumber"
+            property:
+              type: text
+              default_value: [1]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Axis Point 1 (X, Y, Z)"
+              path: "ring/setPoint1"
+            property:
+              type: text
+              default_value: [0, 1, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Axis Point 2 (X, Y, Z)"
+              path: "ring/setPoint2"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "First Angle"
+              path: "ring/setFirstAngle"
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Angular Span"
+              path: "ring/setAngularSpan"
+            property:
+              type: text
+              default_value: [360]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Auto Rotation"
+              path: "ring/enableAutoRotation"
+            property:
+              type: checkbox
+              default_value: [True]
+
+        cubicArray:
+          - label_list:
+            - label: "Insert Cubic Array"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Repeat X"
+              path: "cubicArray/setRepeatNumberX"
+            - label: "Repeat Y"
+              path: "cubicArray/setRepeatNumberY"
+            - label: "Repeat Z"
+              path: "cubicArray/setRepeatNumberZ"
+            property:
+              type: text
+              default_value: [1]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Repeat Vector (X, Y, Z)"
+              path: "cubicArray/setRepeatVector"
+            property:
+              type: text
+              default_value: [0, 5, 15]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Auto Center"
+              path: "cubicArray/autoCenter"
+            property:
+              type: checkbox
+              default_value: [True]
+
+        quadrant:
+          - label_list:
+            - label: "Insert Quadrant"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Line Number"
+              path: "quadrant/setLineNumber"
+            property:
+              type: text
+              default_value: [5]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Orientation"
+              path: "quadrant/setOrientation"
+            property:
+              type: text
+              default_value: [90]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Copy Spacing"
+              path: "quadrant/setCopySpacing"
+            property:
+              type: text
+              default_value: [6]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Max Range"
+              path: "quadrant/setMaxRange"
+            property:
+              type: text
+              default_value: [30]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+        sphere:
+          - label_list:
+            - label: "Insert Sphere Repeater"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Sphere Radius"
+              path: "sphere/setRadius"
+            property:
+              type: text
+              default_value: [25]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Repeat With Theta"
+              path: "sphere/setRepeatNumberWithTheta"
+            property:
+              type: text
+              default_value: [10]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Repeat With Phi"
+              path: "sphere/setRepeatNumberWithPhi"
+            property:
+              type: text
+              default_value: [3]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Theta Angle"
+              path: "sphere/setThetaAngle"
+            property:
+              type: text
+              default_value: [36]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+          - label_list:
+            - label: "Phi Angle"
+              path: "sphere/setPhiAngle"
+            property:
+              type: text
+              default_value: [20]
+              units: ANGLE_UNITS
+              default_unit_index: 3
+
+        genericRepeater:
+          - label_list:
+            - label: "Insert Generic Repeater"
+              path: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Placement File"
+              path: "genericRepeater/setPlacementsFilename"
+            property:
+              type: select
+              default_value: [null]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Relative Translation"
+              path: "genericRepeater/useRelativeTranslation"
+            property:
+              type: checkbox
+              default_value: [True]
+
+    physics:
+      - label_list:
+        - label: "Physics List"
+          path: "addPhysicsList"
+        property:
+          type: dropdown
+          default_value: [0]
+          value_list: PHYSICS_LISTS
+    
+    digitizer:
+      - label_list:
+        - label: "Disable entire Digitizer"
+          path: "digitizerMgr/disable"
+        property:
+          type: checkbox
+          default_value: [False]
+      
+    source:
+      source_general:
+        - label_list:
+          - label: "Activity"
+            path: "setActivity"
+          property:
+            type: text
+            default_value: [0.0, "Bq"]
+            units: ENERGY_UNITS
+            default_unit_index: 0
+        
+        - label_list:
+          - label: "Intensity (priority)"
+            path: "setIntensity"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+        
+        - label_list:
+          - label: "Visualize (count, px)"
+            path: "visualize"
+          property:
+            type: text
+            default_value: [0, 2]
+            units: NO_UNITS
+            default_unit_index: null
+        
+        - label_list:
+          - label: "Visualize (color)"
+            path: "visualize"
+          property:
+            type: dropdown
+            default_value: ["yellow"]
+            value_list: COLORS
+        
+      gps:
+        - label_list:
+          - label: "Particle"
+            path: "gps/particle"
+          property:
+            type: dropdown
+            default_value: ["gamma"]
+            value_list: SOURCE_PARTICLES
+
+        - label_list:
+          - label: "Ion(Z,A,Q,E_keV)"
+            path: "gps/ion"
+          property:
+            type: text
+            default_value: [0, 0, 0, 0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Forced Unstable"
+            path: "setForcedUnstableFlag"
+          property:
+            type: checkbox
+            default_value: [False]
+
+        - label_list:
+          - label: "Half-life"
+            path: "setForcedHalfLife"
+          property:
+            type: text
+            default_value: [0]
+            units: TIME_UNITS
+            default_unit_index: 0
+
+        - label_list:
+          - label: "Energy distribution"
+            path: "gps/energytype"
+          property:
+            type: dropdown
+            default_value: ["Mono"]
+            value_list: SOURCE_ENERGY_TYPES
+
+        - label_list:
+          - label: "Mono energy"
+            path: "gps/monoenergy"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+
+        - label_list:
+          - label: "UserSpectrum file"
+            path: "gps/setSpectrumFile"
+          property:
+            type: select
+            default_value: [null]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Per-source Intensity"
+            path: "setIntensity"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Angular type"
+            path: "gps/angtype"
+          property:
+            type: dropdown
+            default_value: ["iso"]
+            value_list: SOURCE_ANG_TYPES
+
+        - label_list:
+          - label: "min theta"
+            path: "gps/mintheta"
+          - label: "max theta"
+            path: "gps/maxtheta"
+          - label: "min phi"
+            path: "gps/minphi"
+          - label: "max phi"
+            path: "gps/maxphi"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Domain"
+            path: "gps/type"
+          property:
+            type: dropdown
+            default_value: ["Point"]
+            value_list: SOURCE_DOMAINS
+
+        - label_list:
+          - label: "Shape"
+            path: "gps/shape"
+          property:
+            type: dropdown
+            default_value: ["Sphere"]
+            value_list: SOURCE_VOLUME_SHAPES
+
+        - label_list:
+          - label: "radius"
+            path: "gps/radius"
+          - label: "half z"
+            path: "gps/halfz"
+          - label: "half x"
+            path: "gps/halfx"
+          - label: "half y"
+            path: "gps/halfy"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "centre (x,y,z)"
+            path: "gps/centre"
+          property:
+            type: text
+            default_value: [0, 0, 0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Attach to volume"
+            path: "attachTo"
+          - label: "Confine (vol_phys)"
+            path: "gps/confine"
+          property:
+            type: text
+            default_value: [""]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Special type"
+            path: "setType"
+          property:
+            type: dropdown
+            default_value: [" - "]
+            value_list: SPECIAL_SOURCE_TYPES
+
+        - label_list:
+          - label: "Accolinearity"
+            path: "setAccolinearityFlag"
+          property:
+            type: checkbox
+            default_value: [False]
+
+        - label_list:
+          - label: "Accolinearity FWHM"
+            path: "setAccoValue"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+      pencil_beam:
+        - label_list:
+          - label: "Particle"
+            path: "setParticleType"
+          property:
+            type: dropdown
+            default_value: ["proton"]
+            value_list: SOURCE_PARTICLES
+
+        - label_list:
+          - label: "Ion(Z,A,Q,E_keV)"
+            path: "setIonProperties"
+          property:
+            type: text
+            default_value: [0, 0, 0, 0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Mean Energy"
+            path: "setEnergy"
+          - label: "Sigma Energy"
+            path: "setSigmaEnergy"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 2
+
+        - label_list:
+          - label: "Position (x,y,z)"
+            path: "setPosition"
+          property:
+            type: text
+            default_value: [0, 0, 0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Sigma X"
+            path: "setSigmaX"
+          - label: "Sigma Y"
+            path: "setSigmaY"
+          property:
+            type: text
+            default_value: [0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Sigma Theta"
+            path: "setSigmaTheta"
+          - label: "Sigma Phi"
+            path: "setSigmaPhi"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Emittance X-Theta (mm*mrad)"
+            path: "setEllipseXThetaEmittance"
+          - label: "Emittance Y-Phi (mm*mrad)"
+            path: "setEllipseYPhiEmittance"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "X-Theta Rotation"
+            path: "setEllipseXThetaRotationNorm"
+          - label: "Y-Phi Rotation"
+            path: "setEllipseYPhiRotationNorm"
+          property:
+            type: dropdown
+            default_value: ["negative"]
+            value_list: ROTATION_DIRECTIONS
+
+        - label_list:
+          - label: "Rotation Axis (x,y,z)"
+            path: "setRotationAxis"
+          property:
+            type: text
+            default_value: [0, 0, 0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Rotation Angle"
+            path: "setRotationAngle"
+          property:
+            type: text
+            default_value: [0]
+            units: ANGLE_UNITS
+            default_unit_index: 3
+
+        - label_list:
+          - label: "Test flag"
+            path: "setTestFlag"
+          property:
+            type: checkbox
+            default_value: [False]
+
+      tps_pencil_beam:
+        - label_list:
+          - label: "Particle"
+            path: "setParticleType"
+          property:
+            type: dropdown
+            default_value: ["proton"]
+            value_list: SOURCE_PARTICLES
+
+        - label_list:
+          - label: "Plan description file"
+            path: "setPlan"
+          - label: "Source description file"
+            path: "setSourceDescriptionFile"
+          property:
+            type: select
+            default_value: [null]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Not allowed Field IDs (csv)"
+            path: "setNotAllowedFieldID"
+          - label: "Allowed Field ID"
+            path: "setAllowedFieldID"
+          - label: "Select Layer ID"
+            path: "selectLayerID"
+          - label: "Select Spot ID"
+            path: "selectSpotID"
+          property:
+            type: text
+            default_value: [""]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Flat generation"
+            path: "setFlatGenerationFlag"
+          - label: "Sorted spot generation"
+            path: "setSortedSpotGenerationFlag"
+          property:
+            type: checkbox
+            default_value: [False]
+
+        - label_list:
+          - label: "Spot intensity is #ions"
+            path: "setSpotIntensityAsNbIons"
+          property:
+            type: checkbox
+            default_value: [True]
+
+        - label_list:
+          - label: "Beam convergence"
+            path: "setBeamConvergence"
+          - label: "Convergent X-Theta"
+            path: "setBeamConvergenceXTheta"
+          - label: "Convergent Y-Phi"
+            path: "setBeamConvergenceYPhi"
+          - label: "SigmaEnergy in MeV"
+            path: "setSigmaEnergyInMeVFlag"
+          - label: "Test flag"
+            path: "setTestFlag"
+          property:
+            type: checkbox
+            default_value: [False]
+
+      fast_i124:
+        - label_list:
+          - label: "Type"
+            path: "setType"
+          property:
+            type: dropdown
+            default_value: ["fastI124"]
+            value_list: ["fastI124"]
+
+        - label_list:
+          - label: "Forced Unstable"
+            path: "setForcedUnstableFlag"
+          property:
+            type: checkbox
+            default_value: [True]
+
+        - label_list:
+          - label: "Half-life"
+            path: "setForcedHalfLife"
+          property:
+            type: text
+            default_value: [0]
+            units: TIME_UNITS
+            default_unit_index: 0
+
+      fast_y90:
+        - label_list:
+          - label: "Min Brem Energy"
+            path: "setMinBremEnergy"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+
+        - label_list:
+          - label: "Positron probability"
+            path: "setPositronProbability"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Load voxelized phantom (hdr)"
+            path: "loadVoxelizedPhantom"
+          property:
+            type: select
+            default_value: [null]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Voxel pos (x,y,z)"
+            path: "setVoxelizedPhantomPosition"
+          property:
+            type: text
+            default_value: [0, 0, 0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+
+      extended:
+        - label_list:
+          - label: "Extended model"
+            path: "setType"
+          property:
+            type: dropdown
+            default_value: ["sg"]
+            value_list: EXTENDED_MODELS
+
+        - label_list:
+          - label: "Emission energy (sg only)"
+            path: "setEmissionEnergy"
+          property:
+            type: text
+            default_value: [511]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+
+        - label_list:
+          - label: "Fixed dir (x,y,z)"
+            path: "setFixedEmissionDirection"
+          property:
+            type: text
+            default_value: [0, 0, 1]
+            units: NO_UNITS
+            default_unit_index: null
+
+        - label_list:
+          - label: "Enable fixed dir"
+            path: "setEnableFixedEmissionDirection"
+          - label: "Enable de-excitation gamma"
+            path: "setEnableDeexcitation"
+          property:
+            type: checkbox
+            default_value: [False]
+
+        - label_list:
+          - label: "Prompt gamma energy"
+            path: "setPromptGammaEnergy"
+          property:
+            type: text
+            default_value: [0.0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+
+        - label_list:
+          - label: "Positronium lifetime (pPs/oPs,value,unit)"
+            path: "setPostroniumLifetime"
+          property:
+            type: text
+            default_value: ["pPs", 0.125, "ns"]
+            units: TIME_UNITS
+            default_unit_index: 0
+
+        - label_list:
+          - label: "Ps fraction (pPs/oPs,prob)"
+            path: "setPositroniumFraction"
+          property:
+            type: text
+            default_value: ["pPs", 0.5]
+            units: NO_UNITS
+            default_unit_index: null
+      
+    output:
+      - label_list:
+        - label: "[ASCII Output]"
+          path: ""
+        property:
+          type: label
+
+      - label_list:
+        - label: "Enable ASCII output"
+          path: "output/ascii/enable"
+        property:
+          type: checkbox
+          default_value: [True]
+
+      - label_list:
+        - label: "ASCII output filename"
+          path: "output/ascii/setFileName"
+        property:
+          type: text
+          default_value: [""]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Write hits file"
+          path: "output/ascii/setOutFileHitsFlag"
+        - label: "Write singles file"
+          path: "output/ascii/setOutFileSinglesFlag"
+        - label: "Write coincidences file"
+          path: "output/ascii/setOutFileCoincidencesFlag"
+        property:
+          type: checkbox
+          default_value: [True]
+
+      - label_list:
+        - label: "Digitizer name (for singles tree flag)"
+          path: "output/ascii/__digitizerName"
+        property:
+          type: text
+          default_value: [""]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Output for singles (resolved at export)"
+          path: "output/ascii/setOutFileSingles<digitizerName>Flag"
+        property:
+          type: checkbox
+          default_value: [True]
+
+      - label_list:
+        - label: "Coincidence mask (0/1 …)"
+          path: "output/ascii/setCoincidenceMask"
+        property:
+          type: text
+          default_value: ["000000"]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Single mask (0/1 …)"
+          path: "output/ascii/setSingleMask"
+        property:
+          type: text
+          default_value: ["0000"]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "File size limit (bytes)"
+          path: "output/ascii/setOutFileSizeLimit"
+        property:
+          type: text
+          default_value: [2000000000]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "[ROOT Output]"
+          path: ""
+        property:
+          type: label
+
+      - label_list:
+        - label: "Enable ROOT ouput"
+          path: "output/root/enable"
+        property:
+          type: checkbox
+          default_value: [True]
+
+      - label_list:
+        - label: "ROOT output filename"
+          path: "output/root/setFileName"
+        property:
+          type: text
+          default_value: [""]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Generate Hit tree"
+          path: "output/root/setRootHitFlag"
+        - label: "Generate Singles tree"
+          path: "output/root/setRootSinglesFlag"
+        - label: "Generate Coincidences tree"
+          path: "output/root/setRootCoincidencesFlag"
+        - label: "Generate Ntuple tree"
+          path: "output/root/setRootNtupleFlag"
+        property:
+          type: checkbox
+          default_value: [True]
+
+      - label_list:
+        - label: "Adder Tree"
+          path: "output/root/setOutFileSinglesAdderFlag"
+        - label: "Readout Tree"
+          path: "output/root/setOutFileSinglesReadoutFlag"
+        - label: "Spblurring Tree"
+          path: "output/root/setOutFileSinglesSpblurringFlag"
+        - label: "Blurring Tree"
+          path: "output/root/setOutFileSinglesBlurringFlag"
+        - label: "Threshholder Tree"
+          path: "output/root/setOutFileSinglesThresholderFlag"
+        - label: "Upholder Tree"
+          path: "output/root/setOutFileSinglesUpholderFlag"
+        property:
+          type: checkbox
+          default_value: [False]
+
+      - label_list:
+        - label: "[ROOT Online Plotter]"
+          path: ""
+        property:
+          type: label
+
+      - label_list:
+        - label: "Enable ROOT online plotter"
+          path: "output/plotter/enable"
+        - label: "Show Plotter"
+          path: "output/plotter/showPlotter"
+        property:
+          type: checkbox
+          default_value: [False]
+
+      - label_list:
+        - label: "Amount of Columns"
+          path: "output/plotter/setNColumns"
+        - label: "Plot Height"
+          path: "output/plotter/setPlotHeight"
+        - label: "Plot Width"
+          path: "output/plotter/setPlotWidth"
+        property:
+          type: text
+          default_value: [0]
+          units: NO_UNITS
+          default_unit_index: null
+    
+    acquisition:
+      - label_list:
+        - label: "Total primaries (split over time)"
+          path: "application/setTotalNumberOfPrimaries"
+        property:
+          type: text
+          default_value: ["NaN"]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Primaries per slice (weight by duration)"
+          path: "application/setNumberOfPrimariesPerRun"
+        property:
+          type: text
+          default_value: ["NaN"]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Primaries per slice (from file)"
+          path: "application/readNumberOfPrimariesInAFile"
+        property:
+          type: select
+          default_value: [null]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Time slice"
+          path: "application/setTimeSlice"
+        property:
+          type: text
+          default_value: [1]
+          units: TIME_UNITS
+          default_unit_index: 0
+
+      - label_list:
+        - label: "Time start"
+          path: "application/setTimeStart"
+        property:
+          type: text
+          default_value: [0]
+          units: TIME_UNITS
+          default_unit_index: 0
+
+      - label_list:
+        - label: "Time stop"
+          path: "application/setTimeStop"
+        property:
+          type: text
+          default_value: [2]
+          units: TIME_UNITS
+          default_unit_index: 0
+
+      - label_list:
+        - label: "Read slice times (file)"
+          path: "application/readTimeSlicesIn"
+        property:
+          type: select
+          default_value: [null]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Add slice (value, unit)"
+          path: "application/addSlice"
+        property:
+          type: text
+          default_value: [0]
+          units: TIME_UNITS
+          default_unit_index: 0
+
+      - label_list:
+        - label: "Seed mode"
+          path: "random/setEngineSeed"
+        property:
+          type: dropdown
+          default_value: ["default"]
+          value_list: RANDOM_SEED_MODE
+
+      - label_list:
+        - label: "Manual seed (0..900000000)"
+          path: "random/setEngineSeed (manual value)"
+        property:
+          type: text
+          default_value: [0]
+          units: NO_UNITS
+          default_unit_index: null
+
+      - label_list:
+        - label: "Random engine"
+          path: "random/setEngineName"
+        property:
+          type: dropdown
+          default_value: ["JamesRandom"]
+          value_list: RANDOM_ENGINES
+
+      - label_list:
+        - label: "Reset engine from seed file"
+          path: "random/resetEngineFrom"
+        property:
+          type: select
+          default_value: [null]
+          units: NO_UNITS
+          default_unit_index: null
+    
+    vis:
+      - label_list:
+        - label: "Viewer"
+          path: "open"
+        property:
+          type: dropdown
+          default_value: [2]
+          value_list: VIEWER_TYPES
+      
+      - label_list:
+        - label: "Pan to"
+          path: "viewer/panTo"
+        property:
+          type: text
+          default_value: [0, 0]
+          units: NO_UNITS
+          default_unit_index: null
+      
+      - label_list:
+        - label: "Zoom"
+          path: "viewer/zoom"
+        property:
+          type: text
+          default_value: [0.5]
+          units: NO_UNITS
+          default_unit_index: null
+      
+      - label_list:
+        - label: "Viewing Angle"
+          path: "viewer/set/viewpointThetaPhi"
+        property:
+          type: text
+          default_value: [90, 90]
+          units: NO_UNITS
+          default_unit_index: null
+      
+
+
+      
+
+
+
+        
+
+            
+        
+
+
+
+
+
+
+
+
+
+
+
+
+

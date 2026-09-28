@@ -44,7 +44,7 @@ INC_EXC = ["exclude", "include"]
 
 REPEATER_TYPES = [" - ", "linear", "ring", "cubicArray", "quadrant", "sphere", "genericRepeater"]
 
-VIEWER_TYPES = [" - ", "OGL", "OGLS","OGLSQt", "OGLSX", "OGLI", "OGLIQt", "OGLIX", "DAWNFILE", "VRML2FILE"]
+VIEWER_TYPES = ["-", "OGL", "OGLS","OGLSQt", "OGLSX", "OGLI", "OGLIQt", "OGLIX", "DAWNFILE", "VRML2FILE"]
 
 #
 # Scanner:  There is no geometrical constraints on the five different components.

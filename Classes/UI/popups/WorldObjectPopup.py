@@ -88,7 +88,7 @@ class WorldObjectPopup(QDialog):
         new_obj = GObjectCreator.create_world_daughter(name, shape, self.material_db)
 
         if repeater_type != " - ":
-            repeater_params = RepeaterParameterBuilder.get_parameters(name, repeater_type)
+            repeater_params = GObjectCreator.build_repeater(name, repeater_type)
             new_obj.parameters.extend(repeater_params)
 
         if self.on_create_callback:

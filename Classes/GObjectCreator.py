@@ -168,56 +168,56 @@ class GObjectCreator():
     @staticmethod
     def build_repeater(base_path: str, repeater_type: str) -> list[GateParameter]:
         g = GObjectCreator
-        B = f"{base_path}"
+        B = f"/{base_path}"
         rp = repeater_type
 
         if rp == "linear":
             return [
-                g._txt(f"{B}/linear/setRepeatNumber", "Repeat Number", 1, 1, LENGTH_UNITS),
-                g._txtN(f"{B}/linear/setRepeatVector", "Repeat Vector (X, Y, Z)", 3, [0,0,1], [0,0,1], LENGTH_UNITS),
-                g._dd(f"{B}/linear/autoCenter", "Auto Center", "true", ["true","false"]),
+                g._txt(f"{B}/linear/setRepeatNumber", "Repeat Number", 1, 1),
+                g._txtN(f"{B}/linear/setRepeatVector", "Repeat Vector (X, Y, Z)", 3, [0,0,1], [0,0,1]),
+                g._cb(f"{B}/linear/autoCenter", "Auto Center", True),
             ]
 
         if rp == "ring":
             return [
-                g._txt(f"{B}/ring/setRepeatNumber", "Repeat Number", 1, 1, LENGTH_UNITS),
-                g._txtN(f"{B}/ring/setPoint1", "Axis Point 1 (X, Y, Z)", 3, [0,1,0], [0,1,0], LENGTH_UNITS),
-                g._txtN(f"{B}/ring/setPoint2", "Axis Point 2 (X, Y, Z)", 3, [0,0,0], [0,0,0], LENGTH_UNITS),
-                g._txt(f"{B}/ring/setFirstAngle", "First Angle", 0, 0, ANGLE_UNITS),
-                g._txt(f"{B}/ring/setAngularSpan", "Angular Span", 360, 360, ANGLE_UNITS),
+                g._txt(f"{B}/ring/setRepeatNumber", "Repeat Number", 1, 1),
+                g._txtN(f"{B}/ring/setPoint1", "Axis Point 1 (X, Y, Z)", 3, [0,1,0], [0,1,0], LENGTH_UNITS, 3),
+                g._txtN(f"{B}/ring/setPoint2", "Axis Point 2 (X, Y, Z)", 3, [0,0,0], [0,0,0], LENGTH_UNITS, 3),
+                g._txt(f"{B}/ring/setFirstAngle", "First Angle", 0, 0, ANGLE_UNITS, 3),
+                g._txt(f"{B}/ring/setAngularSpan", "Angular Span", 360, 360, ANGLE_UNITS, 3),
                 g._cb(f"{B}/ring/enableAutoRotation", "Auto Rotation", True),
             ]
 
         if rp == "cubicArray":
             return [
-                g._txt(f"{B}/cubicArray/setRepeatNumberX", "Repeat X", 1, 1, LENGTH_UNITS),
-                g._txt(f"{B}/cubicArray/setRepeatNumberY", "Repeat Y", 1, 1, LENGTH_UNITS),
-                g._txt(f"{B}/cubicArray/setRepeatNumberZ", "Repeat Z", 1, 1, LENGTH_UNITS),
-                g._txtN(f"{B}/cubicArray/setRepeatVector", "Repeat Vector (X, Y, Z)", 3, [0,5,15], [0,5,15], LENGTH_UNITS),
-                g._dd(f"{B}/cubicArray/autoCenter", "Auto Center", "true", ["true","false"]),
+                g._txt(f"{B}/cubicArray/setRepeatNumberX", "Repeat X", 1, 1),
+                g._txt(f"{B}/cubicArray/setRepeatNumberY", "Repeat Y", 1, 1),
+                g._txt(f"{B}/cubicArray/setRepeatNumberZ", "Repeat Z", 1, 1),
+                g._txtN(f"{B}/cubicArray/setRepeatVector", "Repeat Vector (X, Y, Z)", 3, [0,5,15], [0,5,15]),
+                g._cb(f"{B}/cubicArray/autoCenter", "Auto Center", True),
             ]
 
         if rp == "quadrant":
             return [
-                g._txt(f"{B}/quadrant/setLineNumber", "Line Number", 5, 5, LENGTH_UNITS),
-                g._txt(f"{B}/quadrant/setOrientation", "Orientation", 90, 90, ANGLE_UNITS),
-                g._txt(f"{B}/quadrant/setCopySpacing", "Copy Spacing", 6, 6, LENGTH_UNITS),
-                g._txt(f"{B}/quadrant/setMaxRange", "Max Range", 30, 30, LENGTH_UNITS),
+                g._txt(f"{B}/quadrant/setLineNumber", "Line Number", 5, 5),
+                g._txt(f"{B}/quadrant/setOrientation", "Orientation", 90, 90, ANGLE_UNITS, 3),
+                g._txt(f"{B}/quadrant/setCopySpacing", "Copy Spacing", 6, 6, LENGTH_UNITS, 3),
+                g._txt(f"{B}/quadrant/setMaxRange", "Max Range", 30, 30, LENGTH_UNITS, 3),
             ]
 
         if rp == "sphere":
             return [
-                g._txt(f"{B}/sphere/setRadius", "Sphere Radius", 25, 25, LENGTH_UNITS),
-                g._txt(f"{B}/sphere/setRepeatNumberWithTheta", "Repeat With Theta", 10, 10, LENGTH_UNITS),
-                g._txt(f"{B}/sphere/setRepeatNumberWithPhi", "Repeat With Phi", 3, 3, LENGTH_UNITS),
-                g._txt(f"{B}/sphere/setThetaAngle", "Theta Angle", 36, 36, ANGLE_UNITS),
-                g._txt(f"{B}/sphere/setPhiAngle", "Phi Angle", 20, 20, ANGLE_UNITS),
+                g._txt(f"{B}/sphere/setRadius", "Sphere Radius", 25, 25, LENGTH_UNITS, 3),
+                g._txt(f"{B}/sphere/setRepeatNumberWithTheta", "Repeat With Theta", 10, 10),
+                g._txt(f"{B}/sphere/setRepeatNumberWithPhi", "Repeat With Phi", 3, 3),
+                g._txt(f"{B}/sphere/setThetaAngle", "Theta Angle", 36, 36, ANGLE_UNITS, 3),
+                g._txt(f"{B}/sphere/setPhiAngle", "Phi Angle", 20, 20, ANGLE_UNITS, 3),
             ]
 
         if rp == "genericRepeater":
             return [
                 g._sel(f"{B}/genericRepeater/setPlacementsFilename", "Placement File"),
-                g._dd(f"{B}/genericRepeater/useRelativeTranslation", "Relative Translation", "1", ["0","1"]),
+                g._cb(f"{B}/genericRepeater/useRelativeTranslation", "Relative Translation", True),
             ]
 
         return []

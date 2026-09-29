@@ -39,6 +39,123 @@ gate:
     SPECIAL_SOURCE_TYPES: [" - ", "backtoback"]
     ROTATION_DIRECTIONS: ["negative", "positive"]
     EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
+    SYSTEM_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystem"]
+    SD_TYPE: [" - ", "crystalSD", "phantomSD"]
+  system_components:
+    scanner: 
+      - name: "level1"
+        shape: "any"
+        depth: 1
+      - name: "level2"
+        shape: "any"
+        depth: 2
+      - name: "level3"
+        shape: "any"
+        depth: 3
+      - name: "level4"
+        shape: "any"
+        depth: 4
+      - name: "level5"
+        shape: "any"
+        depth: 5
+
+    CTscanner:
+      - name: "module"
+        shape: "box"
+        depth: 1
+      - name: "cluster"
+        shape: "box"
+        depth: 2
+      - name: "pixel"
+        shape: "box"
+        depth: 3
+
+    CPET:
+      - name: "sector"
+        shape: "cylinder"
+        depth: 1
+      - name: "cassette"
+        shape: "cylinder"
+        depth: 2
+      - name: "module"
+        shape: "box"
+        depth: 3
+      - name: "crystal"
+        shape: "box"
+        depth: 4
+      - name: "layer"
+        shape: "box"
+        depth: 5
+    
+    cylindricalPET:
+      - name: "rsector"
+        shape: "box"
+        depth: 1
+      - name: "module"
+        shape: "box"
+        depth: 2
+      - name: "submodule"
+        shape: "box"
+        depth: 3
+      - name: "crystal"
+        shape: "box"
+        depth: 4
+      - name: "layer"
+        shape: "box"
+        depth: 5
+    
+    SPECThead:
+      - name: "crystal"
+        shape: "any"
+        depth: 1
+      - name: "pixel"
+        shape: "any"
+        depth: 2
+      
+    ecat:
+      - name: "block"
+        shape: "box"
+        depth: 1
+      - name: "crystal"
+        shape: "box"
+        depth: 2
+    
+    ecatAccel:
+      - name: "block"
+        shape: "box"
+        depth: 1
+      - name: "crystal"
+        shape: "box"
+        depth: 2
+    
+    OPET:
+      - name: "rsector"
+        shape: "box"
+        depth: 1
+      - name: "module"
+        shape: "box"
+        depth: 2
+      - name: "submodule"
+        shape: "box"
+        depth: 3
+      - name: "crystal"
+        shape: "box"
+        depth: 4
+      - name: "layer"
+        shape: "wedge"
+        depth: 5
+
+    OpticalSystem:
+      - name: "crystal"
+        shape: "any"
+        depth: 1
+      - name: "pixel"
+        shape: "any"
+        depth: 2
+
+
+
+    CTscanner: ["module", "cluster", "pixel"]
 
   parameter:
     volume:
@@ -768,7 +885,31 @@ gate:
               path: "genericRepeater/useRelativeTranslation"
             property:
               type: checkbox
-              default_value: [True]
+              default_value: [True]         
+
+      attach_system:
+        - label_list:
+          - label: "Attach System"
+            path: ""
+          property:
+            type: "label"
+        
+        - label_list:
+          - label: "Level selection"
+            path: "attach"
+          property:
+            type: "dynamic_dropdown"
+            default_value: [0]
+            value_list_tag: "system_level_list" # This is a tag to reference in the Controller section to generate the right list 
+      
+        - label_list:
+          - label: "Attach sensitive dectector"
+            path: attachCrystalSD
+          property:
+            type: dropdown
+            default_value: [0]
+            value_list: "SD_TYPE"
+            
 
     physics:
       - label_list:
@@ -1588,7 +1729,21 @@ gate:
           units: NO_UNITS
           default_unit_index: null
       
-
+    system:
+      general:
+        - label_list:
+          - label: "System definition"
+            path: ""
+          property:
+            type: "label"
+        
+        - label_list:
+          - label: "System Structure Type"
+            path: ""
+          property:
+            type: "dropdown"
+            default_value: [0]
+            value_list: "SYSTEM_STRUCTURE_TYPE"
 
       
 

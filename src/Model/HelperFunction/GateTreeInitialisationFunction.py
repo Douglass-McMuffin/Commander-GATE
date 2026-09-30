@@ -131,7 +131,20 @@ class GateTreeHelper(metaclass=SingletonMeta):
 
         return [GateParameter("", label_path_dict["label"], type_input, None, None, None) for label_path_dict in param["label_list"]]
 
-    ### Physic factory
+    def createParamDynamicDropdown(self, name: str, param: dict, pathFormater: function):
+        # Get the value out of "property"
+        type_input: str = param["property"]["type"]
+        default_value: list[any] = param["property"]["default_value"]
+        value_list_tag: str = param["property"]["value_list_tag"]
+
+        value_list: list[str] = self.getValueListFromValueListTag(value_list_tag)
+
+
+    def getValueListFromValueListTag(self, valueListTag: str):
+        pass
+
+
+    ### gate children factories
     
     def createPhysics(self) -> GateObject:
         physicsYamlData = self.yamlData["gate"]["parameter"]["physics"]

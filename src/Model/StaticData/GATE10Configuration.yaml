@@ -900,7 +900,7 @@ gate:
           property:
             type: "dynamic_dropdown"
             default_value: [0]
-            value_list_tag: "system_level_list" # This is a tag to reference in the Controller section to generate the right list 
+            value_list_tag: "gate/system/System Structure Type" # This is a tag to reference in the Controller section to generate the right list 
       
         - label_list:
           - label: "Attach sensitive dectector"

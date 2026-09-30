@@ -1,4 +1,4 @@
-from Classes.GateParameter import GateParameter
+from GateParameter import GateParameter
 
 class GateObject(object):
     def __init__(self, path: str, name: str, mother: GateObject = None, param: list[GateParameter] = []):
@@ -6,7 +6,7 @@ class GateObject(object):
         self.name: str = name
         self.mother: GateObject = mother
         self.param: list[GateParameter] = param
-        self.children: list[GateObject] = []
+        self.children: dict[GateObject] = {}
         
 
         # The following caracteristic are going to be a GateParameter :

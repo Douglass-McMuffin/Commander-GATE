@@ -21,7 +21,7 @@ class GateParameter(object):
     def to_dict(self):
         return {
             "path": self.path,
-            "name": self.displayed_name,
+            "name": self.displayed_label,
             "input_types": self.input_type_list,
             "default_values": self.default_value_list,
             "values": self.value_list,

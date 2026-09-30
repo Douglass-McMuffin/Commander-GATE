@@ -1,5 +1,16 @@
 
 gate:
+  object_path:
+    GATE: "gate"
+    SYSTEMS: "gate/systems"
+    PHYSICS: "gate/physics"
+    SOURCE: "gate/source"
+    DIGITIZER: "gate/digitizer"
+    OUTPUT: "gate/output"
+    ACQUISITION: "gate/acquisition"
+    VERBOSE: "gate/verbose"
+    WORLD: "gate/world"
+    VIS: "vis"
   units:
     LENGTH_UNITS : ['pc', 'km', 'm', 'cm', 'mm', 'mum', 'nm', 'Ang']
     SURFACE_UNITS : ['km2', 'm2', 'cm2', 'mm2']
@@ -39,134 +50,55 @@ gate:
     SPECIAL_SOURCE_TYPES: [" - ", "backtoback"]
     ROTATION_DIRECTIONS: ["negative", "positive"]
     EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
-    SYSTEM_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystem"]
-    SD_TYPE: [" - ", "crystalSD", "phantomSD"]
-  system_components:
-    scanner: 
-      - name: "level1"
-        shape: "any"
-        depth: 1
-      - name: "level2"
-        shape: "any"
-        depth: 2
-      - name: "level3"
-        shape: "any"
-        depth: 3
-      - name: "level4"
-        shape: "any"
-        depth: 4
-      - name: "level5"
-        shape: "any"
-        depth: 5
+    SYSTEMS_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystems"]
+    SD_TYPE: ["CrystalSD", "PhantomSD"]
+  systems_components:
+    scanner:
+      component: ["level1", "level2", "level3", "level4", "level5"]
+      geometry: ["any", "any", "any", "any", "any"]
 
     CTscanner:
-      - name: "module"
-        shape: "box"
-        depth: 1
-      - name: "cluster"
-        shape: "box"
-        depth: 2
-      - name: "pixel"
-        shape: "box"
-        depth: 3
+      component: ["module", "cluster", "pixel"]
+      geometry: ["box", "box", "box"]
 
     CPET:
-      - name: "sector"
-        shape: "cylinder"
-        depth: 1
-      - name: "cassette"
-        shape: "cylinder"
-        depth: 2
-      - name: "module"
-        shape: "box"
-        depth: 3
-      - name: "crystal"
-        shape: "box"
-        depth: 4
-      - name: "layer"
-        shape: "box"
-        depth: 5
+      component: ["sector", "cassette", "module", "crystal", "layer"]
+      geometry: ["cylinder", "cylinder", "box", "box", "box"]
     
     cylindricalPET:
-      - name: "rsector"
-        shape: "box"
-        depth: 1
-      - name: "module"
-        shape: "box"
-        depth: 2
-      - name: "submodule"
-        shape: "box"
-        depth: 3
-      - name: "crystal"
-        shape: "box"
-        depth: 4
-      - name: "layer"
-        shape: "box"
-        depth: 5
+      component: ["rsector", "module", "submodule", "crystal", "layer"]
+      geometry: ["box", "box", "box", "box", "box"]
     
     SPECThead:
-      - name: "crystal"
-        shape: "any"
-        depth: 1
-      - name: "pixel"
-        shape: "any"
-        depth: 2
+      component: ["crystal", "pixel"]
+      geometry: ["any", "any"]
       
     ecat:
-      - name: "block"
-        shape: "box"
-        depth: 1
-      - name: "crystal"
-        shape: "box"
-        depth: 2
+      component: ["block", "crystal"]
+      geometry: ["box", "box"]
     
     ecatAccel:
-      - name: "block"
-        shape: "box"
-        depth: 1
-      - name: "crystal"
-        shape: "box"
-        depth: 2
+      component: ["block", "crystal"]
+      geometry: ["box", "box"]
     
     OPET:
-      - name: "rsector"
-        shape: "box"
-        depth: 1
-      - name: "module"
-        shape: "box"
-        depth: 2
-      - name: "submodule"
-        shape: "box"
-        depth: 3
-      - name: "crystal"
-        shape: "box"
-        depth: 4
-      - name: "layer"
-        shape: "wedge"
-        depth: 5
+      component: ["rsector", "module", "submodule", "crystal", "layer"]
+      geometry: ["box", "box", "box", "box", "wedge"]
 
     OpticalSystem:
-      - name: "crystal"
-        shape: "any"
-        depth: 1
-      - name: "pixel"
-        shape: "any"
-        depth: 2
-
-
-
-    CTscanner: ["module", "cluster", "pixel"]
+      component: ["crystal", "pixel"]
+      geometry: ["any", "any"]
 
   parameter:
     volume:
       box:
         - label_list:
             - label: "X Length"
-              path: "setXLength"
+              macro: "setXLength"
             - label: "Y Length"
-              path: "setYLength"
+              macro: "setYLength"
             - label: "Z Length"
-              path: "setZLength"
+              macro: "setZLength"
           property:
             type: text
             default_value: [0]
@@ -176,9 +108,9 @@ gate:
       sphere:
         - label_list:
             - label: "Internal Radius"
-              path: "setRmin"
+              macro: "setRmin"
             - label: "External Radius"
-              path: "setRmax"
+              macro: "setRmax"
           property:
             type: text
             default_value: [0]
@@ -186,13 +118,13 @@ gate:
             default_unit_index: 3
         - label_list:
             - label: "Start Phi Angle"
-              path: "setPhiStart"
+              macro: "setPhiStart"
             - label: "Phi Angular Span"
-              path: "setDeltaPhi"
+              macro: "setDeltaPhi"
             - label: "Start Theta Angle"
-              path: "setThetaStart"
+              macro: "setThetaStart"
             - label: "Theta Angular Span"
-              path: "setDeltaTheta"
+              macro: "setDeltaTheta"
           property:
             type: text
             default_value: [0]
@@ -202,11 +134,11 @@ gate:
       cylinder:
         - label_list:
             - label: "Internal Radius"
-              path: "setRmin"
+              macro: "setRmin"
             - label: "External Radius"
-              path: "setRmax"
+              macro: "setRmax"
             - label: "Height"
-              path: "setHeight"
+              macro: "setHeight"
           property:
             type: text
             default_value: [0]
@@ -214,9 +146,9 @@ gate:
             default_unit_index: 3
         - label_list:
             - label: "Start Phi Angle"
-              path: "setPhiStart"
+              macro: "setPhiStart"
             - label: "Phi Angular Span"
-              path: "setDeltaPhi"
+              macro: "setDeltaPhi"
           property:
             type: text
             default_value: [0]
@@ -226,15 +158,15 @@ gate:
       cone:
         - label_list:
             - label: "Internal Radius 1"
-              path: "setRmin1"
+              macro: "setRmin1"
             - label: "External Radius 1"
-              path: "setRmax1"
+              macro: "setRmax1"
             - label: "Internal Radius 2"
-              path: "setRmin2"
+              macro: "setRmin2"
             - label: "External Radius 2"
-              path: "setRmax2"
+              macro: "setRmax2"
             - label: "Height"
-              path: "setHeight"
+              macro: "setHeight"
           property:
             type: text
             default_value: [0]
@@ -242,9 +174,9 @@ gate:
             default_unit_index: 3
         - label_list:
             - label: "Start Phi Angle"
-              path: "setPhiStart"
+              macro: "setPhiStart"
             - label: "Phi Angular Span"
-              path: "setDeltaPhi"
+              macro: "setDeltaPhi"
           property:
             type: text
             default_value: [0]
@@ -254,15 +186,15 @@ gate:
       ellipsoid:
         - label_list:
             - label: "Half Axis Length X"
-              path: "setXLength"
+              macro: "setXLength"
             - label: "Half Axis Length Y"
-              path: "setYLength"
+              macro: "setYLength"
             - label: "Half Axis Length Z"
-              path: "setZLength"
+              macro: "setZLength"
             - label: "Z Bottom Cut"
-              path: "setZBottomCut"
+              macro: "setZBottomCut"
             - label: "Z Top Cut"
-              path: "setZTopCut"
+              macro: "setZTopCut"
           property:
             type: text
             default_value: [0]
@@ -272,11 +204,11 @@ gate:
       elliptical tube:
         - label_list:
             - label: "Semimajor Axis Length"
-              path: "setLong"
+              macro: "setLong"
             - label: "Semiminor Axis Length"
-              path: "setShort"
+              macro: "setShort"
             - label: "Height"
-              path: "setHeight"
+              macro: "setHeight"
           property:
             type: text
             default_value: [0]
@@ -286,9 +218,9 @@ gate:
       hexagon:
         - label_list:
             - label: "Radius"
-              path: "setRadius"
+              macro: "setRadius"
             - label: "Height"
-              path: "setHeight"
+              macro: "setHeight"
           property:
             type: text
             default_value: [0]
@@ -298,13 +230,13 @@ gate:
       wedge:
         - label_list:
             - label: "Shorter Side Length X"
-              path: "setNarrowerXLength"
+              macro: "setNarrowerXLength"
             - label: "Wedge Length X"
-              path: "setXLength"
+              macro: "setXLength"
             - label: "Wedge Length Y"
-              path: "setYLength"
+              macro: "setYLength"
             - label: "Wedge Length Z"
-              path: "setZLength"
+              macro: "setZLength"
           property:
             type: text
             default_value: [0]
@@ -314,15 +246,13 @@ gate:
       tet-mesh-box:
         - label_list:
             - label: "Path to .ele File"
-              path: "setPathToELEFile"
+              macro: "setPathToELEFile"
           property:
             type: select
             default_value: [null]
-            units: NO_UNITS
-            default_unit_index: null
         - label_list:
             - label: "Unit of Length"
-              path: "setUnitOfLength"
+              macro: "setUnitOfLength"
           property:
             type: dropdown
             default_value: [pc]
@@ -330,26 +260,39 @@ gate:
             default_unit_index: null
         - label_list:
             - label: "Path to Attribute Map"
-              path: "setPathToAttributeMap"
+              macro: "setPathToAttributeMap"
           property:
             type: select
             default_value: [null]
-            units: NO_UNITS
-            default_unit_index: null
     
       volume_general:
         volume_general_list: ["placement_parameters", "moving_parameters", "visualization_parameters"]
 
+        material:
+          - label_list:
+            - label: "Material Settings"
+              path: ""
+            property:
+              type: "label"
+          
+          - label_list:
+            - label: "Set Material"
+              path: "setMaterial"
+            property:
+            type: "material_dropdown"
+            default_value: [0]
+      
+
         placement_parameters:
           - label_list:
             - label: "Placement Settings"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list :
             - label: "Set Translation"
-              path: "placement/setTranslation"
+              macro: "placement/setTranslation"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -358,9 +301,9 @@ gate:
           
           - label_list:
             - label: "Phi Angle (XY Plane)"
-              path: "placement/setPhiOfTranslation"
+              macro: "placement/setPhiOfTranslation"
             - label: "Theta Angle (Z Axis)"
-              path: "placement/setThetaOfTranslation"
+              macro: "placement/setThetaOfTranslation"
             property:
               type: text
               default_value: [0]
@@ -369,7 +312,7 @@ gate:
           
           - label_list:
             - label: "Translation Magnitude"
-              path: "placement/setMagOfTranslation"
+              macro: "placement/setMagOfTranslation"
             property:
               type: text
               default_value: [0]
@@ -378,7 +321,7 @@ gate:
           
           - label_list:
             - label: "Rotation Axis"
-              path: "placement/setRotationAxis"
+              macro: "placement/setRotationAxis"
             property:
               type: dropdown
               default_value: [" - "]
@@ -386,7 +329,7 @@ gate:
           
           - label_list:
             - label: "Rotation Angle"
-              path: "placement/setRotationAngle"
+              macro: "placement/setRotationAngle"
             property:
               type: text
               default_value: [0]
@@ -395,9 +338,9 @@ gate:
           
           - label_list:
             - label: "Axis"
-              path: "placement/setAxis"
+              macro: "placement/setAxis"
             - label: "Align To Axis"
-              path: "placement/alignToX"
+              macro: "placement/alignToX"
             property:
               type: dropdown
               default_value: [" - "]
@@ -406,20 +349,20 @@ gate:
         moving_parameters:
           - label_list:
             - label: "Moving Settings"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Enable Translational Movement"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
           
           - label_list:
             - label: "Translation Speed"
-              path: "translation/setSpeed"
+              macro: "translation/setSpeed"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -428,14 +371,14 @@ gate:
 
           - label_list:
             - label: "Enable Rotational Movement"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Rotation Speed"
-              path: "rotation/setSpeed"
+              macro: "rotation/setSpeed"
             property:
               type: text
               default_value: [0]
@@ -444,7 +387,7 @@ gate:
 
           - label_list:
             - label: "Moving Rotation Axis"
-              path: "rotation/setAxis"
+              macro: "rotation/setAxis"
             property:
               type: dropdown
               default_value: [" - "]
@@ -452,14 +395,14 @@ gate:
 
           - label_list:
             - label: "Enable Orbiting Movement"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Orbiting Speed"
-              path: "orbiting/setSpeed"
+              macro: "orbiting/setSpeed"
             property:
               type: text
               default_value: [0]
@@ -468,9 +411,9 @@ gate:
 
           - label_list:
             - label: "Orbiting Point 1"
-              path: "orbiting/setPoint1"
+              macro: "orbiting/setPoint1"
             - label: "Orbiting Point 2"
-              path: "orbiting/setPoint2"
+              macro: "orbiting/setPoint2"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -479,14 +422,14 @@ gate:
 
           - label_list:
             - label: "Enable Wobbling Movement"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Wobbling Amplitude"
-              path: "osc-trans/setAmplitude"
+              macro: "osc-trans/setAmplitude"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -495,7 +438,7 @@ gate:
 
           - label_list:
             - label: "Wobbling Frequency"
-              path: "osc-trans/setFrequency"
+              macro: "osc-trans/setFrequency"
             property:
               type: text
               default_value: [0]
@@ -504,7 +447,7 @@ gate:
 
           - label_list:
             - label: "Wobbling Period"
-              path: "osc-trans/setPeriod"
+              macro: "osc-trans/setPeriod"
             property:
               type: text
               default_value: [0]
@@ -513,7 +456,7 @@ gate:
 
           - label_list:
             - label: "Wobbling Phase"
-              path: "osc-trans/setPhase"
+              macro: "osc-trans/setPhase"
             property:
               type: text
               default_value: [0]
@@ -522,14 +465,14 @@ gate:
 
           - label_list:
             - label: "Enable Eccentric Rotation"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Eccentric Rot Shift"
-              path: "eccent-rot/setSpeed"
+              macro: "eccent-rot/setSpeed"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -538,7 +481,7 @@ gate:
 
           - label_list:
             - label: "Eccentric Rot Speed"
-              path: "eccent-rot/setSpeed"
+              macro: "eccent-rot/setSpeed"
             property:
               type: text
               default_value: [0]
@@ -547,39 +490,35 @@ gate:
 
           - label_list:
             - label: "Enable Generic Movement"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Generic Movement Filepath"
-              path: "genericMove/setPlacementsFilename"
+              macro: "genericMove/setPlacementsFilename"
             property:
               type: select
               default_value: [null]
-              units: NO_UNITS
-              default_unit_index: null
 
           - label_list:
             - label: "Enable Generic Repeater Move"
-              path: "moves/insert"
+              macro: "moves/insert"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Generic Repeater Filepath"
-              path: "genericRepeaterMove/setPlacementsFilename"
+              macro: "genericRepeaterMove/setPlacementsFilename"
             property:
               type: select
               default_value: [null]
-              units: NO_UNITS
-              default_unit_index: null
 
           - label_list:
             - label: "Use Relative Translation"
-              path: "genericRepeaterMove/useRelativeTranslation"
+              macro: "genericRepeaterMove/useRelativeTranslation"
             property:
               type: checkbox
               default_value: [False]
@@ -587,13 +526,13 @@ gate:
         visualization_parameters:
           - label_list:
             - label: "Visualization Settings"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Color"
-              path: "setColor"
+              macro: "setColor"
             property:
               type: dropdown
               default_value: [0]
@@ -601,21 +540,21 @@ gate:
           
           - label_list:
             - label: "IsVisible"
-              path: "setVisible"
+              macro: "setVisible"
             property:
               type: checkbox
               default_value: [True]
 
           - label_list:
             - label: "Hide Daughters"
-              path: "setDaughtersInvisible"
+              macro: "setDaughtersInvisible"
             property:
               type: checkbox
               default_value: [False]
 
           - label_list:
             - label: "Line Style"
-              path: "setLineStyle"
+              macro: "setLineStyle"
             property:
               type: dropdown
               default_value: [0]
@@ -623,7 +562,7 @@ gate:
 
           - label_list:
             - label: "Line Width"
-              path: "setLineWidth"
+              macro: "setLineWidth"
             property:
               type: text
               default_value: [0]
@@ -632,9 +571,9 @@ gate:
 
           - label_list:
             - label: "Force Solid"
-              path: "forceSolid"
+              macro: "forceSolid"
             - label: "Force Wireframe"
-              path: "forceWireframe"
+              macro: "forceWireframe"
             property:
               type: checkbox
               default_value: [False]
@@ -645,13 +584,13 @@ gate:
         linear:
           - label_list:
             - label: "Insert Linear Repeater"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Repeat Number"
-              path: "linear/setRepeatNumber"
+              macro: "linear/setRepeatNumber"
             property:
               type: text
               default_value: [1]
@@ -660,7 +599,7 @@ gate:
 
           - label_list:
             - label: "Repeat Vector (X, Y, Z)"
-              path: "linear/setRepeatVector"
+              macro: "linear/setRepeatVector"
             property:
               type: text
               default_value: [0, 0, 1]
@@ -669,7 +608,7 @@ gate:
 
           - label_list:
             - label: "Auto Center"
-              path: "linear/autoCenter"
+              macro: "linear/autoCenter"
             property:
               type: checkbox
               default_value: [True]
@@ -677,13 +616,13 @@ gate:
         ring:
           - label_list:
             - label: "Insert Ring Repeater"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Repeat Number"
-              path: "ring/setRepeatNumber"
+              macro: "ring/setRepeatNumber"
             property:
               type: text
               default_value: [1]
@@ -692,7 +631,7 @@ gate:
 
           - label_list:
             - label: "Axis Point 1 (X, Y, Z)"
-              path: "ring/setPoint1"
+              macro: "ring/setPoint1"
             property:
               type: text
               default_value: [0, 1, 0]
@@ -701,7 +640,7 @@ gate:
 
           - label_list:
             - label: "Axis Point 2 (X, Y, Z)"
-              path: "ring/setPoint2"
+              macro: "ring/setPoint2"
             property:
               type: text
               default_value: [0, 0, 0]
@@ -710,7 +649,7 @@ gate:
 
           - label_list:
             - label: "First Angle"
-              path: "ring/setFirstAngle"
+              macro: "ring/setFirstAngle"
             property:
               type: text
               default_value: [0]
@@ -719,7 +658,7 @@ gate:
 
           - label_list:
             - label: "Angular Span"
-              path: "ring/setAngularSpan"
+              macro: "ring/setAngularSpan"
             property:
               type: text
               default_value: [360]
@@ -728,7 +667,7 @@ gate:
 
           - label_list:
             - label: "Auto Rotation"
-              path: "ring/enableAutoRotation"
+              macro: "ring/enableAutoRotation"
             property:
               type: checkbox
               default_value: [True]
@@ -736,17 +675,17 @@ gate:
         cubicArray:
           - label_list:
             - label: "Insert Cubic Array"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Repeat X"
-              path: "cubicArray/setRepeatNumberX"
+              macro: "cubicArray/setRepeatNumberX"
             - label: "Repeat Y"
-              path: "cubicArray/setRepeatNumberY"
+              macro: "cubicArray/setRepeatNumberY"
             - label: "Repeat Z"
-              path: "cubicArray/setRepeatNumberZ"
+              macro: "cubicArray/setRepeatNumberZ"
             property:
               type: text
               default_value: [1]
@@ -755,7 +694,7 @@ gate:
 
           - label_list:
             - label: "Repeat Vector (X, Y, Z)"
-              path: "cubicArray/setRepeatVector"
+              macro: "cubicArray/setRepeatVector"
             property:
               type: text
               default_value: [0, 5, 15]
@@ -764,7 +703,7 @@ gate:
 
           - label_list:
             - label: "Auto Center"
-              path: "cubicArray/autoCenter"
+              macro: "cubicArray/autoCenter"
             property:
               type: checkbox
               default_value: [True]
@@ -772,13 +711,13 @@ gate:
         quadrant:
           - label_list:
             - label: "Insert Quadrant"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Line Number"
-              path: "quadrant/setLineNumber"
+              macro: "quadrant/setLineNumber"
             property:
               type: text
               default_value: [5]
@@ -787,7 +726,7 @@ gate:
 
           - label_list:
             - label: "Orientation"
-              path: "quadrant/setOrientation"
+              macro: "quadrant/setOrientation"
             property:
               type: text
               default_value: [90]
@@ -796,7 +735,7 @@ gate:
 
           - label_list:
             - label: "Copy Spacing"
-              path: "quadrant/setCopySpacing"
+              macro: "quadrant/setCopySpacing"
             property:
               type: text
               default_value: [6]
@@ -805,7 +744,7 @@ gate:
 
           - label_list:
             - label: "Max Range"
-              path: "quadrant/setMaxRange"
+              macro: "quadrant/setMaxRange"
             property:
               type: text
               default_value: [30]
@@ -815,13 +754,13 @@ gate:
         sphere:
           - label_list:
             - label: "Insert Sphere Repeater"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Sphere Radius"
-              path: "sphere/setRadius"
+              macro: "sphere/setRadius"
             property:
               type: text
               default_value: [25]
@@ -830,7 +769,7 @@ gate:
 
           - label_list:
             - label: "Repeat With Theta"
-              path: "sphere/setRepeatNumberWithTheta"
+              macro: "sphere/setRepeatNumberWithTheta"
             property:
               type: text
               default_value: [10]
@@ -839,7 +778,7 @@ gate:
 
           - label_list:
             - label: "Repeat With Phi"
-              path: "sphere/setRepeatNumberWithPhi"
+              macro: "sphere/setRepeatNumberWithPhi"
             property:
               type: text
               default_value: [3]
@@ -848,7 +787,7 @@ gate:
 
           - label_list:
             - label: "Theta Angle"
-              path: "sphere/setThetaAngle"
+              macro: "sphere/setThetaAngle"
             property:
               type: text
               default_value: [36]
@@ -857,7 +796,7 @@ gate:
 
           - label_list:
             - label: "Phi Angle"
-              path: "sphere/setPhiAngle"
+              macro: "sphere/setPhiAngle"
             property:
               type: text
               default_value: [20]
@@ -867,54 +806,54 @@ gate:
         genericRepeater:
           - label_list:
             - label: "Insert Generic Repeater"
-              path: ""
+              macro: ""
             property:
               type: label
 
           - label_list:
             - label: "Placement File"
-              path: "genericRepeater/setPlacementsFilename"
+              macro: "genericRepeater/setPlacementsFilename"
             property:
               type: select
               default_value: [null]
-              units: NO_UNITS
-              default_unit_index: null
 
           - label_list:
             - label: "Relative Translation"
-              path: "genericRepeater/useRelativeTranslation"
+              macro: "genericRepeater/useRelativeTranslation"
             property:
               type: checkbox
               default_value: [True]         
 
-      attach_system:
+      attach_systems:
         - label_list:
-          - label: "Attach System"
-            path: ""
+          - label: "Attach Systems"
+            macro: ""
           property:
-            type: "label"
+            type: label
         
         - label_list:
           - label: "Level selection"
-            path: "attach"
+            macro: attach
           property:
-            type: "dynamic_dropdown"
+            type: dynamic_dropdown
             default_value: [0]
-            value_list_tag: "gate/system/System Structure Type" # This is a tag to reference in the Controller section to generate the right list 
+            object_path: ["SYSTEMS"] # This path direct to the gateObject to search. 
+            object_label: ["Systems Structure Type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+            list_path: "gate/systems_components/&0/component"
       
         - label_list:
           - label: "Attach sensitive dectector"
-            path: attachCrystalSD
+            macro: attach&0
           property:
-            type: dropdown
+            type: macro_dropdown
             default_value: [0]
-            value_list: "SD_TYPE"
+            value_list: SD_TYPE
             
-
     physics:
       - label_list:
         - label: "Physics List"
-          path: "addPhysicsList"
+          macro: "addPhysicsList"
         property:
           type: dropdown
           default_value: [0]
@@ -923,7 +862,7 @@ gate:
     digitizer:
       - label_list:
         - label: "Disable entire Digitizer"
-          path: "digitizerMgr/disable"
+          macro: "digitizerMgr/disable"
         property:
           type: checkbox
           default_value: [False]
@@ -932,7 +871,7 @@ gate:
       source_general:
         - label_list:
           - label: "Activity"
-            path: "setActivity"
+            macro: "setActivity"
           property:
             type: text
             default_value: [0.0, "Bq"]
@@ -941,7 +880,7 @@ gate:
         
         - label_list:
           - label: "Intensity (priority)"
-            path: "setIntensity"
+            macro: "setIntensity"
           property:
             type: text
             default_value: [0]
@@ -950,7 +889,7 @@ gate:
         
         - label_list:
           - label: "Visualize (count, px)"
-            path: "visualize"
+            macro: "visualize"
           property:
             type: text
             default_value: [0, 2]
@@ -959,7 +898,7 @@ gate:
         
         - label_list:
           - label: "Visualize (color)"
-            path: "visualize"
+            macro: "visualize"
           property:
             type: dropdown
             default_value: ["yellow"]
@@ -968,7 +907,7 @@ gate:
       gps:
         - label_list:
           - label: "Particle"
-            path: "gps/particle"
+            macro: "gps/particle"
           property:
             type: dropdown
             default_value: ["gamma"]
@@ -976,7 +915,7 @@ gate:
 
         - label_list:
           - label: "Ion(Z,A,Q,E_keV)"
-            path: "gps/ion"
+            macro: "gps/ion"
           property:
             type: text
             default_value: [0, 0, 0, 0]
@@ -985,14 +924,14 @@ gate:
 
         - label_list:
           - label: "Forced Unstable"
-            path: "setForcedUnstableFlag"
+            macro: "setForcedUnstableFlag"
           property:
             type: checkbox
             default_value: [False]
 
         - label_list:
           - label: "Half-life"
-            path: "setForcedHalfLife"
+            macro: "setForcedHalfLife"
           property:
             type: text
             default_value: [0]
@@ -1001,7 +940,7 @@ gate:
 
         - label_list:
           - label: "Energy distribution"
-            path: "gps/energytype"
+            macro: "gps/energytype"
           property:
             type: dropdown
             default_value: ["Mono"]
@@ -1009,7 +948,7 @@ gate:
 
         - label_list:
           - label: "Mono energy"
-            path: "gps/monoenergy"
+            macro: "gps/monoenergy"
           property:
             type: text
             default_value: [0]
@@ -1018,16 +957,14 @@ gate:
 
         - label_list:
           - label: "UserSpectrum file"
-            path: "gps/setSpectrumFile"
+            macro: "gps/setSpectrumFile"
           property:
             type: select
             default_value: [null]
-            units: NO_UNITS
-            default_unit_index: null
 
         - label_list:
           - label: "Per-source Intensity"
-            path: "setIntensity"
+            macro: "setIntensity"
           property:
             type: text
             default_value: [0]
@@ -1036,7 +973,7 @@ gate:
 
         - label_list:
           - label: "Angular type"
-            path: "gps/angtype"
+            macro: "gps/angtype"
           property:
             type: dropdown
             default_value: ["iso"]
@@ -1044,13 +981,13 @@ gate:
 
         - label_list:
           - label: "min theta"
-            path: "gps/mintheta"
+            macro: "gps/mintheta"
           - label: "max theta"
-            path: "gps/maxtheta"
+            macro: "gps/maxtheta"
           - label: "min phi"
-            path: "gps/minphi"
+            macro: "gps/minphi"
           - label: "max phi"
-            path: "gps/maxphi"
+            macro: "gps/maxphi"
           property:
             type: text
             default_value: [0]
@@ -1059,7 +996,7 @@ gate:
 
         - label_list:
           - label: "Domain"
-            path: "gps/type"
+            macro: "gps/type"
           property:
             type: dropdown
             default_value: ["Point"]
@@ -1067,7 +1004,7 @@ gate:
 
         - label_list:
           - label: "Shape"
-            path: "gps/shape"
+            macro: "gps/shape"
           property:
             type: dropdown
             default_value: ["Sphere"]
@@ -1075,13 +1012,13 @@ gate:
 
         - label_list:
           - label: "radius"
-            path: "gps/radius"
+            macro: "gps/radius"
           - label: "half z"
-            path: "gps/halfz"
+            macro: "gps/halfz"
           - label: "half x"
-            path: "gps/halfx"
+            macro: "gps/halfx"
           - label: "half y"
-            path: "gps/halfy"
+            macro: "gps/halfy"
           property:
             type: text
             default_value: [0]
@@ -1090,7 +1027,7 @@ gate:
 
         - label_list:
           - label: "centre (x,y,z)"
-            path: "gps/centre"
+            macro: "gps/centre"
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1099,9 +1036,9 @@ gate:
 
         - label_list:
           - label: "Attach to volume"
-            path: "attachTo"
+            macro: "attachTo"
           - label: "Confine (vol_phys)"
-            path: "gps/confine"
+            macro: "gps/confine"
           property:
             type: text
             default_value: [""]
@@ -1110,7 +1047,7 @@ gate:
 
         - label_list:
           - label: "Special type"
-            path: "setType"
+            macro: "setType"
           property:
             type: dropdown
             default_value: [" - "]
@@ -1118,14 +1055,14 @@ gate:
 
         - label_list:
           - label: "Accolinearity"
-            path: "setAccolinearityFlag"
+            macro: "setAccolinearityFlag"
           property:
             type: checkbox
             default_value: [False]
 
         - label_list:
           - label: "Accolinearity FWHM"
-            path: "setAccoValue"
+            macro: "setAccoValue"
           property:
             type: text
             default_value: [0]
@@ -1135,7 +1072,7 @@ gate:
       pencil_beam:
         - label_list:
           - label: "Particle"
-            path: "setParticleType"
+            macro: "setParticleType"
           property:
             type: dropdown
             default_value: ["proton"]
@@ -1143,7 +1080,7 @@ gate:
 
         - label_list:
           - label: "Ion(Z,A,Q,E_keV)"
-            path: "setIonProperties"
+            macro: "setIonProperties"
           property:
             type: text
             default_value: [0, 0, 0, 0]
@@ -1152,9 +1089,9 @@ gate:
 
         - label_list:
           - label: "Mean Energy"
-            path: "setEnergy"
+            macro: "setEnergy"
           - label: "Sigma Energy"
-            path: "setSigmaEnergy"
+            macro: "setSigmaEnergy"
           property:
             type: text
             default_value: [0]
@@ -1163,7 +1100,7 @@ gate:
 
         - label_list:
           - label: "Position (x,y,z)"
-            path: "setPosition"
+            macro: "setPosition"
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1172,9 +1109,9 @@ gate:
 
         - label_list:
           - label: "Sigma X"
-            path: "setSigmaX"
+            macro: "setSigmaX"
           - label: "Sigma Y"
-            path: "setSigmaY"
+            macro: "setSigmaY"
           property:
             type: text
             default_value: [0]
@@ -1183,9 +1120,9 @@ gate:
 
         - label_list:
           - label: "Sigma Theta"
-            path: "setSigmaTheta"
+            macro: "setSigmaTheta"
           - label: "Sigma Phi"
-            path: "setSigmaPhi"
+            macro: "setSigmaPhi"
           property:
             type: text
             default_value: [0]
@@ -1194,9 +1131,9 @@ gate:
 
         - label_list:
           - label: "Emittance X-Theta (mm*mrad)"
-            path: "setEllipseXThetaEmittance"
+            macro: "setEllipseXThetaEmittance"
           - label: "Emittance Y-Phi (mm*mrad)"
-            path: "setEllipseYPhiEmittance"
+            macro: "setEllipseYPhiEmittance"
           property:
             type: text
             default_value: [0]
@@ -1205,9 +1142,9 @@ gate:
 
         - label_list:
           - label: "X-Theta Rotation"
-            path: "setEllipseXThetaRotationNorm"
+            macro: "setEllipseXThetaRotationNorm"
           - label: "Y-Phi Rotation"
-            path: "setEllipseYPhiRotationNorm"
+            macro: "setEllipseYPhiRotationNorm"
           property:
             type: dropdown
             default_value: ["negative"]
@@ -1215,7 +1152,7 @@ gate:
 
         - label_list:
           - label: "Rotation Axis (x,y,z)"
-            path: "setRotationAxis"
+            macro: "setRotationAxis"
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1224,7 +1161,7 @@ gate:
 
         - label_list:
           - label: "Rotation Angle"
-            path: "setRotationAngle"
+            macro: "setRotationAngle"
           property:
             type: text
             default_value: [0]
@@ -1233,7 +1170,7 @@ gate:
 
         - label_list:
           - label: "Test flag"
-            path: "setTestFlag"
+            macro: "setTestFlag"
           property:
             type: checkbox
             default_value: [False]
@@ -1241,7 +1178,7 @@ gate:
       tps_pencil_beam:
         - label_list:
           - label: "Particle"
-            path: "setParticleType"
+            macro: "setParticleType"
           property:
             type: dropdown
             default_value: ["proton"]
@@ -1249,24 +1186,22 @@ gate:
 
         - label_list:
           - label: "Plan description file"
-            path: "setPlan"
+            macro: "setPlan"
           - label: "Source description file"
-            path: "setSourceDescriptionFile"
+            macro: "setSourceDescriptionFile"
           property:
             type: select
             default_value: [null]
-            units: NO_UNITS
-            default_unit_index: null
 
         - label_list:
           - label: "Not allowed Field IDs (csv)"
-            path: "setNotAllowedFieldID"
+            macro: "setNotAllowedFieldID"
           - label: "Allowed Field ID"
-            path: "setAllowedFieldID"
+            macro: "setAllowedFieldID"
           - label: "Select Layer ID"
-            path: "selectLayerID"
+            macro: "selectLayerID"
           - label: "Select Spot ID"
-            path: "selectSpotID"
+            macro: "selectSpotID"
           property:
             type: text
             default_value: [""]
@@ -1275,31 +1210,31 @@ gate:
 
         - label_list:
           - label: "Flat generation"
-            path: "setFlatGenerationFlag"
+            macro: "setFlatGenerationFlag"
           - label: "Sorted spot generation"
-            path: "setSortedSpotGenerationFlag"
+            macro: "setSortedSpotGenerationFlag"
           property:
             type: checkbox
             default_value: [False]
 
         - label_list:
           - label: "Spot intensity is #ions"
-            path: "setSpotIntensityAsNbIons"
+            macro: "setSpotIntensityAsNbIons"
           property:
             type: checkbox
             default_value: [True]
 
         - label_list:
           - label: "Beam convergence"
-            path: "setBeamConvergence"
+            macro: "setBeamConvergence"
           - label: "Convergent X-Theta"
-            path: "setBeamConvergenceXTheta"
+            macro: "setBeamConvergenceXTheta"
           - label: "Convergent Y-Phi"
-            path: "setBeamConvergenceYPhi"
+            macro: "setBeamConvergenceYPhi"
           - label: "SigmaEnergy in MeV"
-            path: "setSigmaEnergyInMeVFlag"
+            macro: "setSigmaEnergyInMeVFlag"
           - label: "Test flag"
-            path: "setTestFlag"
+            macro: "setTestFlag"
           property:
             type: checkbox
             default_value: [False]
@@ -1307,7 +1242,7 @@ gate:
       fast_i124:
         - label_list:
           - label: "Type"
-            path: "setType"
+            macro: "setType"
           property:
             type: dropdown
             default_value: ["fastI124"]
@@ -1315,14 +1250,14 @@ gate:
 
         - label_list:
           - label: "Forced Unstable"
-            path: "setForcedUnstableFlag"
+            macro: "setForcedUnstableFlag"
           property:
             type: checkbox
             default_value: [True]
 
         - label_list:
           - label: "Half-life"
-            path: "setForcedHalfLife"
+            macro: "setForcedHalfLife"
           property:
             type: text
             default_value: [0]
@@ -1332,7 +1267,7 @@ gate:
       fast_y90:
         - label_list:
           - label: "Min Brem Energy"
-            path: "setMinBremEnergy"
+            macro: "setMinBremEnergy"
           property:
             type: text
             default_value: [0]
@@ -1341,7 +1276,7 @@ gate:
 
         - label_list:
           - label: "Positron probability"
-            path: "setPositronProbability"
+            macro: "setPositronProbability"
           property:
             type: text
             default_value: [0]
@@ -1350,16 +1285,14 @@ gate:
 
         - label_list:
           - label: "Load voxelized phantom (hdr)"
-            path: "loadVoxelizedPhantom"
+            macro: "loadVoxelizedPhantom"
           property:
             type: select
             default_value: [null]
-            units: NO_UNITS
-            default_unit_index: null
 
         - label_list:
           - label: "Voxel pos (x,y,z)"
-            path: "setVoxelizedPhantomPosition"
+            macro: "setVoxelizedPhantomPosition"
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1369,7 +1302,7 @@ gate:
       extended:
         - label_list:
           - label: "Extended model"
-            path: "setType"
+            macro: "setType"
           property:
             type: dropdown
             default_value: ["sg"]
@@ -1377,7 +1310,7 @@ gate:
 
         - label_list:
           - label: "Emission energy (sg only)"
-            path: "setEmissionEnergy"
+            macro: "setEmissionEnergy"
           property:
             type: text
             default_value: [511]
@@ -1386,7 +1319,7 @@ gate:
 
         - label_list:
           - label: "Fixed dir (x,y,z)"
-            path: "setFixedEmissionDirection"
+            macro: "setFixedEmissionDirection"
           property:
             type: text
             default_value: [0, 0, 1]
@@ -1395,16 +1328,16 @@ gate:
 
         - label_list:
           - label: "Enable fixed dir"
-            path: "setEnableFixedEmissionDirection"
+            macro: "setEnableFixedEmissionDirection"
           - label: "Enable de-excitation gamma"
-            path: "setEnableDeexcitation"
+            macro: "setEnableDeexcitation"
           property:
             type: checkbox
             default_value: [False]
 
         - label_list:
           - label: "Prompt gamma energy"
-            path: "setPromptGammaEnergy"
+            macro: "setPromptGammaEnergy"
           property:
             type: text
             default_value: [0.0]
@@ -1413,7 +1346,7 @@ gate:
 
         - label_list:
           - label: "Positronium lifetime (pPs/oPs,value,unit)"
-            path: "setPostroniumLifetime"
+            macro: "setPostroniumLifetime"
           property:
             type: text
             default_value: ["pPs", 0.125, "ns"]
@@ -1422,7 +1355,7 @@ gate:
 
         - label_list:
           - label: "Ps fraction (pPs/oPs,prob)"
-            path: "setPositroniumFraction"
+            macro: "setPositroniumFraction"
           property:
             type: text
             default_value: ["pPs", 0.5]
@@ -1432,20 +1365,20 @@ gate:
     output:
       - label_list:
         - label: "[ASCII Output]"
-          path: ""
+          macro: ""
         property:
           type: label
 
       - label_list:
         - label: "Enable ASCII output"
-          path: "output/ascii/enable"
+          macro: "output/ascii/enable"
         property:
           type: checkbox
           default_value: [True]
 
       - label_list:
         - label: "ASCII output filename"
-          path: "output/ascii/setFileName"
+          macro: "output/ascii/setFileName"
         property:
           type: text
           default_value: [""]
@@ -1454,18 +1387,18 @@ gate:
 
       - label_list:
         - label: "Write hits file"
-          path: "output/ascii/setOutFileHitsFlag"
+          macro: "output/ascii/setOutFileHitsFlag"
         - label: "Write singles file"
-          path: "output/ascii/setOutFileSinglesFlag"
+          macro: "output/ascii/setOutFileSinglesFlag"
         - label: "Write coincidences file"
-          path: "output/ascii/setOutFileCoincidencesFlag"
+          macro: "output/ascii/setOutFileCoincidencesFlag"
         property:
           type: checkbox
           default_value: [True]
 
       - label_list:
         - label: "Digitizer name (for singles tree flag)"
-          path: "output/ascii/__digitizerName"
+          macro: "output/ascii/__digitizerName"
         property:
           type: text
           default_value: [""]
@@ -1474,14 +1407,14 @@ gate:
 
       - label_list:
         - label: "Output for singles (resolved at export)"
-          path: "output/ascii/setOutFileSingles<digitizerName>Flag"
+          macro: "output/ascii/setOutFileSingles<digitizerName>Flag"
         property:
           type: checkbox
           default_value: [True]
 
       - label_list:
         - label: "Coincidence mask (0/1 …)"
-          path: "output/ascii/setCoincidenceMask"
+          macro: "output/ascii/setCoincidenceMask"
         property:
           type: text
           default_value: ["000000"]
@@ -1490,7 +1423,7 @@ gate:
 
       - label_list:
         - label: "Single mask (0/1 …)"
-          path: "output/ascii/setSingleMask"
+          macro: "output/ascii/setSingleMask"
         property:
           type: text
           default_value: ["0000"]
@@ -1499,7 +1432,7 @@ gate:
 
       - label_list:
         - label: "File size limit (bytes)"
-          path: "output/ascii/setOutFileSizeLimit"
+          macro: "output/ascii/setOutFileSizeLimit"
         property:
           type: text
           default_value: [2000000000]
@@ -1508,20 +1441,20 @@ gate:
 
       - label_list:
         - label: "[ROOT Output]"
-          path: ""
+          macro: ""
         property:
           type: label
 
       - label_list:
         - label: "Enable ROOT ouput"
-          path: "output/root/enable"
+          macro: "output/root/enable"
         property:
           type: checkbox
           default_value: [True]
 
       - label_list:
         - label: "ROOT output filename"
-          path: "output/root/setFileName"
+          macro: "output/root/setFileName"
         property:
           type: text
           default_value: [""]
@@ -1530,56 +1463,56 @@ gate:
 
       - label_list:
         - label: "Generate Hit tree"
-          path: "output/root/setRootHitFlag"
+          macro: "output/root/setRootHitFlag"
         - label: "Generate Singles tree"
-          path: "output/root/setRootSinglesFlag"
+          macro: "output/root/setRootSinglesFlag"
         - label: "Generate Coincidences tree"
-          path: "output/root/setRootCoincidencesFlag"
+          macro: "output/root/setRootCoincidencesFlag"
         - label: "Generate Ntuple tree"
-          path: "output/root/setRootNtupleFlag"
+          macro: "output/root/setRootNtupleFlag"
         property:
           type: checkbox
           default_value: [True]
 
       - label_list:
         - label: "Adder Tree"
-          path: "output/root/setOutFileSinglesAdderFlag"
+          macro: "output/root/setOutFileSinglesAdderFlag"
         - label: "Readout Tree"
-          path: "output/root/setOutFileSinglesReadoutFlag"
+          macro: "output/root/setOutFileSinglesReadoutFlag"
         - label: "Spblurring Tree"
-          path: "output/root/setOutFileSinglesSpblurringFlag"
+          macro: "output/root/setOutFileSinglesSpblurringFlag"
         - label: "Blurring Tree"
-          path: "output/root/setOutFileSinglesBlurringFlag"
+          macro: "output/root/setOutFileSinglesBlurringFlag"
         - label: "Threshholder Tree"
-          path: "output/root/setOutFileSinglesThresholderFlag"
+          macro: "output/root/setOutFileSinglesThresholderFlag"
         - label: "Upholder Tree"
-          path: "output/root/setOutFileSinglesUpholderFlag"
+          macro: "output/root/setOutFileSinglesUpholderFlag"
         property:
           type: checkbox
           default_value: [False]
 
       - label_list:
         - label: "[ROOT Online Plotter]"
-          path: ""
+          macro: ""
         property:
           type: label
 
       - label_list:
         - label: "Enable ROOT online plotter"
-          path: "output/plotter/enable"
+          macro: "output/plotter/enable"
         - label: "Show Plotter"
-          path: "output/plotter/showPlotter"
+          macro: "output/plotter/showPlotter"
         property:
           type: checkbox
           default_value: [False]
 
       - label_list:
         - label: "Amount of Columns"
-          path: "output/plotter/setNColumns"
+          macro: "output/plotter/setNColumns"
         - label: "Plot Height"
-          path: "output/plotter/setPlotHeight"
+          macro: "output/plotter/setPlotHeight"
         - label: "Plot Width"
-          path: "output/plotter/setPlotWidth"
+          macro: "output/plotter/setPlotWidth"
         property:
           type: text
           default_value: [0]
@@ -1589,7 +1522,7 @@ gate:
     acquisition:
       - label_list:
         - label: "Total primaries (split over time)"
-          path: "application/setTotalNumberOfPrimaries"
+          macro: "application/setTotalNumberOfPrimaries"
         property:
           type: text
           default_value: ["NaN"]
@@ -1598,7 +1531,7 @@ gate:
 
       - label_list:
         - label: "Primaries per slice (weight by duration)"
-          path: "application/setNumberOfPrimariesPerRun"
+          macro: "application/setNumberOfPrimariesPerRun"
         property:
           type: text
           default_value: ["NaN"]
@@ -1607,16 +1540,14 @@ gate:
 
       - label_list:
         - label: "Primaries per slice (from file)"
-          path: "application/readNumberOfPrimariesInAFile"
+          macro: "application/readNumberOfPrimariesInAFile"
         property:
           type: select
           default_value: [null]
-          units: NO_UNITS
-          default_unit_index: null
 
       - label_list:
         - label: "Time slice"
-          path: "application/setTimeSlice"
+          macro: "application/setTimeSlice"
         property:
           type: text
           default_value: [1]
@@ -1625,7 +1556,7 @@ gate:
 
       - label_list:
         - label: "Time start"
-          path: "application/setTimeStart"
+          macro: "application/setTimeStart"
         property:
           type: text
           default_value: [0]
@@ -1634,7 +1565,7 @@ gate:
 
       - label_list:
         - label: "Time stop"
-          path: "application/setTimeStop"
+          macro: "application/setTimeStop"
         property:
           type: text
           default_value: [2]
@@ -1643,16 +1574,14 @@ gate:
 
       - label_list:
         - label: "Read slice times (file)"
-          path: "application/readTimeSlicesIn"
+          macro: "application/readTimeSlicesIn"
         property:
           type: select
           default_value: [null]
-          units: NO_UNITS
-          default_unit_index: null
 
       - label_list:
         - label: "Add slice (value, unit)"
-          path: "application/addSlice"
+          macro: "application/addSlice"
         property:
           type: text
           default_value: [0]
@@ -1661,7 +1590,7 @@ gate:
 
       - label_list:
         - label: "Seed mode"
-          path: "random/setEngineSeed"
+          macro: "random/setEngineSeed"
         property:
           type: dropdown
           default_value: ["default"]
@@ -1669,7 +1598,7 @@ gate:
 
       - label_list:
         - label: "Manual seed (0..900000000)"
-          path: "random/setEngineSeed (manual value)"
+          macro: "random/setEngineSeed (manual value)"
         property:
           type: text
           default_value: [0]
@@ -1678,7 +1607,7 @@ gate:
 
       - label_list:
         - label: "Random engine"
-          path: "random/setEngineName"
+          macro: "random/setEngineName"
         property:
           type: dropdown
           default_value: ["JamesRandom"]
@@ -1686,17 +1615,15 @@ gate:
 
       - label_list:
         - label: "Reset engine from seed file"
-          path: "random/resetEngineFrom"
+          macro: "random/resetEngineFrom"
         property:
           type: select
           default_value: [null]
-          units: NO_UNITS
-          default_unit_index: null
     
     vis:
       - label_list:
         - label: "Viewer"
-          path: "open"
+          macro: "open"
         property:
           type: dropdown
           default_value: [2]
@@ -1704,7 +1631,7 @@ gate:
       
       - label_list:
         - label: "Pan to"
-          path: "viewer/panTo"
+          macro: "viewer/panTo"
         property:
           type: text
           default_value: [0, 0]
@@ -1713,7 +1640,7 @@ gate:
       
       - label_list:
         - label: "Zoom"
-          path: "viewer/zoom"
+          macro: "viewer/zoom"
         property:
           type: text
           default_value: [0.5]
@@ -1722,30 +1649,42 @@ gate:
       
       - label_list:
         - label: "Viewing Angle"
-          path: "viewer/set/viewpointThetaPhi"
+          macro: "viewer/set/viewpointThetaPhi"
         property:
           type: text
           default_value: [90, 90]
           units: NO_UNITS
           default_unit_index: null
       
-    system:
+    systems:
       general:
         - label_list:
-          - label: "System definition"
-            path: ""
+          - label: "Systems definition"
+            macro: ""
           property:
             type: "label"
         
         - label_list:
-          - label: "System Structure Type"
-            path: ""
+          - label: "Systems Structure Type"
+            macro: ""
           property:
             type: "dropdown"
             default_value: [0]
-            value_list: "SYSTEM_STRUCTURE_TYPE"
+            value_list: "SYSTEMS_STRUCTURE_TYPE"
 
-      
+    gate:
+      - label_list:
+        - label: "Material Settings"
+          path: ""
+        property:
+          type: "label"
+
+      - label_list:
+        - label: "Download Material File (.db)"
+          path: "geometry/setMaterialDatabase"
+        property:
+          type: select
+          default_value: [null]
 
 
 

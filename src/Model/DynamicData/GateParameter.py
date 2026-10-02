@@ -1,4 +1,6 @@
-import Classes.StaticData as StaticData
+import src.Model.StaticData.StaticData as StaticData
+
+
 
 class GateParameter(object):
     def __init__(
@@ -8,7 +10,8 @@ class GateParameter(object):
             input_type_list: str, 
             default_value_list: list[any],
             unit_list: list[str] = None, 
-            default_unit_index: int = 0
+            default_unit_index: int = 0,
+            yaml_raw_property: dict[str, any] = {}
         ):
         self.path = path
         self.displayed_label = displayed_label
@@ -17,6 +20,12 @@ class GateParameter(object):
         self.value_list = default_value_list
         self.unit_list = unit_list
         self.default_unit_index = default_unit_index
+        self.yamlRawProperty = yaml_raw_property
+
+        self.subscriberValueChanged: list[GateParameter] = []
+
+    def __repr__(self):
+        return f"Param <\"{self.displayed_label}\">"
     
     def to_dict(self):
         return {
@@ -63,5 +72,43 @@ class GateParameter(object):
 
         return "UNKNOWN"  # If no match is found
 
-    def __repr__(self):
-        return f"<\"{self.displayed_label}\" Param>"
+
+    def addSubcriber(self, gateParameter: GateParameter):
+        self.subscriberValueChanged.append(gateParameter)
+
+    def notifyAllSubscriber(self):
+        for parameter in self.subscriberValueChanged:
+            parameter.receiveNotification(self)
+
+    def notifyOneSubscriber(self, gateParameter: GateParameter):
+        gateParameter.receiveNotification(self)
+
+    def receiveNotification(self, context: GateParameter):
+        if self.input_type_list == "dynamic_dropdown":
+            gateTree = GateTree()
+
+            objectPath: list[str]       = self.yamlRawProperty["object_path"]
+            labelName: list[str]        = self.yamlRawProperty["object_label"]
+            labelIndex: list[int]       = self.yamlRawProperty["object_label_index"] 
+            listPath: str               = self.yamlRawProperty["list_path"]
+            
+            paramToReach: list[GateParameter] = [gateTree.getParamFromGateObjectPath(objectPath[i], labelName[i]) for i in range(len(objectPath))]
+            
+            pathToken: list[str]        = [paramToReach[0].value_list[labelIndex[i]] for i in range(len(paramToReach))]
+            
+            for index in range(len(objectPath)):
+                listPath = listPath.replace(f"&{index}", pathToken[index])
+            
+            self.unit_list: list[str] =  gateTree.getDataFromYamlPath(listPath)
+
+            for index, value in enumerate(self.value_list):
+                if value not in self.unit_list:
+                    self.value_list[index] = self.unit_list[0]
+
+    def updateField(self, fieldIndex: int, newData: str | float):
+        self.value_list[fieldIndex] = newData
+        self.notifyAllSubscriber()
+
+
+
+from src.Model.DynamicData.GateTree import GateTree            

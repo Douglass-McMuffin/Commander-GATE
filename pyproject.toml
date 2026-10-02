@@ -1,0 +1,16 @@
+[tool.pytest.ini_options]
+
+# Directory containing test files
+testpaths = ["tests"]
+
+# Add project source directory to Python path
+pythonpath = ["src"]
+
+# Minimum pytest version required
+minversion = "7.0"
+
+# Define custom markers
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests"
+]   

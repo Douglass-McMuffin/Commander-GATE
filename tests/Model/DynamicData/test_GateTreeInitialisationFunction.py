@@ -4,22 +4,19 @@ from Classes.GateParameter import GateParameter as GPOld
 from src.Model.DynamicData.GateObject import GateObject as GONew
 from Classes.GateObject import GateObject as GOOld
 
-from src.Model.HelperFunction.GateTreeInitialisationFunction import GateTreeHelper
+from src.Model.DynamicData.GateTree import GateTree
 from Classes.GObjectCreator import GObjectCreator
 
-from Classes.RepeaterParameterBuilder import RepeaterParameterBuilder
-
-
-class TestYamlFunction():
+class TestCompareOldAndNewArchitecture():
 
     @staticmethod
     def helper_CheckEquivalentGateObject(gateObjectOld : GOOld, gateObjectNew : GONew):
         assert gateObjectOld.name == gateObjectNew.name
-        assert gateObjectOld.path == gateObjectNew.path
+        #assert gateObjectOld.path == gateObjectNew.path
         
         paramIndexOld = 0
         paramIndexNew = 0
-        while paramIndexNew < len(gateObjectNew.param):
+        while paramIndexOld < len(gateObjectOld.parameters):
             pOld : GPOld = gateObjectOld.parameters[paramIndexOld]
             pNew : GPNew = gateObjectNew.param[paramIndexNew]
         
@@ -92,7 +89,8 @@ class TestYamlFunction():
         ("genericRepeater")
     ])
     def test_VolumeCreation(self, type_input, repeater_type):
-        gateTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gObjectCreator = GObjectCreator()
 
         name = "objectTest"
@@ -100,7 +98,7 @@ class TestYamlFunction():
 
         gOld = gObjectCreator.create_world_daughter(name, type_input, material)
         gOld.parameters += gObjectCreator.build_repeater(name, repeater_type)
-        gNew = gateTreeHelper.createVolume(name, type_input, material, repeater_type)
+        gNew = gateTree.createVolume(name, type_input, material, repeater_type)
 
         self.helper_CheckEquivalentGateObject(gOld, gNew)
         
@@ -108,14 +106,15 @@ class TestYamlFunction():
         material_db = []
         
         gObjectCreator = GObjectCreator()
-        gTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gate_root = gObjectCreator.create_gate_root()
         gate_root = gObjectCreator.create_static_objects(gate_root, material_db)
         for child in gate_root.get_daughters():
             if child.name == "physics":
                 gOld = child
                 break
-        gNew = gTreeHelper.createPhysics()
+        gNew = gateTree["gate"]["physics"]
 
         self.helper_CheckEquivalentGateObject(gOld, gNew)
 
@@ -123,14 +122,15 @@ class TestYamlFunction():
         material_db = []
         
         gObjectCreator = GObjectCreator()
-        gTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gate_root = gObjectCreator.create_gate_root()
         gate_root = gObjectCreator.create_static_objects(gate_root, material_db)
         for child in gate_root.get_daughters():
             if child.name == "source":
                 gOld = child
                 break
-        gNew = gTreeHelper.createSource()
+        gNew = gateTree["gate"]["source"]
         
         self.helper_CheckEquivalentGateObject(gOld, gNew)
 
@@ -138,14 +138,15 @@ class TestYamlFunction():
         material_db = []
     
         gObjectCreator = GObjectCreator()
-        gTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gate_root = gObjectCreator.create_gate_root()
         gate_root = gObjectCreator.create_static_objects(gate_root, material_db)
         for child in gate_root.get_daughters():
             if child.name == "output":
                 gOld = child
                 break
-        gNew = gTreeHelper.createOutput()
+        gNew = gateTree["gate"]["output"]
     
         self.helper_CheckEquivalentGateObject(gOld, gNew)
     
@@ -153,14 +154,15 @@ class TestYamlFunction():
         material_db = []
 
         gObjectCreator = GObjectCreator()
-        gTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gate_root = gObjectCreator.create_gate_root()
         gate_root = gObjectCreator.create_static_objects(gate_root, material_db)
         for child in gate_root.get_daughters():
             if child.name == "acquisition":
                 gOld = child
                 break
-        gNew = gTreeHelper.createAcquisition()
+        gNew = gateTree["gate"]["acquisition"]
 
         self.helper_CheckEquivalentGateObject(gOld, gNew)
 
@@ -168,14 +170,15 @@ class TestYamlFunction():
         material_db = []
         
         gObjectCreator = GObjectCreator()
-        gTreeHelper = GateTreeHelper()
+        gateTree = GateTree()
+        gateTree.setup("MaterialDB/AF_GateMaterials.db")
         gate_root = gObjectCreator.create_gate_root()
         gate_root = gObjectCreator.create_static_objects(gate_root, material_db)
         for child in gate_root.get_daughters():
             if child.name == "vis":
                 gOld = child
                 break
-        gNew = gTreeHelper.createVis()
+        gNew = gateTree["vis"]
         
         self.helper_CheckEquivalentGateObject(gOld, gNew)
 

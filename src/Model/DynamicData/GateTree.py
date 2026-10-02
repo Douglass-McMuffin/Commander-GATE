@@ -2,8 +2,8 @@
 The GateTree represent the tree structure of the GATE simulation.
 The main purpose of this class is to provide a convenient way to access the GATE simulation data and to perform various operations on it.
 """
-from GateObject import GateObject
-from GateParameter import GateParameter
+from src.Model.DynamicData.GateObject import GateObject
+from src.Model.DynamicData.GateParameter import GateParameter
 import yaml
 
 
@@ -18,12 +18,50 @@ class SingletonMeta(type):
 
 class GateTree(metaclass=SingletonMeta):
 
-    def __init__(self, materialDBPath: str):
+    def setup(self, materialDBPath: str):
+        self.yamlData: dict
+        self.children: dict[str, GateObject] = {} 
+        self.material: list[str]
+
+
+
         with open("src/Model/StaticData/GATE10Configuration.yaml", "r") as file:
             self.yamlData = yaml.safe_load(file)
 
-        self.children: dict[str, GateObject] = {}     
-        self.material: list[str] = self.readMaterialDB(materialDBPath)
+           
+        self.material = self.readMaterialDB(materialDBPath) # Initialise at the first creation, but not necessary after
+
+        objectPathDict: dict = self.yamlData["gate"]["object_path"]
+        for pathDict in objectPathDict.values():
+            yamlPath = pathDict["yaml_path"]
+            yamlPathToken = yamlPath.split("/")
+            objectPath = pathDict["object_path"]
+            objectPathToken = objectPath.split("/")
+            parentObject: GateObject | GateTree = self
+            for token in objectPathToken:
+                if token == objectPathToken[-1]:
+                    # Create the GateObject
+                    if parentObject == self:
+                        if "volume" in yamlPathToken:
+                            self.children[token] = self.createVolume(token, yamlPathToken[-2], self.material, yamlPathToken[-1])
+                            
+                        else:
+                            self.children[token] = self.createGateObjectFromYamlSection(objectPath, token, self.getDataFromYamlPath(yamlPath))
+                    else:
+                        if "volume" in yamlPathToken:                   
+                            parentObject.addChild(self.createVolume(token, yamlPathToken[-2], self.material, yamlPathToken[-1]))  
+                        else:
+                            parentObject.addChild(self.createGateObjectFromYamlSection(objectPath, token, self.getDataFromYamlPath(yamlPath)))                        
+
+                else:
+                    # Continue down the tree
+                    parentObject = parentObject.children[token]
+
+    def __repr__(self):
+        return f"material: {self.material}, children: {list(self.children.values())}\n"
+
+    def __getitem__(self, key: str):
+        return self.children[key]
 
     ### Volume factory
 
@@ -43,20 +81,24 @@ class GateTree(metaclass=SingletonMeta):
     @staticmethod
     def _visMacroFormater(name: str, sub: str) -> str:  return f"/{name}/vis/{sub}"
 
-    def getDataFromObjectPath(self, objectPath: str, labelName: str, labelIndex: int) -> str:
-        pathToken : list[str] = self.yamlData["gate"]["object_path"][objectPath].split("/")
+    def getObjectFromGateObjectPath(self, gateObjectPath: str) -> GateObject:
+        pathToken : list[str] = self.yamlData["gate"]["object_path"][gateObjectPath]["object_path"].split("/")
         gateObject = self
-    
+        
         for token in pathToken:
-            for child in gateObject.children:
-                if child.name == token:
-                    gateObject = child
-                    break
-    
-        # The gateObject is now the one with the value_list
+            gateObject = gateObject[token]
+
+        return gateObject
+
+    @staticmethod
+    def getParamFromGateObject(gateObject: GateObject, labelName: str) -> GateParameter:
         for paramObject in gateObject.param:
             if paramObject.displayed_label== labelName:
-                return paramObject.value_list[labelIndex]
+                return paramObject
+
+    def getParamFromGateObjectPath(self, gateObjectPath: str, labelName: str) -> GateParameter:
+        gateObject: GateObject = self.getObjectFromGateObjectPath(gateObjectPath)
+        return self.getParamFromGateObject(gateObject, labelName)
     
     def getDataFromYamlPath(self, yamlPath: str):
         pathToken = yamlPath.split("/")
@@ -75,6 +117,7 @@ class GateTree(metaclass=SingletonMeta):
         section = None
 
         currentMaterialLines = []
+        materialList = []
 
         for line in lines:
             line = line.strip()
@@ -88,11 +131,12 @@ class GateTree(metaclass=SingletonMeta):
 
             if section == "materials":
                 if not line.startswith("+") and len(currentMaterialLines) > 0:
-                    self.material.append(currentMaterialLines[0].split(":"))
+                    materialList.append(currentMaterialLines[0].split(":"))
                     currentMaterialLines.clear()
 
                 currentMaterialLines.append(line)      
 
+        return materialList
 
     ### param row factories
 
@@ -104,7 +148,10 @@ class GateTree(metaclass=SingletonMeta):
             "dropdown": self.createParamDropdownRow,
             "checkbox": self.createParamCheckboxRow,
             "select":   self.createParamSelectRow,
-            "label":    self.createParamLabelRow
+            "label":    self.createParamLabelRow,
+            "dynamic_dropdown": self.createParamDynamicDropdown,
+            "macro_dropdown": self.createParamDropdownRow,
+            "material_dropdown": self.createParamMaterialDropdown
         }
         
         for param in paramSection:
@@ -122,10 +169,10 @@ class GateTree(metaclass=SingletonMeta):
         default_unit_index: int = param["property"]["default_unit_index"]
 
         return [
-            GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, unit_list, default_unit_index) 
+            GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, unit_list, default_unit_index, param["property"]) 
             for label_macro_dict in param["label_list"]]
 
-    def createParamDropdownRow(self, name: str, param: dict, macroFormater: function) -> list:
+    def createParamDropdownRow(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
         default_value: list[any] = param["property"]["default_value"]
@@ -139,29 +186,29 @@ class GateTree(metaclass=SingletonMeta):
                 default_unit_index = value
                 default_value = [value_list[value]]
 
-        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, value_list, default_unit_index) for label_macro_dict in param["label_list"]]
+        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, value_list, default_unit_index, param["property"]) for label_macro_dict in param["label_list"]]
 
-    def createParamCheckboxRow(self, name: str, param: dict, macroFormater: function):
+    def createParamCheckboxRow(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
         default_value: list[bool] = param["property"]["default_value"]
 
         return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, None, None) for label_macro_dict in param["label_list"]]
 
-    def createParamSelectRow(self, name: str, param: dict, macroFormater: function):
+    def createParamSelectRow(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
         default_value: list[any] = param["property"]["default_value"]
 
-        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, None, None) for label_macro_dict in param["label_list"]]
+        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, None, None, param["property"]) for label_macro_dict in param["label_list"]]
 
-    def createParamLabelRow(self, name: str, param: dict, macroFormater: function):
+    def createParamLabelRow(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
 
-        return [GateParameter("", label_macro_dict["label"], type_input, None, None, None) for label_macro_dict in param["label_list"]]
+        return [GateParameter("", label_macro_dict["label"], type_input, None, None, None, param["property"]) for label_macro_dict in param["label_list"]]
 
-    def createParamDynamicDropdown(self, name: str, param: dict, macroFormater: function):
+    def createParamDynamicDropdown(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         # Get the value out of "property"
         default_value: list[any]    = param["property"]["default_value"]
         
@@ -170,12 +217,14 @@ class GateTree(metaclass=SingletonMeta):
         labelIndex: list[int]       = param["property"]["object_label_index"] 
         listPath: str               = param["property"]["list_path"]
 
-        pathToken: list[str]        = [self.getDataFromObjectPath(objectPath[i], labelName[i], labelIndex[i]) for i in range(len(objectPath))]
+        paramToReach: list[GateParameter] = [self.getParamFromGateObjectPath(objectPath[i], labelName[i]) for i in range(len(objectPath))]
 
-        for index in range(len(objectPath)):
-            listPath.replace(f"&{index}", pathToken[index])
+        pathToken: list[str]        = [paramToReach[i].value_list[labelIndex[i]] for i in range(len(paramToReach))]
+        
+        for i in range(len(objectPath)):
+            listPath = listPath.replace(f"&{i}", pathToken[i])
 
-        value_list: list[str] =  self.getDataFromYamlPath(self, listPath)
+        value_list: list[str] =  self.getDataFromYamlPath(listPath)
 
         for value in default_value:
             if type(value) == str:
@@ -184,9 +233,15 @@ class GateTree(metaclass=SingletonMeta):
                 default_unit_index = value
                 default_value = [value_list[value]]
 
-        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], "dropdown", default_value, value_list, default_unit_index) for label_macro_dict in param["label_list"]]
-
-    def createParamMaterialDropdown(self, name: str, param: dict, macroFormater: function):
+        parameterList = [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], "dynamic_dropdown", default_value, value_list, default_unit_index, param["property"]) for label_macro_dict in param["label_list"]]
+        for parameterSubscriber in parameterList:
+            for parameterPublisher in paramToReach:
+                parameterPublisher.addSubcriber(parameterSubscriber)
+                parameterPublisher.notifyOneSubscriber(parameterSubscriber)
+                
+        return parameterList
+    
+    def createParamMaterialDropdown(self, name: str, param: dict, macroFormater: function) -> list[GateParameter]:
         default_value: list[any]    = param["property"]["default_value"]
         value_list: list[str]       = self.material
 
@@ -197,7 +252,7 @@ class GateTree(metaclass=SingletonMeta):
                 default_unit_index = value
                 default_value = [value_list[value]]
 
-        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], "dropdown", default_value, value_list, default_unit_index) for label_macro_dict in param["label_list"]]
+        return [GateParameter(macroFormater(name, label_macro_dict["macro"]), label_macro_dict["label"], "dropdown", default_value, value_list, default_unit_index, param["property"]) for label_macro_dict in param["label_list"]]
 
     ### gate children factories
 
@@ -208,7 +263,7 @@ class GateTree(metaclass=SingletonMeta):
         
         gateParameterList += self.createParamSection(name, volumeParamList, self._geometryMacroFormater)
 
-        gateParameterList.append(GateParameter(self._normalMacroFormater(name) + "setMaterial", "Material", "dropdown", [None], materialDB))
+        gateParameterList.append(GateParameter(self._normalMacroFormater(name) + "setMaterial", "Material", "dropdown", [None], materialDB, {}))
 
         ### General parameter for a volume
         # placement parameters
@@ -226,36 +281,18 @@ class GateTree(metaclass=SingletonMeta):
         # repeater parameters
         paramSection = self.yamlData["gate"]["parameter"]["volume"]["volume_repeater"][repeaterType]
         gateParameterList += self.createParamSection(name, paramSection, self._normalMacroFormater)
+
+        # attach system parameters
+        paramSection = self.yamlData["gate"]["parameter"]["volume"]["attach_systems"]
+        gateParameterList += self.createParamSection(name, paramSection, self._normalMacroFormater)
         
         return GateObject("", name, param=gateParameterList)
 
-    def createPhysics(self) -> GateObject:
-        physicsYamlData = self.yamlData["gate"]["parameter"]["physics"]
+    def createGateObjectFromYamlSection(self, path:str, name: str, yamlSection: dict) -> GateObject:
+        parameterList : list[GateParameter] = self.createParamSection("", yamlSection, self._noNameMacroFormater)
 
-        parameterList : list[GateParameter] = self.createParamSection("", physicsYamlData, self._noNameMacroFormater)
+        return GateObject(path, name, param=parameterList)
 
-        return GateObject("/physics", "physics", param=parameterList)
 
-    def createSource(self) -> GateObject:
-        return GateObject("/source", "source", [])
 
-    def createSubSource(self, name: str, sourceType: str) -> GateObject:
-        parameterList: list[GateParameter] = self.createParamSection(name, self.yamlData["gate"]["parameter"]["source"]["source_general"], self._normalMacroFormater)
-        parameterList += self.createParamSection(name, self.yamlData["gate"]["parameter"]["source"][sourceType], self._normalMacroFormater)
-        return GateObject("/source", "source", param=parameterList)
-
-    def createOutput(self) -> GateObject:
-        parameterList: list[GateParameter] = self.createParamSection("", self.yamlData["gate"]["parameter"]["output"], self._noNameMacroFormater)
-
-        return GateObject("/output", "output", param=parameterList)
-
-    def createAcquisition(self) -> GateObject:
-        parameterList: list[GateParameter] = self.createParamSection("", self.yamlData["gate"]["parameter"]["acquisition"], self._noNameMacroFormater)
-
-        return GateObject("", "acquisition", param=parameterList)
-
-    def createVis(self) -> GateObject:
-            parameterList: list[GateParameter] = self.createParamSection("", self.yamlData["gate"]["parameter"]["vis"], self._noNameMacroFormater)
-    
-            return GateObject("../vis", "vis", param=parameterList)
 

@@ -1,16 +1,32 @@
 
 gate:
   object_path:
-    GATE: "gate"
-    SYSTEMS: "gate/systems"
-    PHYSICS: "gate/physics"
-    SOURCE: "gate/source"
-    DIGITIZER: "gate/digitizer"
-    OUTPUT: "gate/output"
-    ACQUISITION: "gate/acquisition"
-    VERBOSE: "gate/verbose"
-    WORLD: "gate/world"
-    VIS: "vis"
+    GATE: 
+      yaml_path: "gate/parameter/gate"
+      object_path: "gate"
+    SYSTEMS: 
+      yaml_path: "gate/parameter/systems/general"
+      object_path: "gate/systems"
+    PHYSICS:
+      yaml_path: "gate/parameter/physics"
+      object_path: "gate/physics"
+    SOURCE:
+      yaml_path: "gate/parameter/source/source_general"
+      object_path: "gate/source"
+    #DIGITIZER: "gate/digitizer"
+    OUTPUT:
+      yaml_path: "gate/parameter/output"
+      object_path: "gate/output"
+    ACQUISITION:
+      yaml_path: "gate/parameter/acquisition"
+      object_path: "gate/acquisition"
+    WORLD: 
+      yaml_path: "gate/parameter/volume/box/ - "
+      object_path: "gate/world"
+    VIS:
+      yaml_path: "gate/parameter/vis"
+      object_path: "vis"
+
   units:
     LENGTH_UNITS : ['pc', 'km', 'm', 'cm', 'mm', 'mum', 'nm', 'Ang']
     SURFACE_UNITS : ['km2', 'm2', 'cm2', 'mm2']
@@ -271,13 +287,13 @@ gate:
         material:
           - label_list:
             - label: "Material Settings"
-              path: ""
+              macro: ""
             property:
               type: "label"
           
           - label_list:
             - label: "Set Material"
-              path: "setMaterial"
+              macro: "setMaterial"
             property:
             type: "material_dropdown"
             default_value: [0]
@@ -1675,13 +1691,13 @@ gate:
     gate:
       - label_list:
         - label: "Material Settings"
-          path: ""
+          macro: ""
         property:
           type: "label"
 
       - label_list:
         - label: "Download Material File (.db)"
-          path: "geometry/setMaterialDatabase"
+          macro: "geometry/setMaterialDatabase"
         property:
           type: select
           default_value: [null]

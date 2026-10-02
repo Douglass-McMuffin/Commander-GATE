@@ -876,13 +876,147 @@ gate:
           value_list: PHYSICS_LISTS
     
     digitizer:
-      - label_list:
-        - label: "Disable entire Digitizer"
-          macro: "digitizerMgr/disable"
-        property:
-          type: checkbox
-          default_value: [False]
+      digitizer_general:
+        - label_list:
+          - label: "Disable entire Digitizer"
+            macro: "digitizerMgr/disable"
+          property:
+            type: checkbox
+            default_value: [False]
       
+    distributions:
+      distributions_generic:
+        - label_list:
+          - label: "Distribution name"
+            macro: "distributions/name"
+          property:
+            type: path
+            default_value: [""]
+        
+        - label_list:
+          - label: "Distribution type"
+            macro: "distribution/insert"
+          property:
+            type: path
+            default_value: [""]
+
+        - label_list:
+          - label: "Distribution Information"
+            macro: ""
+          property:
+            type: label
+        
+        - label_list:
+          - label: "Distribution name : &0"
+            macro: ""
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Distribution name"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+        
+        - label_list:
+          - label: "Distribution type : &0"
+            macro: ""
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Distribution type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+          
+      Flat:
+        - label_list:
+          - label: "Low edge range (Min)"
+            macro: "setMin"
+          - label: "High edge range (Max)"
+            macro: "setMax"
+          - label: "Amplitude"
+            macro: "setAmplitude"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+      
+      Gaussian:
+        - label_list:
+          - label: "Mean"
+            macro: "setMean"
+          - label: "Standard deviation"
+            macro: "setSigma"
+          - label: "Amplitude"
+            macro: "setAmplitude"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+      
+      Exponential:
+        - label_list:
+          - label: "Power"
+            macro: "setLambda"
+          - label: "Amplitude"
+            macro: "setAmplitude"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+      
+      File:
+        - label_list:
+          - label: "Units for X axis"
+            macro: "setUnitX"
+          - label: "Units for Y axis"
+            macro: "setUnitY"
+          property:
+              type: dropdown
+              default_value: [0]
+              value_list: ENERGY_UNITS
+        
+        - label_list:
+          - label: "Auto X"
+            macro: "autoX"
+          property:
+            type: checkbox
+            default_value: False
+        
+        - label_list:
+          - label: "Auto X start"
+            macro: "autoXstart"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+        
+        - label_list:
+          - label: "File name"
+            macro: "setFileName"
+          property:
+            type: select
+            default_value: [null]
+
+        - label_list:
+          - label: "Column number with X axis data"
+            macro: "setColumnX"
+          - label: "Column number with Y axis data"
+            macro: "setColumnY"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+        
+        - label_list:
+          - label: "File in 2D matrix format"
+            macro:
+          property:
+            type: checkbox
+            default_value: [True]
+
+
     source:
       source_general:
         - label_list:

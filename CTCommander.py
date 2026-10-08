@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication
-from Classes.CTCommanderManager import CTCommanderManager
+from src.Control.CTCommanderManager import CTCommanderManager
 
 def main():
     app = QApplication(sys.argv)

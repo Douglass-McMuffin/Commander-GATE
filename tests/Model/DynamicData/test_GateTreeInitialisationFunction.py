@@ -29,7 +29,7 @@ class TestCompareOldAndNewArchitecture():
                 continue
         
             # We don't evaluate the Material param since it is different
-            if pNew.displayed_label == "Material":
+            if pNew.displayed_label == "Set Material":
                 paramIndexNew += 1
                 paramIndexOld += 1
                 continue

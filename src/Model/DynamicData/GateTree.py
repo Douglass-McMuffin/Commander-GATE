@@ -4,10 +4,12 @@ The main purpose of this class is to provide a convenient way to access the GATE
 """
 from src.Model.DynamicData.GateObject import GateObject
 from src.Model.DynamicData.GateParameter import GateParameter
+from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
+from abc import ABCMeta
 import yaml
 
 
-class SingletonMeta(type):
+class SingletonMeta(ABCMeta):
     _instances = {}
     _lock = None  # Initialize in __new__ or use a lock for thread safety
 
@@ -16,11 +18,11 @@ class SingletonMeta(type):
             cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class GateTree(metaclass=SingletonMeta):
+class GateTree(GateObjectInterface, metaclass=SingletonMeta):
 
     def setup(self, materialDBPath: str):
         self.yamlData: dict
-        self.children: dict[str, GateObject] = {} 
+        self._children: dict[str, GateObject] = {} 
         self.material: list[str]
 
 
@@ -131,7 +133,7 @@ class GateTree(metaclass=SingletonMeta):
 
             if section == "materials":
                 if not line.startswith("+") and len(currentMaterialLines) > 0:
-                    materialList.append(currentMaterialLines[0].split(":"))
+                    materialList.append(currentMaterialLines[0].split(":")[0])
                     currentMaterialLines.clear()
 
                 currentMaterialLines.append(line)      
@@ -263,11 +265,15 @@ class GateTree(metaclass=SingletonMeta):
         
         gateParameterList += self.createParamSection(name, volumeParamList, self._geometryMacroFormater)
 
-        gateParameterList.append(GateParameter(self._normalMacroFormater(name) + "setMaterial", "Material", "dropdown", [None], materialDB, {}))
 
         ### General parameter for a volume
+
+        # material parameters
+        paramSection: list[dict] = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["material"]
+        gateParameterList += self.createParamSection(name, paramSection, self._normalMacroFormater)
+        
         # placement parameters
-        paramSection: list[dict] = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["placement_parameters"]
+        paramSection = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["placement_parameters"]
         gateParameterList += self.createParamSection(name, paramSection, self._normalMacroFormater)
 
         # moving parameters
@@ -294,5 +300,30 @@ class GateTree(metaclass=SingletonMeta):
         return GateObject(path, name, param=parameterList)
 
 
+    ### GateTree abstract implementation
+    
+    @property
+    def path(self):
+        return ""
 
+    @property
+    def name(self):
+        return "root"
+    
+    @property
+    def parent(self):
+        return ""
+
+    @property
+    def param(self):
+        return []
+
+    @property
+    def children(self):
+        return self._children
+
+    @children.setter
+    def children(self, childDict: dict[str, GateObject]):
+        self._children = childDict
+        
 

@@ -2,7 +2,7 @@ import src.Model.StaticData.StaticData as StaticData
 
 
 
-class GateParameter(object):
+class GateParameter():
     def __init__(
             self, 
             path: str,

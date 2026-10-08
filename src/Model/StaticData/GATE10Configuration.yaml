@@ -282,22 +282,21 @@ gate:
             default_value: [null]
     
       volume_general:
-        volume_general_list: ["placement_parameters", "moving_parameters", "visualization_parameters"]
+        volume_general_list: ["material", "placement_parameters", "moving_parameters", "visualization_parameters"]
 
         material:
           - label_list:
             - label: "Material Settings"
               macro: ""
             property:
-              type: "label"
+              type: label
           
           - label_list:
             - label: "Set Material"
               macro: "setMaterial"
             property:
-            type: "material_dropdown"
-            default_value: [0]
-      
+              type: material_dropdown
+              default_value: [0]
 
         placement_parameters:
           - label_list:
@@ -1812,13 +1811,13 @@ gate:
           - label: "Systems definition"
             macro: ""
           property:
-            type: "label"
+            type: label
         
         - label_list:
           - label: "Systems Structure Type"
             macro: ""
           property:
-            type: "dropdown"
+            type: dropdown
             default_value: [0]
             value_list: "SYSTEMS_STRUCTURE_TYPE"
 
@@ -1827,7 +1826,7 @@ gate:
         - label: "Material Settings"
           macro: ""
         property:
-          type: "label"
+          type: label
 
       - label_list:
         - label: "Download Material File (.db)"

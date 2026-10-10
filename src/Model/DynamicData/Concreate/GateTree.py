@@ -2,9 +2,9 @@
 The GateTree represent the tree structure of the GATE simulation.
 The main purpose of this class is to provide a convenient way to access the GATE simulation data and to perform various operations on it.
 """
-from src.Model.DynamicData.GateObject import GateObject
-from src.Model.DynamicData.GateParameter import GateParameter
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Concreate.GateObject import GateObject
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from abc import ABCMeta
 import yaml
 
@@ -95,7 +95,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
     @staticmethod
     def getParamFromGateObject(gateObject: GateObject, labelName: str) -> GateParameter:
         for paramObject in gateObject.param:
-            if paramObject.displayed_label== labelName:
+            if paramObject.displayedLabel== labelName:
                 return paramObject
 
     def getParamFromGateObjectPath(self, gateObjectPath: str, labelName: str) -> GateParameter:
@@ -221,7 +221,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
 
         paramToReach: list[GateParameter] = [self.getParamFromGateObjectPath(objectPath[i], labelName[i]) for i in range(len(objectPath))]
 
-        pathToken: list[str]        = [paramToReach[i].value_list[labelIndex[i]] for i in range(len(paramToReach))]
+        pathToken: list[str]        = [paramToReach[i].valueList[labelIndex[i]] for i in range(len(paramToReach))]
         
         for i in range(len(objectPath)):
             listPath = listPath.replace(f"&{i}", pathToken[i])
@@ -312,7 +312,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
     
     @property
     def parent(self):
-        return ""
+        return None
 
     @property
     def param(self):

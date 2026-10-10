@@ -14,8 +14,8 @@ from src.Model.StaticData.StaticData import SYSTEM_TYPES, SYSTEM_LEVELS_BY_TYPE,
 from src.View.parameters.BigPopupCombo import BigPopupCombo
 from src.View.parameters.ElidingLabel import ElidingLabel
 from src.View.popups.DistributionsPopup import DistributionPopup
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
-from src.Model.DynamicData.GateParameter import GateParameter
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class InspectorSection:
     """
@@ -356,14 +356,14 @@ class InspectorSection:
             self._append_widget_row(model, row_widget, font_size)
 
     def _normalize_param_lists(self, p: GateParameter):
-        p.default_value_list = p.default_value_list or []
-        p.value_list = p.value_list or []
-        p.input_type_list = p.input_type_list or []
+        p.defaultValueList = p.defaultValueList or []
+        p.valueList = p.valueList or []
+        p.inputTypeList = p.inputTypeList or []
 
     def _build_param_row(self, param: GateParameter, font_size) -> QWidget:
         row, h = self._row_widget()
 
-        label = ElidingLabel(param.displayed_label)
+        label = ElidingLabel(param.displayedLabel)
         label.setFont(self._font(font_size))
         label.setMinimumWidth(self._label_min_px(font_size))
         label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
@@ -371,7 +371,7 @@ class InspectorSection:
 
         inputs = []
         for i in range(len(param.value_list)):
-            w = self._build_input_widget(param.input_type_list, param, i, font_size)
+            w = self._build_input_widget(param.inputTypeList, param, i, font_size)
             if w:
                 w.setFont(QFont("Arial", font_size))
                 h.addWidget(w, 0)
@@ -379,19 +379,19 @@ class InspectorSection:
 
         # units
         unit_dd = None
-        if getattr(param, "unit_list", None) and not param.input_type_list in ("dropdown", "dynamic_dropdown", "macro_dropdown"):
-            unit_dd = self._combo(font_size, items=param.unit_list or [], width=100)
-            default_index = param.default_unit_index
+        if getattr(param, "unitList", None) and not param.inputTypeList in ("dropdown", "dynamic_dropdown", "macro_dropdown"):
+            unit_dd = self._combo(font_size, items=param.unitList or [], width=100)
+            default_index = param.defaultUnitIndex
             unit_dd.setCurrentIndex(default_index)
-            unit_dd.currentIndexChanged.connect(lambda idx, p=param: setattr(p, "default_unit", p.unit_list[idx]))
+            unit_dd.currentIndexChanged.connect(lambda idx, p=param: setattr(p, "default_unit", p.unitList[idx]))
             h.addWidget(unit_dd)
         
         self.inspector_widgets.append({"label":label, "inputs":inputs, "unit":unit_dd})
         return row
 
     def _build_input_widget(self, input_type: str, param: GateParameter, i, font_size):
-        default_value = param.default_value_list[i] if i < len(param.default_value_list) else ""
-        current_value = param.value_list[i] if i < len(param.value_list) else ""
+        default_value = param.defaultValueList[i] if i < len(param.defaultValueList) else ""
+        current_value = param.valueList[i] if i < len(param.valueList) else ""
 
         if input_type == "text":
             w = QLineEdit()
@@ -405,9 +405,9 @@ class InspectorSection:
             return w
 
         if input_type in ("dropdown", "dynamic_dropdown", "macro_dropdown"):
-            w = self._combo(font_size, items=param.unit_list or [], width=100)
-            w.setCurrentIndex(param.default_unit_index)
-            w.currentIndexChanged.connect(lambda idx, p=param: param.updateField(i, param.unit_list[idx]))
+            w = self._combo(font_size, items=param.unitList or [], width=100)
+            w.setCurrentIndex(param.defaultUnitIndex)
+            w.currentIndexChanged.connect(lambda idx, p=param: param.updateField(i, param.unitList[idx]))
 
             w.setFixedWidth(120 + font_size * 2)
             #self._prepare_combo(w)
@@ -438,15 +438,15 @@ class InspectorSection:
     # -----------------------------
     
     def update_parameter_value(self, param: GateParameter, index, value):
-        while len(param.default_value_list) <= index:
-            param.default_value_list.append(None)
-        param.default_value_list[index] = value
+        while len(param.defaultValueList) <= index:
+            param.defaultValueList.append(None)
+        param.defaultValueList[index] = value
 
     def update_checkbox_value(self, param: GateParameter, index, state):
         is_checked = (state == Qt.CheckState.Checked.value)
-        while len(param.default_value_list) <= index:
-            param.default_value_list.append(None)
-        param.default_value_list[index] = is_checked
+        while len(param.defaultValueList) <= index:
+            param.defaultValueList.append(None)
+        param.defaultValueList[index] = is_checked
 
     def browse_file_for_param(self, button, param: GateParameter, index):
         dlg = QFileDialog()
@@ -454,11 +454,11 @@ class InspectorSection:
         dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
         if dlg.exec():
             selected_file = dlg.selectedFiles()[0]
-            while len(param.value_list) <= index:
-                param.value_list.append("")
-            param.value_list[index] = selected_file
+            while len(param.valueList) <= index:
+                param.valueList.append("")
+            param.valueList[index] = selected_file
             button.setText(selected_file)
-            self.host.write_to_console(f"Selected file for {param.displayed_label}: {selected_file}")
+            self.host.write_to_console(f"Selected file for {param.displayedLabel}: {selected_file}")
     
     
     # -----------------------------

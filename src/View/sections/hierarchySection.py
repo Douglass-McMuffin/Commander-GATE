@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QFontMetrics
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from .header import create_header_section
 
 class HierarchySection:
@@ -114,11 +114,13 @@ class HierarchySection:
         root = self.tree.invisibleRootItem()
         for i in range(root.childCount()):
             self._walk(root.child(i), lambda it: (
+                # TODO: use a Control method here
                 expanded_ids.add(id(it.data(0, Qt.ItemDataRole.UserRole))) if it.isExpanded() else None
             ))
 
         current = self.tree.currentItem()
         if current:
+            # TODO: change the use of ids to be object less?
             obj: GateObjectInterface = current.data(0, Qt.ItemDataRole.UserRole)
             if obj is not None:
                 selected_id = id(obj)

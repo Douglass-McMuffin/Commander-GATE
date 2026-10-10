@@ -14,3 +14,7 @@ markers = [
     "slow: marks tests as slow",
     "integration: marks tests as integration tests"
 ]   
+
+[tool.black]
+line-length = 88
+target-version = ['py39']

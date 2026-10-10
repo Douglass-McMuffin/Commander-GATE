@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class GateObjectInterface(ABC):
 
@@ -6,27 +7,27 @@ class GateObjectInterface(ABC):
     ### Properties ###
     @property
     @abstractmethod
-    def path(self):
+    def path(self) -> str:
         pass
     
     @property
     @abstractmethod
-    def name(self):
+    def name(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def parent(self):
+    def parent(self) -> GateObjectInterface:
         pass  
 
     @property
     @abstractmethod
-    def param(self):
+    def param(self) -> list[GateParameter]:
         pass
 
     @property
     @abstractmethod
-    def children(self):
+    def children(self) -> list[GateObjectInterface]:
         pass
 
     ### Methods ###

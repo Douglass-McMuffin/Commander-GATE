@@ -5,9 +5,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from src.Model.StaticData.StaticData import PHYSICS_PROCESSES
-from src.Model.DynamicData.GateParameter import GateParameter
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 import src.Model.StaticData.StyleSheets as Style
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 
 class PhysicsProcessPopup(QDialog):
     def __init__(self, parent, physics_gate_object: GateObjectInterface, on_change_callback):

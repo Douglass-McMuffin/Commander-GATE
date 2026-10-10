@@ -1,6 +1,6 @@
-from src.Model.DynamicData.GateParameter import GateParameter
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
-from src.Model.DynamicData.GateParameter import GateParameter
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class GateObject(GateObjectInterface):
     def __init__(self, path: str, name: str, parent: GateObject = None, param: list[GateParameter] = []):
@@ -33,7 +33,7 @@ class GateObject(GateObjectInterface):
 
     def getParameter(self, parameterToGet: str) -> GateParameter:
         for parameter in self.param:
-            if parameter.displayed_label == parameterToGet:
+            if parameter.displayedLabel == parameterToGet:
                 return parameter
     
         

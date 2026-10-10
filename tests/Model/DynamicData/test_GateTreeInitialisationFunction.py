@@ -1,10 +1,10 @@
 import pytest
-from src.Model.DynamicData.GateParameter import GateParameter as GPNew
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter as GPNew
 from Classes.GateParameter import GateParameter as GPOld
-from src.Model.DynamicData.GateObject import GateObject as GONew
+from src.Model.DynamicData.Concreate.GateObject import GateObject as GONew
 from Classes.GateObject import GateObject as GOOld
 
-from src.Model.DynamicData.GateTree import GateTree
+from src.Model.DynamicData.Concreate.GateTree import GateTree
 from Classes.GObjectCreator import GObjectCreator
 
 class TestCompareOldAndNewArchitecture():
@@ -21,48 +21,48 @@ class TestCompareOldAndNewArchitecture():
             pNew : GPNew = gateObjectNew.param[paramIndexNew]
         
             # In the older architecture, the label are not initialised in the static data.
-            if pNew.input_type_list == "label" or pOld.input_type_list == ["Label"]:
-                if pNew.input_type_list == "label":
+            if pNew.inputTypeList == "label" or pOld.input_type_list == ["Label"]:
+                if pNew.inputTypeList == "label":
                     paramIndexNew += 1
                 if pOld.input_type_list in (["Label"], []):
                     paramIndexOld += 1
                 continue
         
             # We don't evaluate the Material param since it is different
-            if pNew.displayed_label == "Set Material":
+            if pNew.displayedLabel == "Set Material":
                 paramIndexNew += 1
                 paramIndexOld += 1
                 continue
         
             assert pOld.path == pNew.path
-            assert pOld.displayed_name == pNew.displayed_label
+            assert pOld.displayed_name == pNew.displayedLabel
         
             # There are some changes between the old and new format
-            match pNew.input_type_list:
+            match pNew.inputTypeList:
                 case "text":
                     # First, I removed the type list to just a single type to ease the process.
                     assert pOld.input_type_list[0] == "TextArea"
-                    assert pOld.default_value_list == pNew.default_value_list
-                    if pNew.unit_list == []:
+                    assert pOld.default_value_list == pNew.defaultValueList
+                    if pNew.unitList == []:
                         assert pOld.unit_list in (None, ["exclude", "include"])
                         assert pOld.default_unit in (None, "exclude")
-                        assert pNew.default_unit_index == None
+                        assert pNew.defaultUnitIndex == None
                     else:
-                        assert pOld.unit_list == pNew.unit_list
-                        assert pOld.default_unit == pNew.unit_list[pNew.default_unit_index]
+                        assert pOld.unit_list == pNew.unitList
+                        assert pOld.default_unit == pNew.unitList[pNew.defaultUnitIndex]
         
                 case "dropdown":
-                    assert pOld.value_list[0] == pNew.unit_list
+                    assert pOld.value_list[0] == pNew.unitList
                     if type(pOld.default_value_list[0]) == int:
-                        pOld.value_list[0][pOld.default_value_list[0]] == pNew.default_value_list
+                        pOld.value_list[0][pOld.default_value_list[0]] == pNew.defaultValueList
                     else:
-                        pOld.default_value_list == pNew.default_value_list
+                        pOld.default_value_list == pNew.defaultValueList
         
                 case "checkbox":
-                    assert bool(pOld.default_value_list[0]) == bool(pNew.default_value_list[0])
+                    assert bool(pOld.default_value_list[0]) == bool(pNew.defaultValueList[0])
         
                 case "select":
-                    assert pOld.default_value_list == pNew.default_value_list
+                    assert pOld.default_value_list == pNew.defaultValueList
         
         
             paramIndexOld += 1

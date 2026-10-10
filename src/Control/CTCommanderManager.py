@@ -2,8 +2,9 @@ import os
 import re
 from src.View.MainWindow import MainWindow
 from Classes.IO.JsonHandler import JsonHandler
-from src.Model.DynamicData.GateObject import GateObject
-from src.Model.DynamicData.GateTree import GateTree
+from src.Model.DynamicData.Concreate.GateObject import GateObject
+from src.Model.DynamicData.Concreate.GateTree import GateTree
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 from Classes.GMaterialDB import GMaterialDB
 
 class CTCommanderManager:
@@ -131,15 +132,15 @@ class CTCommanderManager:
             self.ct_commander_window.populate_hierarchy_tree(self.node_tree)
             
             
-    def _param_to_value_snapshot(self, p) -> dict:
+    def _param_to_value_snapshot(self, p: GateParameter) -> dict:
         # Store just what's needed to recreate UI state
         snap = {
-            "label": getattr(p, "displayed_name", None) or getattr(p, "name", None),
-            "values": list(p.default_value_list or []),
+            "label": getattr(p, "displayedLabel", None) or getattr(p, "name", None),
+            "values": list(p.valueList or []),
         }
-        du = getattr(p, "default_unit", None)
-        if du is not None:
-            snap["unit"] = du
+        units = getattr(p, "unitList", None)
+        if units is not None:
+            snap["unit"] = units
         return snap
 
     def _object_meta(self, obj) -> dict:
@@ -191,7 +192,7 @@ class CTCommanderManager:
         # Match by label (displayed_name). This avoids persisting path strings.
         label_to_param = {}
         for p in getattr(obj, "param", []):
-            key = getattr(p, "displayed_label", None) or getattr(p, "name", None)
+            key = getattr(p, "displayedLabel", None) or getattr(p, "name", None)
             if key:
                 label_to_param.setdefault(key, []).append(p)  # allow duplicates if any
 

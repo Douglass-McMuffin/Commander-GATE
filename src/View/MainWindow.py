@@ -20,7 +20,7 @@ from src.View.sections.inspectorSection import InspectorSection
 from src.View.popups.MaterialDBViewerDialog import MaterialDBViewerDialog
 from Classes.IO.project_io import ProjectSerializer, ProjectDeserializer
 from Classes.IO.JsonHandler import JsonHandler
-from src.Model.DynamicData.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 
 
 

@@ -4,7 +4,7 @@ The main purpose of this class is to provide a convenient way to access the GATE
 """
 from src.Model.DynamicData.Concreate.GateObject import GateObject
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
-from Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from abc import ABCMeta
 import yaml
 
@@ -38,22 +38,14 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
             yamlPath = pathDict["yaml_path"]
             yamlPathToken = yamlPath.split("/")
             objectPath = pathDict["object_path"]
-            objectPathToken = objectPath.split("/")
-            parentObject: GateObject | GateTree = self
+            objectPathToken = objectPath.split("/")[1:]
+            parentObject: GateObjectInterface = self
             for token in objectPathToken:
                 if token == objectPathToken[-1]:
-                    # Create the GateObject
-                    if parentObject == self:
-                        if "volume" in yamlPathToken:
-                            self.children[token] = self.createVolume(token, yamlPathToken[-2], self.material, yamlPathToken[-1])
-                            
-                        else:
-                            self.children[token] = self.createGateObjectFromYamlSection(objectPath, token, self.getDataFromYamlPath(yamlPath))
+                    if "volume" in yamlPathToken:                   
+                        parentObject.addChild(self.createVolume(token, yamlPathToken[-2], self.material, yamlPathToken[-1]))  
                     else:
-                        if "volume" in yamlPathToken:                   
-                            parentObject.addChild(self.createVolume(token, yamlPathToken[-2], self.material, yamlPathToken[-1]))  
-                        else:
-                            parentObject.addChild(self.createGateObjectFromYamlSection(objectPath, token, self.getDataFromYamlPath(yamlPath)))                        
+                        parentObject.addChild(self.createGateObjectFromYamlSection(token, self.getDataFromYamlPath(yamlPath)))                        
 
                 else:
                     # Continue down the tree
@@ -61,9 +53,6 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
 
     def __repr__(self):
         return f"material: {self.material}, children: {list(self.children.values())}\n"
-
-    def __getitem__(self, key: str):
-        return self.children[key]
 
     ### Volume factory
 
@@ -84,7 +73,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
     def _visMacroFormater(name: str, sub: str) -> str:  return f"/{name}/vis/{sub}"
 
     def getObjectFromGateObjectPath(self, gateObjectPath: str) -> GateObject:
-        pathToken : list[str] = self.yamlData["gate"]["object_path"][gateObjectPath]["object_path"].split("/")
+        pathToken : list[str] = self.yamlData["gate"]["object_path"][gateObjectPath]["object_path"].split("/")[1:]
         gateObject = self
         
         for token in pathToken:
@@ -292,12 +281,12 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         paramSection = self.yamlData["gate"]["parameter"]["volume"]["attach_systems"]
         gateParameterList += self.createParamSection(name, paramSection, self._normalMacroFormater)
         
-        return GateObject("", name, param=gateParameterList)
+        return GateObject(name, param=gateParameterList)
 
-    def createGateObjectFromYamlSection(self, path:str, name: str, yamlSection: dict) -> GateObject:
+    def createGateObjectFromYamlSection(self, name: str, yamlSection: dict) -> GateObject:
         parameterList : list[GateParameter] = self.createParamSection("", yamlSection, self._noNameMacroFormater)
 
-        return GateObject(path, name, param=parameterList)
+        return GateObject(name, param=parameterList)
 
 
     ### GateTree abstract implementation

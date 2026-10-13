@@ -3,29 +3,29 @@ gate:
   object_path:
     GATE: 
       yaml_path: "gate/parameter/gate"
-      object_path: "gate"
+      object_path: "/gate"
     SYSTEMS: 
       yaml_path: "gate/parameter/systems/general"
-      object_path: "gate/systems"
+      object_path: "/gate/systems"
     PHYSICS:
       yaml_path: "gate/parameter/physics"
-      object_path: "gate/physics"
+      object_path: "/gate/physics"
     SOURCE:
       yaml_path: "gate/parameter/source/source_general"
-      object_path: "gate/source"
+      object_path: "/gate/source"
     #DIGITIZER: "gate/digitizer"
     OUTPUT:
       yaml_path: "gate/parameter/output"
-      object_path: "gate/output"
+      object_path: "/gate/output"
     ACQUISITION:
       yaml_path: "gate/parameter/acquisition"
-      object_path: "gate/acquisition"
+      object_path: "/gate/acquisition"
     WORLD: 
       yaml_path: "gate/parameter/volume/box/ - "
-      object_path: "gate/world"
+      object_path: "/gate/world"
     VIS:
       yaml_path: "gate/parameter/vis"
-      object_path: "vis"
+      object_path: "/vis"
 
   units:
     LENGTH_UNITS : ['pc', 'km', 'm', 'cm', 'mm', 'mum', 'nm', 'Ang']

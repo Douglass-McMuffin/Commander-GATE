@@ -9,7 +9,7 @@ class GateParameterProxy():
         ### GateParameterInterface Implementation
     @property
     def path(self) -> str:
-        return self._path
+        return self._gateParameter.path
 
     @property
     def displayedLabel(self) -> str:

@@ -15,17 +15,17 @@ class ModelIterator(ModelIteratorInterface):
         gObj = self._currentGateObject
         #If the current gate object has children, check the children
         if len(gObj.children) >= 1:
-            self._currentGateObject = self._currentGateObject.children[0]
+            self._currentGateObject = list(self._currentGateObject.children.values())[0]
             return GateObjectProxy(self._currentGateObject)
         
-        while(gObj is not None):
+        while(gObj.parent is not None):
             #If not, check if it has siblings (take a step up to the parent and then check children)
             siblings = gObj.parent.children
             if len(siblings) >= 2:
-                nextSiblingIndex = siblings.index(gObj) + 1
+                nextSiblingIndex = list(siblings.values()).index(gObj) + 1
                 # If the gate object is not the last siblings
                 if nextSiblingIndex < len(siblings):
-                    self._currentGateObject = siblings[nextSiblingIndex]
+                    self._currentGateObject = list(siblings.values())[nextSiblingIndex]
                     return GateObjectProxy(self._currentGateObject)
                 else:
                     gObj = gObj.parent
@@ -40,12 +40,11 @@ class ModelIterator(ModelIteratorInterface):
         if len(gObj.children) >= 1:
             return True
         
-        while(gObj is not None):
+        while(gObj.parent is not None):
             #If not, check if it has siblings (take a step up to the parent and then check children)
             siblings = gObj.parent.children
             if len(siblings) >= 2:
-                nextSiblingIndex = siblings.index(gObj) + 1
-                # If the gate object is not the last siblings
+                nextSiblingIndex = list(siblings.values()).index(gObj) + 1
                 if nextSiblingIndex < len(siblings):
                     return True
                 else:

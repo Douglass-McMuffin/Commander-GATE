@@ -3,10 +3,10 @@ from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterf
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class GateObject(GateObjectInterface):
-    def __init__(self, path: str, name: str, parent: GateObject = None, param: list[GateParameter] = []):
-        self._path: str = path
+    def __init__(self, name: str, param: list[GateParameter] = []):
+        self._path: str
         self._name: str = name
-        self._parent: GateObject = parent
+        self._parent: GateObject
         self._param: list[GateParameter] = param
         self._children: dict[str, GateObject] = {} 
         
@@ -17,10 +17,6 @@ class GateObject(GateObjectInterface):
 
     def __repr__(self):
         return f"name: {self.name}, parameter: {self.param}, children: {list(self.children.values())}"
-
-    def __getitem__(self, key: str):
-        return self.children[key]
-
         
     def to_dict(self):
         return {

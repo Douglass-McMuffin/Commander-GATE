@@ -16,6 +16,7 @@ from src.View.parameters.ElidingLabel import ElidingLabel
 from src.View.popups.DistributionsPopup import DistributionPopup
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from src.Control.ControlAPI import ControlAPI
 
 class InspectorSection:
     """
@@ -121,9 +122,8 @@ class InspectorSection:
     def populate_parameters(self, item):
         if not item:
             return
-        gate_object: GateObjectInterface = item.data(0, Qt.ItemDataRole.UserRole)
-        if gate_object is None:
-            return
+        gateObjectPath: str = item.data(0, Qt.ItemDataRole.UserRole)
+        gateObject : GateObjectInterface = ControlAPI.getGateObjectFromObjectPath(gateObjectPath)
 
         # reset model + cache
         self.inspector_widgets = []
@@ -132,23 +132,23 @@ class InspectorSection:
         font_size = self.host.font_size_slider.value()
 
         # header
-        self._add_header(model, gate_object)
+        self._add_header(model, gateObject)
         
 
         # special rows
-        self._maybe_add_physics_plus(model, item, gate_object, font_size)
-        self._maybe_add_source_plus(model, item, gate_object, font_size)
-        self._maybe_add_distributions_plus(model,item,gate_object,font_size)
-        self._maybe_add_rename(model, gate_object, font_size)
-        self._maybe_add_role(model, gate_object, font_size)
-        self._maybe_add_system_root_row(model, gate_object, font_size)
-        self._maybe_add_attach_row(model, gate_object, font_size)
+        self._maybe_add_physics_plus(model, item, gateObject, font_size)
+        self._maybe_add_source_plus(model, item, gateObject, font_size)
+        self._maybe_add_distributions_plus(model,item,gateObject,font_size)
+        self._maybe_add_rename(model, gateObject, font_size)
+        self._maybe_add_role(model, gateObject, font_size)
+        self._maybe_add_system_root_row(model, gateObject, font_size)
+        self._maybe_add_attach_row(model, gateObject, font_size)
         
-        if getattr(gate_object, "path", "") == "/gate/source":
-            self._maybe_add_source_controls(model, item, gate_object, font_size)
+        if getattr(gateObject, "path", "") == "/gate/source":
+            self._maybe_add_source_controls(model, item, gateObject, font_size)
 
         # parameters
-        self._add_parameters_block(model, gate_object, font_size)
+        self._add_parameters_block(model, gateObject, font_size)
         self._sync_seed_manual_state()
 
         # final pass for sizing
@@ -318,42 +318,52 @@ class InspectorSection:
     # -----------------------------
     # Parameters block
     # -----------------------------    
-    def _add_parameters_block(self, model, gate_object: GateObjectInterface, font_size):
-        # section gates
-        sections_shown = {"placement": False, "moves": False, "vis": False, "random": False, "repeater": False}
+    # def _add_parameters_block(self, model, gate_object: GateObjectInterface, font_size):
+    #     # section gates
+    #     sections_shown = {"placement": False, "moves": False, "vis": False, "random": False, "repeater": False}
         
-        # Section tests collected here to avoid long if-chains; behavior identical.
-        def _section_key_for(param_path: str) -> str | None:
-            if "/placement/" in param_path:
-                return "placement"
-            if "/moves/" in param_path:
-                return "moves"
-            if "/vis/" in param_path:
-                return "vis"
-            if param_path.startswith("/random/"):
-                return "random"
-            if any(tag in param_path for tag in ("/repeaters/", "/ring/", "/linear/", "/cubicArray/", "/quadrant/", "/sphere/", "/genericRepeater/")):
-                return "repeater"
-            return None
+    #     # Section tests collected here to avoid long if-chains; behavior identical.
+    #     def _section_key_for(param_path: str) -> str | None:
+    #         if "/placement/" in param_path:
+    #             return "placement"
+    #         if "/moves/" in param_path:
+    #             return "moves"
+    #         if "/vis/" in param_path:
+    #             return "vis"
+    #         if param_path.startswith("/random/"):
+    #             return "random"
+    #         if any(tag in param_path for tag in ("/repeaters/", "/ring/", "/linear/", "/cubicArray/", "/quadrant/", "/sphere/", "/genericRepeater/")):
+    #             return "repeater"
+    #         return None
 
-        for param in gate_object.param:
-            self._normalize_param_lists(param)
+    #     for param in gate_object.param:
+    #         self._normalize_param_lists(param)
 
-            key = _section_key_for(param.path)
-            if key and not sections_shown[key]:
-                title = {
-                    "placement": "Placement Settings",
-                    "moves": "Moving Settings",
-                    "vis": "Visualization Settings",
-                    "random": "Random Settings",
-                    "repeater": "Repeater Settings",
-                }[key]
-                self._add_section_label(model, title, font_size)
-                sections_shown[key] = True
+    #         key = _section_key_for(param.path)
+    #         if key and not sections_shown[key]:
+    #             title = {
+    #                 "placement": "Placement Settings",
+    #                 "moves": "Moving Settings",
+    #                 "vis": "Visualization Settings",
+    #                 "random": "Random Settings",
+    #                 "repeater": "Repeater Settings",
+    #             }[key]
+    #             self._add_section_label(model, title, font_size)
+    #             sections_shown[key] = True
 
+    #         # one param row
+    #         row_widget = self._build_param_row(param, font_size)
+    #         self._append_widget_row(model, row_widget, font_size)
+
+    def _add_parameters_block(self, model, gateObject: GateObjectInterface, fontSize):
+        for param in gateObject.param:
+            # self._normalize_param_lists(param)
             # one param row
-            row_widget = self._build_param_row(param, font_size)
-            self._append_widget_row(model, row_widget, font_size)
+            if param.inputTypeList == "label":
+                self._add_section_label(model, param.displayedLabel, fontSize)
+            else:              
+                row_widget = self._build_param_row(param, fontSize)
+                self._append_widget_row(model, row_widget, fontSize)
 
     def _normalize_param_lists(self, p: GateParameter):
         p.defaultValueList = p.defaultValueList or []
@@ -369,17 +379,22 @@ class InspectorSection:
         label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h.addWidget(label)
 
+        if param.inputTypeList == "label":
+            label.setFont(self._font(font_size, bold=True))
+            label.setStyleSheet("color: black; background-color: #e0e0e0; padding: 4px;")
+
         inputs = []
-        for i in range(len(param.value_list)):
-            w = self._build_input_widget(param.inputTypeList, param, i, font_size)
-            if w:
-                w.setFont(QFont("Arial", font_size))
-                h.addWidget(w, 0)
-                inputs.append(w)
+        if param.inputTypeList in ("text", "dropdown", "dynamic_dropdown", "macro_dropdown", "checkbox", "select"):
+            for i in range(len(param.valueList)):
+                w = self._build_input_widget(param.inputTypeList, param, i, font_size)
+                if w:
+                    w.setFont(QFont("Arial", font_size))
+                    h.addWidget(w, 0)
+                    inputs.append(w)
 
         # units
         unit_dd = None
-        if getattr(param, "unitList", None) and not param.inputTypeList in ("dropdown", "dynamic_dropdown", "macro_dropdown"):
+        if getattr(param, "unitList", None) and param.inputTypeList == "text":
             unit_dd = self._combo(font_size, items=param.unitList or [], width=100)
             default_index = param.defaultUnitIndex
             unit_dd.setCurrentIndex(default_index)

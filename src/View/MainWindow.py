@@ -182,7 +182,8 @@ class MainWindow(QMainWindow):
         tree.setUpdatesEnabled(False)
         try:
             old_block = tree.blockSignals(True)
-            self.hierarchySection.populate(node, self.consoleSection.write)
+            # self.hierarchySection.populate(node, self.consoleSection.write)
+            self.hierarchySection.populate(self.consoleSection.write)
         finally:
             tree.blockSignals(old_block)
             tree.setUpdatesEnabled(True)

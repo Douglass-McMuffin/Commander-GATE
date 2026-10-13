@@ -33,4 +33,8 @@ class GateObjectInterface(ABC):
     ### Methods ###
     def addChild(self, child: GateObjectInterface):
         child.parent = self
+        child.path = self.path + "/" + child.name
         self.children[child.name] = child
+
+    def __getitem__(self, key: str):
+        return self.children[key]

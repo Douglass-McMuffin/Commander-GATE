@@ -2,7 +2,10 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QFontMetrics
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Control.ModelIteratorInterface import ModelIteratorInterface
+from src.Control.ModelIterator import ModelIterator
 from .header import create_header_section
+from sys import stderr
 
 class HierarchySection:
     
@@ -53,38 +56,77 @@ class HierarchySection:
         )
         
         
-    def populate(self, node: GateObjectInterface, write_to_console):
-        self.tree.clear()
+    # def populate(self, node: GateObjectInterface, write_to_console):
+    #     self.tree.clear()
         
-        def find_existing_item(name):
-            found = self.tree.findItems(name, Qt.MatchFlag.MatchExactly, 0)
-            return found[0] if found else None
+    #     def find_existing_item(name):
+    #         found = self.tree.findItems(name, Qt.MatchFlag.MatchExactly, 0)
+    #         return found[0] if found else None
         
-        def add_objects_to_tree(parent_item, gate_obj: GateObjectInterface):
-            existing_node = find_existing_item(gate_obj.name)
+    #     def add_objects_to_tree(parent_item, gate_obj: GateObjectInterface):
+    #         existing_node = find_existing_item(gate_obj.name)
             
-            if not existing_node:
-                item = QTreeWidgetItem([gate_obj.name])
-                item.setData(0, Qt.ItemDataRole.UserRole, gate_obj)
+    #         if not existing_node:
+    #             item = QTreeWidgetItem([gate_obj.name])
+    #             item.setData(0, Qt.ItemDataRole.UserRole, gate_obj)
                 
-                if gate_obj.name == "world":
-                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                    item.setCheckState(0, Qt.CheckState.Checked)
+    #             if gate_obj.name == "world":
+    #                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+    #                 item.setCheckState(0, Qt.CheckState.Checked)
                     
-                if parent_item is None:
-                    self.tree.addTopLevelItem(item)
-                else:
-                    parent_item.addChild(item)
+    #             if parent_item is None:
+    #                 self.tree.addTopLevelItem(item)
+    #             else:
+    #                 parent_item.addChild(item)
                     
-                write_to_console(f"Adding {gate_obj.name} to tree.")
-            else:
-                write_to_console(f"Skipping duplicate: {gate_obj.name}")
-                item = existing_node
+    #             write_to_console(f"Adding {gate_obj.name} to tree.")
+    #         else:
+    #             write_to_console(f"Skipping duplicate: {gate_obj.name}")
+    #             item = existing_node
                 
-            for child in gate_obj.children.values():
-                add_objects_to_tree(item, child)
+    #         for child in gate_obj.children.values():
+    #             add_objects_to_tree(item, child)
 
-        add_objects_to_tree(None, node)
+    #     add_objects_to_tree(None, node)
+
+    def populate(self, write_to_console):
+        """Populate the gate object tree in the hierarchy section"""
+        # get the node iterator
+        modelIterator: ModelIteratorInterface = ModelIterator()
+        self.tree.clear()
+        while(modelIterator.hasMore()):
+            node: GateObjectInterface = modelIterator.getNext()
+            nodePath: list[str] = node.path.split("/")
+            name = nodePath[-1]
+            parentItem = self.find_tree_child(nodePath[1:-1])
+            childItem = QTreeWidgetItem([name])
+            childItem.setData(0, Qt.ItemDataRole.UserRole, node.path)
+
+            if node.path == "/gate/world":
+                childItem.setFlags(childItem.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                childItem.setCheckState(0, Qt.CheckState.Checked)
+            
+            if parentItem is self.tree:
+                self.tree.addTopLevelItem(childItem)
+            else:
+                parentItem.addChild(childItem)
+            
+            write_to_console(f"Adding {name} to tree.")
+
+
+    
+    def find_tree_child(self, pathToken: list[str]) -> QTreeWidgetItem:
+        observedParent = self.tree
+        for token in pathToken:
+            childrenFound = self.tree.findItems(token, Qt.MatchFlag.MatchExactly, 0)
+            if len(childrenFound) != 1:
+                print(f"Unable to find <{token}> child from {observedParent}", file=stderr)
+                return None
+            observedParent = childrenFound[0]
+
+        return observedParent
+
+
             
     def set_item_enabled_recursively(self, item: QTreeWidgetItem, enabled: bool):
         color = Qt.GlobalColor.black if enabled else Qt.GlobalColor.gray

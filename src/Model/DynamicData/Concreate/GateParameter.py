@@ -1,5 +1,6 @@
 import src.Model.StaticData.StaticData as StaticData
 from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
+from copy import deepcopy
 
 
 
@@ -8,7 +9,7 @@ class GateParameter(GateParameterInterface):
             self, 
             path: str,
             displayed_label: str, 
-            input_type_list: str, 
+            input_type: str, 
             default_value_list: list[str | int | float],
             unit_list: list[str] = [], 
             default_unit_index: int = 0,
@@ -16,9 +17,9 @@ class GateParameter(GateParameterInterface):
         ):
         self._path = path
         self._displayedLabel = displayed_label
-        self._inputTypeList = input_type_list        
+        self._inputType = input_type
         self._defaultValueList = default_value_list
-        self._valueList = default_value_list
+        self._valueList = deepcopy(default_value_list)
         self._unitList = unit_list
         self._defaultUnitIndex = default_unit_index
         self._yamlRawProperty = yaml_raw_property
@@ -32,7 +33,7 @@ class GateParameter(GateParameterInterface):
         return {
             "path": self._path,
             "name": self._displayedLabel,
-            "input_types": self._inputTypeList,
+            "input_types": self._inputType,
             "default_values": self._defaultValueList,
             "values": self._valueList,
             "unit_list": self.compare_lists(),
@@ -85,7 +86,7 @@ class GateParameter(GateParameterInterface):
         gateParameter.receiveNotification(self)
 
     def receiveNotification(self, context: GateParameter):
-        if self._inputTypeList == "dynamic_dropdown":
+        if self._inputType == "dynamic_dropdown":
             gateTree = GateTree()
 
             objectPath: list[str]       = self._yamlRawProperty["object_path"]
@@ -106,9 +107,12 @@ class GateParameter(GateParameterInterface):
                 if value not in self._unitList:
                     self._valueList[index] = self._unitList[0]
 
-    def updateField(self, fieldIndex: int, newData: str | float):
+    def updateValue(self, fieldIndex: int, newData: str | float | bool):
         self._valueList[fieldIndex] = newData
         self.notifyAllSubscriber()
+
+    def updateUnitIndex(self, newIndex: int):
+        self._defaultUnitIndex = newIndex
 
     ### GateParameterInterface Implementation
     @property
@@ -120,8 +124,8 @@ class GateParameter(GateParameterInterface):
         return self._displayedLabel
 
     @property
-    def inputTypeList(self) -> str:
-        return self._inputTypeList
+    def inputType(self) -> str:
+        return self._inputType
 
     @property
     def defaultValueList(self) -> list[str] | list[float]:
@@ -147,9 +151,9 @@ class GateParameter(GateParameterInterface):
     def displayedLabel(self, displayedLabel: str):
         self._displayedLabel = displayedLabel
 
-    @inputTypeList.setter
-    def inputTypeList(self, inputTypeList: str):
-        self._inputTypeList = inputTypeList
+    @inputType.setter
+    def inputType(self, inputType: str):
+        self._inputType = inputType
 
     @defaultValueList.setter
     def defaultValueList(self, defaultValueList: list[str] | list[float]):

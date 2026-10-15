@@ -2,8 +2,8 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QListView, QLabel, QHBoxLayout, QLineEdit,
     QPushButton, QCheckBox, QSizePolicy, QFileDialog, QAbstractItemView, QComboBox
 )
-from PyQt6.QtGui import QFont, QStandardItemModel, QStandardItem, QFontMetrics
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QFont, QStandardItemModel, QStandardItem, QFontMetrics, QRegularExpressionValidator
+from PyQt6.QtCore import Qt, QSize, QRegularExpression
 from functools import partial
 
 # Use your existing popups
@@ -15,7 +15,7 @@ from src.View.parameters.BigPopupCombo import BigPopupCombo
 from src.View.parameters.ElidingLabel import ElidingLabel
 from src.View.popups.DistributionsPopup import DistributionPopup
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
-from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
 from src.Control.ControlAPI import ControlAPI
 
 class InspectorSection:
@@ -89,7 +89,7 @@ class InspectorSection:
         btn.setFont(self._font(fs))
         if width:
             btn.setFixedWidth(width)
-        btn.setStyleSheet("font-size: 18px; font-weight: bold; border: none; background: transparent;" if "➕" in text or text == "Add ➕" else "")
+        btn.setStyleSheet("font-size: 18px; font-weight: bold; border: none; background: transparent;" if "➕" in text else "")
         btn.clicked.connect(click)
         return btn
     
@@ -123,7 +123,7 @@ class InspectorSection:
         if not item:
             return
         gateObjectPath: str = item.data(0, Qt.ItemDataRole.UserRole)
-        gateObject : GateObjectInterface = ControlAPI.getGateObjectFromObjectPath(gateObjectPath)
+        gateObject : GateObjectInterface = ControlAPI.getGateObject(gateObjectPath)
 
         # reset model + cache
         self.inspector_widgets = []
@@ -140,8 +140,8 @@ class InspectorSection:
         self._maybe_add_source_plus(model, item, gateObject, font_size)
         self._maybe_add_distributions_plus(model,item,gateObject,font_size)
         self._maybe_add_rename(model, gateObject, font_size)
-        self._maybe_add_role(model, gateObject, font_size)
-        self._maybe_add_system_root_row(model, gateObject, font_size)
+        #self._maybe_add_role(model, gateObject, font_size)
+        #self._maybe_add_system_root_row(model, gateObject, font_size)
         self._maybe_add_attach_row(model, gateObject, font_size)
         
         if getattr(gateObject, "path", "") == "/gate/source":
@@ -207,7 +207,8 @@ class InspectorSection:
         self._append_widget_row(model, btn, font_size)
 
     def _maybe_add_rename(self, model, gate_object: GateObjectInterface, font_size):
-        if gate_object.path == "gate":
+        pathToken = gate_object.path.split("/")[1:]
+        if len(pathToken) == 1 or (pathToken[0] == "gate" and len(pathToken) == 2):
             return
         widget = self._build_rename_row(gate_object, font_size)
         self._append_widget_row(model, widget, font_size)
@@ -318,162 +319,110 @@ class InspectorSection:
     # -----------------------------
     # Parameters block
     # -----------------------------    
-    # def _add_parameters_block(self, model, gate_object: GateObjectInterface, font_size):
-    #     # section gates
-    #     sections_shown = {"placement": False, "moves": False, "vis": False, "random": False, "repeater": False}
-        
-    #     # Section tests collected here to avoid long if-chains; behavior identical.
-    #     def _section_key_for(param_path: str) -> str | None:
-    #         if "/placement/" in param_path:
-    #             return "placement"
-    #         if "/moves/" in param_path:
-    #             return "moves"
-    #         if "/vis/" in param_path:
-    #             return "vis"
-    #         if param_path.startswith("/random/"):
-    #             return "random"
-    #         if any(tag in param_path for tag in ("/repeaters/", "/ring/", "/linear/", "/cubicArray/", "/quadrant/", "/sphere/", "/genericRepeater/")):
-    #             return "repeater"
-    #         return None
-
-    #     for param in gate_object.param:
-    #         self._normalize_param_lists(param)
-
-    #         key = _section_key_for(param.path)
-    #         if key and not sections_shown[key]:
-    #             title = {
-    #                 "placement": "Placement Settings",
-    #                 "moves": "Moving Settings",
-    #                 "vis": "Visualization Settings",
-    #                 "random": "Random Settings",
-    #                 "repeater": "Repeater Settings",
-    #             }[key]
-    #             self._add_section_label(model, title, font_size)
-    #             sections_shown[key] = True
-
-    #         # one param row
-    #         row_widget = self._build_param_row(param, font_size)
-    #         self._append_widget_row(model, row_widget, font_size)
-
     def _add_parameters_block(self, model, gateObject: GateObjectInterface, fontSize):
-        for param in gateObject.param:
-            # self._normalize_param_lists(param)
+        for param in gateObject.param.values():
             # one param row
-            if param.inputTypeList == "label":
+            if param.inputType == "label":
                 self._add_section_label(model, param.displayedLabel, fontSize)
             else:              
-                row_widget = self._build_param_row(param, fontSize)
+                row_widget = self._build_param_row(gateObject.path, param, fontSize)
                 self._append_widget_row(model, row_widget, fontSize)
 
-    def _normalize_param_lists(self, p: GateParameter):
-        p.defaultValueList = p.defaultValueList or []
-        p.valueList = p.valueList or []
-        p.inputTypeList = p.inputTypeList or []
-
-    def _build_param_row(self, param: GateParameter, font_size) -> QWidget:
+    def _build_param_row(self, objectPath: str, param: GateParameterInterface, fontSize) -> QWidget:
         row, h = self._row_widget()
-
+        
         label = ElidingLabel(param.displayedLabel)
-        label.setFont(self._font(font_size))
-        label.setMinimumWidth(self._label_min_px(font_size))
+        label.setFont(self._font(fontSize))
+        label.setMinimumWidth(self._label_min_px(fontSize))
         label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h.addWidget(label)
-
-        if param.inputTypeList == "label":
-            label.setFont(self._font(font_size, bold=True))
-            label.setStyleSheet("color: black; background-color: #e0e0e0; padding: 4px;")
-
+        
         inputs = []
-        if param.inputTypeList in ("text", "dropdown", "dynamic_dropdown", "macro_dropdown", "checkbox", "select"):
-            for i in range(len(param.valueList)):
-                w = self._build_input_widget(param.inputTypeList, param, i, font_size)
-                if w:
-                    w.setFont(QFont("Arial", font_size))
-                    h.addWidget(w, 0)
-                    inputs.append(w)
-
-        # units
+        for i in range(len(param.valueList)):
+            w = self._build_input_widget(objectPath, param, i, fontSize)
+            w.setFont(QFont("Arial", fontSize))
+            h.addWidget(w, 0)
+            inputs.append(w)
+        
         unit_dd = None
-        if getattr(param, "unitList", None) and param.inputTypeList == "text":
-            unit_dd = self._combo(font_size, items=param.unitList or [], width=100)
+        if getattr(param, "unitList", None) and param.inputType == "text":
+            unit_dd = self._combo(fontSize, items=param.unitList, width=100)
             default_index = param.defaultUnitIndex
             unit_dd.setCurrentIndex(default_index)
-            unit_dd.currentIndexChanged.connect(lambda idx, p=param: setattr(p, "default_unit", p.unitList[idx]))
+            unit_dd.currentIndexChanged.connect(lambda index, p=param: ControlAPI.updateGateParamUnitIndex(objectPath, param.displayedLabel, index))
             h.addWidget(unit_dd)
         
         self.inspector_widgets.append({"label":label, "inputs":inputs, "unit":unit_dd})
         return row
 
-    def _build_input_widget(self, input_type: str, param: GateParameter, i, font_size):
-        default_value = param.defaultValueList[i] if i < len(param.defaultValueList) else ""
-        current_value = param.valueList[i] if i < len(param.valueList) else ""
+    def _build_input_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
 
-        if input_type == "text":
-            w = QLineEdit()
-            w.setText(str(default_value))
-            w.setFixedWidth(60 + font_size)
-            w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            w.textChanged.connect(lambda v, p=param, idx=i: self.update_parameter_value(p, idx, v))
-            if getattr(param, "path", "").endswith("/random/setEngineSeedValue"):
-                self._seed_manual_edit = w
-                self._sync_seed_manual_state()
-            return w
+        buildWidget = {
+            "text": self._build_text_widget,
+            "dropdown": self._build_dropdown_widget,
+            "macro_dropdown": self._build_dropdown_widget,
+            "dynamic_dropdown": self._build_dropdown_widget,
+            "checkbox": self._build_checkbox_widget,
+            "select": self._build_select_widget
+        }
 
-        if input_type in ("dropdown", "dynamic_dropdown", "macro_dropdown"):
-            w = self._combo(font_size, items=param.unitList or [], width=100)
-            w.setCurrentIndex(param.defaultUnitIndex)
-            w.currentIndexChanged.connect(lambda idx, p=param: param.updateField(i, param.unitList[idx]))
+        return buildWidget[param.inputType](objectPath, param, fieldIndex, fontSize)
 
-            w.setFixedWidth(120 + font_size * 2)
-            #self._prepare_combo(w)
-            if getattr(param, "path", "").endswith("/random/setEngineSeed"):
-                self._seed_mode_dd = w
-                # react to changes
-                w.currentTextChanged.connect(lambda _=None: self._sync_seed_manual_state())
-                w.currentIndexChanged.connect(lambda _=None: self._sync_seed_manual_state())
-                self._sync_seed_manual_state()
-            return w
+    def _build_text_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        w = QLineEdit()
+        w.setText(str(param.valueList[fieldIndex]))
+        w.setFixedWidth(60 + fontSize)
+        regex = QRegularExpression("-?[0-9]+(.[0-9]+)?")
+        validator = QRegularExpressionValidator(regex)
+        w.setValidator(validator)
+        w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        w.textChanged.connect(lambda text, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex: 
+                              ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, text))
+        return w
 
-        if input_type == "checkbox":
-            w = QCheckBox()
-            w.setChecked(bool(default_value))
-            w.stateChanged.connect(partial(self.update_checkbox_value, param, i))
-            return w
+    def _build_dropdown_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        w = self._combo(fontSize, items=param.unitList or [], width=100)
+        w.setCurrentIndex(param.unitList.index(param.valueList[fieldIndex]))
+        w.currentIndexChanged.connect(lambda index, objectPath=objectPath, param=param, fieldIndex=fieldIndex: 
+                                      ControlAPI.updateGateParamValue(objectPath, param.displayedLabel, fieldIndex, param.unitList[index]))
+        w.setFixedWidth(120 + fontSize * 2)
+        return w
 
-        if input_type == "select":
-            w = self._button("Browse..." if not current_value else str(current_value), font_size, 200,
-                                click=(lambda: self.host.browse_file("import_material_db")) if param.path == "/geometry/setMaterialDatabase"
-                                else (lambda _, b=None, p=param, idx=i: self.browse_file_for_param(w, p, idx)))
-            return w
+    def _build_checkbox_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        w = QCheckBox()
+        w.setChecked(param.valueList[fieldIndex])
+        w.stateChanged.connect(lambda state, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex:
+                               ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, str(state)))
+        return w
 
-        return None
+    def _build_select_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        selectValue = param.valueList[fieldIndex]
+        if (selectValue == None):
+            w = self._button("Browse...", fontSize, 200,
+                            click=(lambda _, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex: 
+                                   self.browse_file_for_param(w, objectPath, paramLabel, fieldIndex)))
+        else:
+            w = self._button(selectValue, fontSize, 200,
+                            click=(lambda _, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex: 
+                                   self.browse_file_for_param(w, objectPath, paramLabel, fieldIndex)))
+            w.setStyleSheet("text-align: right;")
+        
+        return w
+    
     
     # -----------------------------
     # Utility actions
     # -----------------------------
-    
-    def update_parameter_value(self, param: GateParameter, index, value):
-        while len(param.defaultValueList) <= index:
-            param.defaultValueList.append(None)
-        param.defaultValueList[index] = value
-
-    def update_checkbox_value(self, param: GateParameter, index, state):
-        is_checked = (state == Qt.CheckState.Checked.value)
-        while len(param.defaultValueList) <= index:
-            param.defaultValueList.append(None)
-        param.defaultValueList[index] = is_checked
-
-    def browse_file_for_param(self, button, param: GateParameter, index):
+    def browse_file_for_param(self, button, objectPath: str, paramLabel: str, fieldIndex: int):
         dlg = QFileDialog()
         dlg.setWindowTitle("Select a File")
         dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
         if dlg.exec():
             selected_file = dlg.selectedFiles()[0]
-            while len(param.valueList) <= index:
-                param.valueList.append("")
-            param.valueList[index] = selected_file
+            ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, selected_file)
             button.setText(selected_file)
-            self.host.write_to_console(f"Selected file for {param.displayedLabel}: {selected_file}")
+            button.setStyleSheet("text-align: right;")
+            self.host.write_to_console(f"Selected file for {paramLabel}: {selected_file}")
     
     
     # -----------------------------
@@ -545,7 +494,7 @@ class InspectorSection:
                 i += 1
             unique_name = f"{new_name}{i}"
 
-        gate_object.name = unique_name
+        ControlAPI.setGateObjectName(gate_object.path, new_name)
         selected_item = self.host.hierarchySection.tree.currentItem()
         if selected_item:
             selected_item.setText(0, unique_name)
@@ -563,10 +512,10 @@ class InspectorSection:
 
         dd = self._combo(font_size, width=240 + font_size * 2)
         dd.addItem(" - ")
-        for name in self._world_volume_names():
+        for name in ControlAPI.getWorldVolumeNames():
             dd.addItem(name)
 
-        attach_param = next((p for p in src_obj.param if p.path.endswith("/attachTo")), None)
+        attach_param = next((p for p in src_obj.param.values() if p.path.endswith("/attachTo")), None)
         current_attach = (attach_param.default_value_list[0] if (attach_param and attach_param.default_value_list) else "")
         if current_attach and dd.findText(current_attach) != -1:
             dd.setCurrentText(current_attach)
@@ -587,32 +536,6 @@ class InspectorSection:
         h.addWidget(dd)
         h.addWidget(del_btn)
         self._append_widget_row(model, row, font_size)
-        
-    def _world_volume_names(self):
-        """Return names of world and all its descendants as candidate attach targets."""
-        names = []
-        tree = self.host.hierarchySection.tree
-        root = tree.invisibleRootItem()
-        # find the 'world' item
-        world_item = None
-        for i in range(root.childCount()):
-            it = root.child(i)
-            obj: GateObjectInterface = it.data(0, Qt.ItemDataRole.UserRole)
-            if obj and obj.name == "world":
-                world_item = it
-                break
-        if not world_item:
-            return names
-
-        def walk(it):
-            obj: GateObjectInterface = it.data(0, Qt.ItemDataRole.UserRole)
-            if obj:
-                names.append(obj.name)  # use Gate name (matches Gate macro)
-            for k in range(it.childCount()):
-                walk(it.child(k))
-
-        walk(world_item)
-        return names
     
     
     def _delete_source(self, item, src_obj: GateObjectInterface):
@@ -649,6 +572,8 @@ class InspectorSection:
     def _add_spacer(self, model, height=1):
         s = QStandardItem(); 
         s.setSizeHint(QSize(10, height)); 
+        s.setEditable(False)
+        s.setEnabled(False)
         model.appendRow(s)
         
     def _all_system_roots(self):
@@ -657,7 +582,8 @@ class InspectorSection:
         tree = self.host.hierarchySection.tree
         root = tree.invisibleRootItem()
         def walk(item):
-            obj: GateObjectInterface = item.data(0, Qt.ItemDataRole.UserRole)
+            objPath: str = item.data(0, Qt.ItemDataRole.UserRole)
+            obj = ControlAPI.getGateObject(objPath)
             if obj and getattr(obj, "system_type", None):
                 systems.append(obj)
             for i in range(item.childCount()):

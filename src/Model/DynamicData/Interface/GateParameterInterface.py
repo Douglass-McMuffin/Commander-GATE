@@ -11,7 +11,7 @@ class GateParameterInterface(ABC):
         pass
 
     @property
-    def inputTypeList(self) -> str:
+    def inputType(self) -> str:
         pass
 
     @property

@@ -21,6 +21,7 @@ from src.View.popups.MaterialDBViewerDialog import MaterialDBViewerDialog
 from Classes.IO.project_io import ProjectSerializer, ProjectDeserializer
 from Classes.IO.JsonHandler import JsonHandler
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Control.ControlAPI import ControlAPI
 
 
 
@@ -108,7 +109,7 @@ class MainWindow(QMainWindow):
         
         # Connect hierarchy events
         self.hierarchySection.tree.itemClicked.connect(self.inspectorSection.populate_parameters)
-        self.hierarchySection.tree.itemChanged.connect(self.on_tree_item_check_changed)
+        # self.hierarchySection.tree.itemChanged.connect(self.on_tree_item_check_changed)
         
         # Populate
         if self.cManager.node_tree:
@@ -170,9 +171,9 @@ class MainWindow(QMainWindow):
             self.inspectorSection.populate_parameters(current)        
         
     # ======= hierarchy + inspector =======
-    def on_tree_item_check_changed(self, item, column: int):
-        state = item.checkState(0) == Qt.CheckState.Checked
-        self.hierarchySection.set_item_enabled_recursively(item, state)
+    # def on_tree_item_check_changed(self, item, column: int):
+    #     state = item.checkState(0) == Qt.CheckState.Checked
+    #     self.hierarchySection.set_item_enabled_recursively(item, state)
 
     def populate_hierarchy_tree(self, node: GateObjectInterface):
         # snapshot
@@ -258,18 +259,16 @@ class MainWindow(QMainWindow):
             print("Invalid parent item selected.")
             return
             
-        parent_obj: GateObjectInterface = selected_item.data(0, Qt.ItemDataRole.UserRole)
-        if not parent_obj:
+        parentObjPath: str = selected_item.data(0, Qt.ItemDataRole.UserRole)
+        if not parentObjPath:
             return
-        
-        existing_names = [tree.topLevelItem(i).text(0) for i in range(tree.topLevelItemCount())]
         
         dialog = WorldObjectPopup(
             self, 
             self.cManager.get_material_db(), 
-            on_create_callback=lambda new_obj: self.add_object_to_tree(new_obj, parent_obj),
-            existing_names=existing_names)
+            on_create_callback=lambda name, volumeType, repeaterType, parentPath=parentObjPath: ControlAPI.createGateVolumeChild(parentPath, name, volumeType, repeaterType))
         dialog.exec()
+        self.populate_hierarchy_tree(self.cManager.node_tree)
         
     
     def add_object_to_tree(self, new_obj: GateObjectInterface, parent_obj: GateObjectInterface):
@@ -289,7 +288,7 @@ class MainWindow(QMainWindow):
             # Select new node after fallback:
             tree = self.hierarchySection.tree
             def find_and_select_new(item):
-                obj: GateObjectInterface = item.data(0, Qt.ItemDataRole.UserRole)
+                objPath: str = item.data(0, Qt.ItemDataRole.UserRole)
                 if obj is new_obj:
                     # expand its parent so you see it
                     parent = item.parent()
@@ -353,7 +352,7 @@ class MainWindow(QMainWindow):
                 # try to select it
                 tree = self.hierarchySection.tree
                 def walk(it):
-                    obj = it.data(0, Qt.ItemDataRole.UserRole)
+                    objPath: str = it.data(0, Qt.ItemDataRole.UserRole)
                     if obj is new_src:
                         if it.parent(): it.parent().setExpanded(True)
                         tree.setCurrentItem(it)
@@ -370,7 +369,8 @@ class MainWindow(QMainWindow):
             self.write_to_console(f"Created source '{name}' ({src_type}).")
         except Exception as e:
             self.write_to_console(f"Failed to create source: {e}")
-            
+
+    # TODO : Need to change the function so it uses the ControlAPI
     def add_distribution_from_popup(self, name: str, dtype: str):
         """
         Create a new distribution under the '/distributions' node and update UI.
@@ -404,7 +404,7 @@ class MainWindow(QMainWindow):
                 # try selecting the new node
                 tree = self.hierarchySection.tree
                 def walk(it):
-                    obj = it.data(0, Qt.ItemDataRole.UserRole)
+                    objPath: str = it.data(0, Qt.ItemDataRole.UserRole)
                     if obj is new_dist:
                         if it.parent(): it.parent().setExpanded(True)
                         tree.setCurrentItem(it)

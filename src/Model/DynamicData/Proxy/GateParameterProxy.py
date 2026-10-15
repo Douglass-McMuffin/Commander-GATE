@@ -16,8 +16,8 @@ class GateParameterProxy():
         return self._gateParameter.displayedLabel
 
     @property
-    def inputTypeList(self) -> str:
-        return self._gateParameter.inputTypeList
+    def inputType(self) -> str:
+        return self._gateParameter.inputType
 
     @property
     def defaultValueList(self) -> list[str] | list[float]:
@@ -37,28 +37,28 @@ class GateParameterProxy():
 
     @path.setter
     def path(self, path: str):
-        print(f"Cannot change path attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change path attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @displayedLabel.setter
     def displayedLabel(self, displayedLabel: str):
-        print(f"Cannot change displayedLabel attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change displayedLabel attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
-    @inputTypeList.setter
-    def inputTypeList(self, inputTypeList: str):
-        print(f"Cannot change inputTypeList attribute of {str(self)} since it is a proxy.", file=stderr)
+    @inputType.setter
+    def inputType(self, inputType: str):
+        print(f"\033[33mCannot change inputType attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @defaultValueList.setter
     def defaultValueList(self, defaultValueList: list[str] | list[float]):
-        print(f"Cannot change defaultValueList attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change defaultValueList attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @valueList.setter
     def valueList(self, valueList: list[str] | list[float]):
-        print(f"Cannot change valueList attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change valueList attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @unitList.setter
     def unitList(self, unitList: list[str]):
-        print(f"Cannot change unitList attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change unitList attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @defaultUnitIndex.setter
     def defaultUnitIndex(self, defaultUnitIndex: int):
-        print(f"Cannot change defaultUnitIndex attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change defaultUnitIndex attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)

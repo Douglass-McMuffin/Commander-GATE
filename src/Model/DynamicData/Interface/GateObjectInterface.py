@@ -22,12 +22,12 @@ class GateObjectInterface(ABC):
 
     @property
     @abstractmethod
-    def param(self) -> list[GateParameter]:
+    def param(self) -> dict[str, GateParameter]:
         pass
 
     @property
     @abstractmethod
-    def children(self) -> list[GateObjectInterface]:
+    def children(self) -> dict[str, GateObjectInterface]:
         pass
 
     ### Methods ###

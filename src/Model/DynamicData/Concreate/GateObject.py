@@ -7,7 +7,7 @@ class GateObject(GateObjectInterface):
         self._path: str
         self._name: str = name
         self._parent: GateObject
-        self._param: list[GateParameter] = param
+        self._param: dict[str, GateParameter] = param
         self._children: dict[str, GateObject] = {} 
         
 
@@ -31,6 +31,12 @@ class GateObject(GateObjectInterface):
         for parameter in self.param:
             if parameter.displayedLabel == parameterToGet:
                 return parameter
+
+    def updatePathRecursive(self):
+        parentPath = self.parent.path
+        for child in self.children.values():
+            self.path = "/".join([parentPath, self.name])
+            child.updatePathRecursive()
     
         
     ### GateObject abstract implementation
@@ -62,13 +68,14 @@ class GateObject(GateObjectInterface):
     @name.setter
     def name(self, name: str):
         self._name = name
+        self.updatePathRecursive()
 
     @parent.setter
     def parent(self, parent: GateObjectInterface):
         self._parent = parent
 
     @param.setter
-    def param(self, param: list[GateParameter]):
+    def param(self, param: dict[str, GateParameter]):
         self._param = param
 
     @children.setter

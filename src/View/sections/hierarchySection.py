@@ -6,6 +6,7 @@ from src.Control.ModelIteratorInterface import ModelIteratorInterface
 from src.Control.ModelIterator import ModelIterator
 from .header import create_header_section
 from sys import stderr
+from functools import partial
 
 class HierarchySection:
     
@@ -96,9 +97,8 @@ class HierarchySection:
         self.tree.clear()
         while(modelIterator.hasMore()):
             node: GateObjectInterface = modelIterator.getNext()
-            nodePath: list[str] = node.path.split("/")
-            name = nodePath[-1]
-            parentItem = self.find_tree_child(nodePath[1:-1])
+            parentPath, name = node.path.rsplit("/", 1)
+            parentItem = self._find_tree_child(parentPath)
             childItem = QTreeWidgetItem([name])
             childItem.setData(0, Qt.ItemDataRole.UserRole, node.path)
 
@@ -106,7 +106,7 @@ class HierarchySection:
                 childItem.setFlags(childItem.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                 childItem.setCheckState(0, Qt.CheckState.Checked)
             
-            if parentItem is self.tree:
+            if parentItem is self.tree.invisibleRootItem():
                 self.tree.addTopLevelItem(childItem)
             else:
                 parentItem.addChild(childItem)
@@ -115,86 +115,91 @@ class HierarchySection:
 
 
     
-    def find_tree_child(self, pathToken: list[str]) -> QTreeWidgetItem:
-        observedParent = self.tree
-        for token in pathToken:
-            childrenFound = self.tree.findItems(token, Qt.MatchFlag.MatchExactly, 0)
-            if len(childrenFound) != 1:
-                print(f"Unable to find <{token}> child from {observedParent}", file=stderr)
-                return None
-            observedParent = childrenFound[0]
-
-        return observedParent
-
-
-            
-    def set_item_enabled_recursively(self, item: QTreeWidgetItem, enabled: bool):
-        color = Qt.GlobalColor.black if enabled else Qt.GlobalColor.gray
-        item.setForeground(0, color)
+    def _find_tree_child(self, itemPath: str) -> QTreeWidgetItem:
+        oldParent = self.tree.invisibleRootItem()
+        newParent = self.tree.invisibleRootItem()
+        if itemPath == "":
+            return oldParent
         
-        gate_obj: GateObjectInterface = item.data(0, Qt.ItemDataRole.UserRole)
-        if gate_obj:
-            gate_obj.enabled = enabled
+        for barIndex in range(2, itemPath.count("/") + 2):
+            observedPath = "/".join(itemPath.split("/")[:barIndex])
+            for childIndex in range(oldParent.childCount()):
+                child = oldParent.child(childIndex)
+                if observedPath == child.data(0, Qt.ItemDataRole.UserRole):
+                    newParent = child
+                    break
+            if oldParent == newParent:
+                print(f"Unable to find <{itemPath}> child", file=stderr)
+                return None
+            oldParent = newParent
             
-        item.setBackground(0, Qt.GlobalColor.white if enabled else Qt.GlobalColor.lightGray)
-        for i in range(item.childCount()):
-            child = item.child(i)
-            child.setCheckState(0, Qt.CheckState.Checked if enabled else Qt.CheckState.Unchecked)
-            self.set_item_enabled_recursively(child, enabled)
+        return oldParent
+
+
             
-    
-    def _walk(self, item, func):
-        func(item)
-        for i in range(item.childCount()):
-            self._walk(item.child(i), func)
+    # def set_item_enabled_recursively(self, item: QTreeWidgetItem, enabled: bool):
+    #     color = Qt.GlobalColor.black if enabled else Qt.GlobalColor.gray
+    #     item.setForeground(0, color)
+        
+    #     gateObjPath: str = item.data(0, Qt.ItemDataRole.UserRole)
+    #     if gateObjPath:
+    #         gateObjPath.enabled = enabled
+            
+    #     item.setBackground(0, Qt.GlobalColor.white if enabled else Qt.GlobalColor.lightGray)
+    #     for i in range(item.childCount()):
+    #         child = item.child(i)
+    #         child.setCheckState(0, Qt.CheckState.Checked if enabled else Qt.CheckState.Unchecked)
+    #         self.set_item_enabled_recursively(child, enabled)
+            
+    @staticmethod
+    def _iterate(item, func):
+        itemToSee: list[QTreeWidgetItem] = [item]
+        while len(itemToSee) > 0:
+            itemObserved: QTreeWidgetItem = itemToSee.pop(0)
+            func(itemObserved) 
+            for i in range(itemObserved.childCount()):
+                itemToSee.append(itemObserved.child(i))
+
+    @staticmethod
+    def _iterateReturnFirstNotNone(item, func):
+        itemToSee: list[QTreeWidgetItem] = [item]
+        while len(itemToSee) > 0:
+            itemObserved: QTreeWidgetItem = itemToSee.pop(0)
+            result = func(itemObserved) 
+            if result != None:
+                return result
+            for i in range(item.childCount()):
+                itemToSee.append(item.child(i))
+        
             
     def snapshot_state(self):
         """Return (expanded_ids, selected_id, scroll_value)."""
-        expanded_ids = set()
-        selected_id = None
+        expandedPaths = set()
+        selectedPath = None
 
-        root = self.tree.invisibleRootItem()
-        for i in range(root.childCount()):
-            self._walk(root.child(i), lambda it: (
-                # TODO: use a Control method here
-                expanded_ids.add(id(it.data(0, Qt.ItemDataRole.UserRole))) if it.isExpanded() else None
-            ))
+        self._iterate(self.tree.invisibleRootItem(), lambda it: (
+            expandedPaths.add(it.data(0, Qt.ItemDataRole.UserRole)) if it.isExpanded() else None
+        ))
 
         current = self.tree.currentItem()
         if current:
-            # TODO: change the use of ids to be object less?
-            obj: GateObjectInterface = current.data(0, Qt.ItemDataRole.UserRole)
-            if obj is not None:
-                selected_id = id(obj)
+            selectedPath: str = current.data(0, Qt.ItemDataRole.UserRole)
 
         vscroll = self.tree.verticalScrollBar().value()
-        return expanded_ids, selected_id, vscroll
+        return expandedPaths, selectedPath, vscroll
     
     
-    def restore_state(self, expanded_ids, selected_id, vscroll):
-        selected_item = None
-        
-        def apply_state(it):
-            nonlocal selected_item
-            obj: GateObjectInterface = it.data(0, Qt.ItemDataRole.UserRole)
-            if obj is None:
-                return
-            oid = id(obj)
-            if oid in expanded_ids:
-                it.setExpanded(True)
-            if selected_id is not None and oid == selected_id:
-                selected_item = it
+    def restore_state(self, expandedPaths: list[str], selectedPath: str, vscroll):      
+        for expandedItemPath in expandedPaths:
+            expandedItem = self._find_tree_child(expandedItemPath)
+            expandedItem.setExpanded(True)
 
-        root = self.tree.invisibleRootItem()
-        for i in range(root.childCount()):
-            self._walk(root.child(i), apply_state)
-            
-        if selected_id is not None:
-            self.tree.setCurrentItem(selected_item)
-            self.tree.scrollToItem(selected_item)
+        if selectedPath is not None:
+            selectedItem = self._find_tree_child(selectedPath)
+            self.tree.setCurrentItem(selectedItem)
+            self.tree.scrollToItem(selectedItem)         
 
         self.tree.verticalScrollBar().setValue(vscroll)
-            
     
     def add_child_item(self, parent_obj: GateObjectInterface, child_obj: GateObjectInterface):
         """Insert a single child into the existing tree without rebuilding."""
@@ -211,7 +216,7 @@ class HierarchySection:
                 target = it
 
         for i in range(root.childCount()):
-            self._walk(root.child(i), finder)
+            self._iterate(root.child(i), finder)
 
         if target is None:
             return None  # parent not found; fall back to full repopulate

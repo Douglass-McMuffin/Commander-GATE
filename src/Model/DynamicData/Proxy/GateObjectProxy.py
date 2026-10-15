@@ -25,28 +25,34 @@ class GateObjectProxy(GateObjectInterface):
 
     @property
     def param(self):
-        return [GateParameterProxy(param) for param in self._gateObject.param]
+        paramDict = {}
+        for paramKey in self._gateObject.param:
+            paramDict[paramKey] = GateParameterProxy(self._gateObject.param[paramKey])
+        return paramDict
 
     @property
     def children(self):
-        return [GateObjectProxy(child) for child in self._gateObject.children]
+        childrenDict = {}
+        for childKey in self._gateObject.children:
+            childrenDict[childKey] = GateParameterProxy(self._gateObject.children[childKey])
+        return childrenDict
 
     @path.setter
     def path(self, path: str):
-        print(f"Cannot change <path> attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change <path> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @name.setter
     def name(self, name: str):
-        print(f"Cannot change <name> attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change <name> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @parent.setter
     def parent(self, parent: GateObjectProxy):
-        print(f"Cannot change <parent> attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change <parent> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @param.setter
     def param(self, param: list[GateParameterProxy]):
-        print(f"Cannot change <param> attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change <param> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
 
     @children.setter
     def children(self, children: list[GateObjectProxy]):
-        print(f"Cannot change <children> attribute of {str(self)} since it is a proxy.", file=stderr)
+        print(f"\033[33mCannot change <children> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)

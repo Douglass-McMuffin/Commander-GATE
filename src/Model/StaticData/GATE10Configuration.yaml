@@ -53,6 +53,7 @@ gate:
     COLORS: ["white", "gray", "black", "red", "green", "blue", "cyan", "magenta", "yellow"]
     LINE_STYLE: ["dashed", "dotted", "unbroken"]
     INC_EXC: ["exclude", "include"]
+    VOLUME_TYPES: ["box", "sphere", "cylinder", "cone", "ellipsoid", "elliptical tube", "hexagon", "wedge", "tet-mesh-box"]
     REPEATER_TYPES: [" - ", "linear", "ring", "cubicArray", "quadrant", "sphere", "genericRepeater"]
     VIEWER_TYPES: [" - ", "OGL", "OGLS","OGLSQt", "OGLSX", "OGLI", "OGLIQt", "OGLIX", "DAWNFILE", "VRML2FILE"]
     PHYSICS_LISTS: [" - ", "FTFP_BERT", "FTFP_BERT_ATL", "FTFP_BERT_HP", "FTFP_BERT_TRV", "FTFP_INCLXX", "FTFQGSP_BERT", "FTF_BIC", "LBE", "NuBeam", "QBBC", "QBBC_ABLA", "QGSP_BERT", "QGSP_BERT_HP", "QGSP_BIC", "QGSP_BIC_AllHP", "QGSP_BIC_HP", "QGSP_BIC_HPT", "QGSP_FTFP_BERT", "QGSP_INCLXX", "QGS_BIC", "Shielding", "ShieldingLEND"]
@@ -217,7 +218,7 @@ gate:
             units: LENGTH_UNITS
             default_unit_index: 3
 
-      elliptical tube:
+      "elliptical tube":
         - label_list:
             - label: "Semimajor Axis Length"
               macro: "setLong"

@@ -63,14 +63,35 @@ class ControlAPI():
         return names
 
     @staticmethod
+    def getProcessNames() -> list[str]:
+        gateTree = GateTree()
+        objPath = gateTree.yamlData["gate"]["object_path"]["PHYSICS"]["object_path"]
+        gateObject = ControlAPI._getGateObject(objPath)
+
+        return [childName for childName in gateObject.children]
+
+    @staticmethod
     def setGateObjectName(objectPath: str, name: str):
         gateObject = ControlAPI._getGateObject(objectPath)
         gateObject.name = name    
 
     @staticmethod
-    def getYamlUnits(unit: str):
+    def getYamlUnits(unit: str) -> list[str]:
         gateTree = GateTree()
         return gateTree.yamlData["gate"]["units"][unit]
+
+    @staticmethod
+    def createDistributionChild(childName: str, distributionType: str):
+        gateTree = GateTree()
+        distributionsInfo = ControlAPI._getYamlData("gate/object_path/DISTRIBUTIONS")
+        parentObject = ControlAPI._getGateObject(distributionsInfo["object_path"])
+
+    @staticmethod
+    def createProcess(processName: str):
+        gateTree = GateTree()
+        physicsInfo = ControlAPI._getYamlData("gate/object_path/PHYSICS")
+        processObject = gateTree.createGateObjectEmpty("/".join([physicsInfo["object_path"], processName]))
+        gateTree.addParamFromYamlSection(processObject, ControlAPI._getYamlData("gate/parameter/physics/process"))
 
     @staticmethod
     def _getGateObject(objectPath: str) -> GateObjectInterface:
@@ -81,5 +102,18 @@ class ControlAPI():
         
         return gateObject
 
+    @staticmethod
+    def _getYamlData(yamlPath: str):
+        yamlToken = yamlPath.split("/")
+        if yamlPath[0] == "/":
+            yamlToken = yamlToken[1:]
+
+        gateTree = GateTree()
+        yamlData = gateTree.yamlData
+
+        for token in yamlToken:
+            yamlData = yamlData[token]
+
+        return yamlData
 
 

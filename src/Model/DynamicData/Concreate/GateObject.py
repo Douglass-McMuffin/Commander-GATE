@@ -3,13 +3,15 @@ from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterf
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class GateObject(GateObjectInterface):
-    def __init__(self, name: str, param: list[GateParameter] = []):
+    def __init__(self, name: str):
         self._path: str
         self._name: str = name
         self._parent: GateObject
-        self._param: dict[str, GateParameter] = param
+        self._param: dict[str, GateParameter] = {}
         self._children: dict[str, GateObject] = {} 
-        
+
+        # Helper variable to create the gateObject
+        self.paramList: list[GateParameter] = []
 
         # The following caracteristic are going to be a GateParameter :
         # material, translation, rotation, color, style
@@ -34,8 +36,8 @@ class GateObject(GateObjectInterface):
 
     def updatePathRecursive(self):
         parentPath = self.parent.path
+        self.path = "/".join([parentPath, self.name])
         for child in self.children.values():
-            self.path = "/".join([parentPath, self.name])
             child.updatePathRecursive()
     
         
@@ -73,6 +75,7 @@ class GateObject(GateObjectInterface):
     @parent.setter
     def parent(self, parent: GateObjectInterface):
         self._parent = parent
+        self.updatePathRecursive()
 
     @param.setter
     def param(self, param: dict[str, GateParameter]):

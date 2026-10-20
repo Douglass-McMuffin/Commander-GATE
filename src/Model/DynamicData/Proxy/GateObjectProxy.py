@@ -56,3 +56,23 @@ class GateObjectProxy(GateObjectInterface):
     @children.setter
     def children(self, children: list[GateObjectProxy]):
         print(f"\033[33mCannot change <children> attribute of {str(self)} since it is a proxy.\033[0m", file=stderr)
+
+    def getObjectFromGateObjectPath(self, gateObjectPath: str) -> GateObjectInterface:
+        pathToken : list[str] = gateObjectPath.split("/")[1:]
+        if pathToken[0] not in (".", ".."):
+            gateObject = GateObjectProxy(GateTree())
+        else:
+            gateObject = self
+
+        for token in pathToken:
+            if token == "..":
+                if gateObject.name == "root":
+                    print(f"\033[33mCannot get the root node parent since it is the root.\033[0m", file=stderr)
+                    return None
+                gateObject = gateObject.parent
+            elif token != ".":
+                gateObject = gateObject[token]
+
+        return gateObject
+
+from src.Model.DynamicData.Concreate.GateTree import GateTree

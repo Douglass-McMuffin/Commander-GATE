@@ -126,8 +126,14 @@ class InspectorSection:
         gateObject : GateObjectInterface = ControlAPI.getGateObject(gateObjectPath)
 
         # reset model + cache
+        verticalScrollValue = self.listview.verticalScrollBar().value()
         self.inspector_widgets = []
-        model = QStandardItemModel()
+        model: QStandardItemModel = self.listview.model()
+        if model:
+            model.clear()
+        else:
+            model = QStandardItemModel()
+
         self.listview.setModel(model)
         font_size = self.host.font_size_slider.value()
 
@@ -153,6 +159,13 @@ class InspectorSection:
 
         # final pass for sizing
         self.resize_parameters(font_size)
+
+        # Getting the vertical scroll back
+        self.listview.verticalScrollBar().setValue(verticalScrollValue)
+
+        # Update layout
+        # model.layoutChanged.emit()
+        
     
     
     # -----------------------------
@@ -176,12 +189,14 @@ class InspectorSection:
     # -----------------------------
 
     def _maybe_add_physics_plus(self, model, item, gate_object: GateObjectInterface, font_size):
-        if gate_object.name != "physics":
+        if gate_object.path != "/gate/physics":
             return
+        
         btn = self._button("➕", font_size, 40, click=lambda: PhysicsProcessPopup(
-            self.host, gate_object, lambda: self.populate_parameters(item)
+            self.host, ControlAPI.getProcessNames(), lambda: self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
             ).exec())
         self._append_widget_row(model, btn, font_size)
+        
         
     def _maybe_add_source_plus(self, model, item, gate_object: GateObjectInterface, font_size):
         if gate_object.name != "source":
@@ -376,23 +391,25 @@ class InspectorSection:
         validator = QRegularExpressionValidator(regex)
         w.setValidator(validator)
         w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        w.textChanged.connect(lambda text, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex: 
-                              ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, text))
+        w._edited = False
+        w.textEdited.connect(lambda _: setattr(w, "_edited", True))
+        w.editingFinished.connect(lambda: 
+                              self.updateParamTextValue(w, objectPath, param.displayedLabel, fieldIndex, w.text()))
         return w
 
     def _build_dropdown_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
         w = self._combo(fontSize, items=param.unitList or [], width=100)
         w.setCurrentIndex(param.unitList.index(param.valueList[fieldIndex]))
-        w.currentIndexChanged.connect(lambda index, objectPath=objectPath, param=param, fieldIndex=fieldIndex: 
-                                      ControlAPI.updateGateParamValue(objectPath, param.displayedLabel, fieldIndex, param.unitList[index]))
+        w.currentIndexChanged.connect(lambda index:
+                                      self.updateParamValue(objectPath, param.displayedLabel, fieldIndex, param.unitList[index]))
         w.setFixedWidth(120 + fontSize * 2)
         return w
 
     def _build_checkbox_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
         w = QCheckBox()
         w.setChecked(param.valueList[fieldIndex])
-        w.stateChanged.connect(lambda state, objectPath=objectPath, paramLabel=param.displayedLabel, fieldIndex=fieldIndex:
-                               ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, str(state)))
+        w.stateChanged.connect(lambda state: 
+                               self.updateParamValue(objectPath, param.displayedLabel, fieldIndex, str(state == Qt.CheckState.Checked.value)))
         return w
 
     def _build_select_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
@@ -413,6 +430,20 @@ class InspectorSection:
     # -----------------------------
     # Utility actions
     # -----------------------------
+    def updateParamValue(self, objectPath: str, paramName: str, fieldIndex: int, value: str):
+        ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
+        self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+        self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
+
+    
+    def updateParamTextValue(self, widget, objectPath: str, paramName: str, fieldIndex: int, value: str):
+        if widget._edited == True:
+            widget._edited = False
+            ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
+            self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+            self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
+
+
     def browse_file_for_param(self, button, objectPath: str, paramLabel: str, fieldIndex: int):
         dlg = QFileDialog()
         dlg.setWindowTitle("Select a File")
@@ -423,6 +454,8 @@ class InspectorSection:
             button.setText(selected_file)
             button.setStyleSheet("text-align: right;")
             self.host.write_to_console(f"Selected file for {paramLabel}: {selected_file}")
+            self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+            self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
     
     
     # -----------------------------

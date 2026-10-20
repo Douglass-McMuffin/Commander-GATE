@@ -6,7 +6,6 @@ from src.Control.ModelIteratorInterface import ModelIteratorInterface
 from src.Control.ModelIterator import ModelIterator
 from .header import create_header_section
 from sys import stderr
-from functools import partial
 
 class HierarchySection:
     
@@ -55,40 +54,6 @@ class HierarchySection:
             QTreeWidget::item {{ height: {row_h}px; padding: 1px 4px; }}
             """
         )
-        
-        
-    # def populate(self, node: GateObjectInterface, write_to_console):
-    #     self.tree.clear()
-        
-    #     def find_existing_item(name):
-    #         found = self.tree.findItems(name, Qt.MatchFlag.MatchExactly, 0)
-    #         return found[0] if found else None
-        
-    #     def add_objects_to_tree(parent_item, gate_obj: GateObjectInterface):
-    #         existing_node = find_existing_item(gate_obj.name)
-            
-    #         if not existing_node:
-    #             item = QTreeWidgetItem([gate_obj.name])
-    #             item.setData(0, Qt.ItemDataRole.UserRole, gate_obj)
-                
-    #             if gate_obj.name == "world":
-    #                 item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-    #                 item.setCheckState(0, Qt.CheckState.Checked)
-                    
-    #             if parent_item is None:
-    #                 self.tree.addTopLevelItem(item)
-    #             else:
-    #                 parent_item.addChild(item)
-                    
-    #             write_to_console(f"Adding {gate_obj.name} to tree.")
-    #         else:
-    #             write_to_console(f"Skipping duplicate: {gate_obj.name}")
-    #             item = existing_node
-                
-    #         for child in gate_obj.children.values():
-    #             add_objects_to_tree(item, child)
-
-    #     add_objects_to_tree(None, node)
 
     def populate(self, write_to_console):
         """Populate the gate object tree in the hierarchy section"""
@@ -134,22 +99,6 @@ class HierarchySection:
             oldParent = newParent
             
         return oldParent
-
-
-            
-    # def set_item_enabled_recursively(self, item: QTreeWidgetItem, enabled: bool):
-    #     color = Qt.GlobalColor.black if enabled else Qt.GlobalColor.gray
-    #     item.setForeground(0, color)
-        
-    #     gateObjPath: str = item.data(0, Qt.ItemDataRole.UserRole)
-    #     if gateObjPath:
-    #         gateObjPath.enabled = enabled
-            
-    #     item.setBackground(0, Qt.GlobalColor.white if enabled else Qt.GlobalColor.lightGray)
-    #     for i in range(item.childCount()):
-    #         child = item.child(i)
-    #         child.setCheckState(0, Qt.CheckState.Checked if enabled else Qt.CheckState.Unchecked)
-    #         self.set_item_enabled_recursively(child, enabled)
             
     @staticmethod
     def _iterate(item, func):
@@ -201,34 +150,21 @@ class HierarchySection:
 
         self.tree.verticalScrollBar().setValue(vscroll)
     
-    def add_child_item(self, parent_obj: GateObjectInterface, child_obj: GateObjectInterface):
+    def add_child_item(self, parentPath: str, childObj: GateObjectInterface):
         """Insert a single child into the existing tree without rebuilding."""
         from PyQt6.QtWidgets import QTreeWidgetItem
 
         # Find parent item
-        target = None
-        root = self.tree.invisibleRootItem()
-
-        def finder(it):
-            nonlocal target
-            obj: GateObjectInterface = it.data(0, Qt.ItemDataRole.UserRole)
-            if obj is parent_obj:
-                target = it
-
-        for i in range(root.childCount()):
-            self._iterate(root.child(i), finder)
-
-        if target is None:
-            return None  # parent not found; fall back to full repopulate
+        parentItem = self._find_tree_child(parentPath)
 
         # Create and attach
-        item = QTreeWidgetItem([child_obj.name])
-        item.setData(0, Qt.ItemDataRole.UserRole, child_obj)
-        if getattr(child_obj, "name", lambda: None)() == "world":
+        item = QTreeWidgetItem([childObj.name])
+        item.setData(0, Qt.ItemDataRole.UserRole, childObj.path)
+        if childObj.path.startswith("/gate/world"):
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(0, Qt.CheckState.Checked)
 
-        target.addChild(item)
-        target.setExpanded(True)
+        parentItem.addChild(item)
+        parentItem.setExpanded(True)
         self.tree.setCurrentItem(item)
         return item

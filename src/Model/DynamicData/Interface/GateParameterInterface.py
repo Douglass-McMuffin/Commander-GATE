@@ -29,3 +29,5 @@ class GateParameterInterface(ABC):
     @property
     def defaultUnitIndex(self) -> int:
         pass
+
+    ### Methods

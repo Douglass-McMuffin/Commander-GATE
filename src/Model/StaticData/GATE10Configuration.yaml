@@ -8,10 +8,10 @@ gate:
       yaml_path: "gate/parameter/systems/general"
       object_path: "/gate/systems"
     PHYSICS:
-      yaml_path: "gate/parameter/physics"
+      yaml_path: "gate/parameter/physics/physics_general"
       object_path: "/gate/physics"
     SOURCE:
-      yaml_path: "gate/parameter/source/source_general"
+      yaml_path: "gate/parameter/source/source_folder"
       object_path: "/gate/source"
     #DIGITIZER: "gate/digitizer"
     OUTPUT:
@@ -20,6 +20,9 @@ gate:
     ACQUISITION:
       yaml_path: "gate/parameter/acquisition"
       object_path: "/gate/acquisition"
+    DISTRIBUTIONS:
+      yaml_path: "gate/parameter/distributions/distributions_object_general"
+      object_path: "/gate/distributions"
     WORLD: 
       yaml_path: "gate/parameter/volume/box/ - "
       object_path: "/gate/world"
@@ -56,10 +59,18 @@ gate:
     VOLUME_TYPES: ["box", "sphere", "cylinder", "cone", "ellipsoid", "elliptical tube", "hexagon", "wedge", "tet-mesh-box"]
     REPEATER_TYPES: [" - ", "linear", "ring", "cubicArray", "quadrant", "sphere", "genericRepeater"]
     VIEWER_TYPES: [" - ", "OGL", "OGLS","OGLSQt", "OGLSX", "OGLI", "OGLIQt", "OGLIX", "DAWNFILE", "VRML2FILE"]
-    PHYSICS_LISTS: [" - ", "FTFP_BERT", "FTFP_BERT_ATL", "FTFP_BERT_HP", "FTFP_BERT_TRV", "FTFP_INCLXX", "FTFQGSP_BERT", "FTF_BIC", "LBE", "NuBeam", "QBBC", "QBBC_ABLA", "QGSP_BERT", "QGSP_BERT_HP", "QGSP_BIC", "QGSP_BIC_AllHP", "QGSP_BIC_HP", "QGSP_BIC_HPT", "QGSP_FTFP_BERT", "QGSP_INCLXX", "QGS_BIC", "Shielding", "ShieldingLEND"]
+    PHYSICS_TYPES: [" - ", 
+                    "FTFP_BERT", "FTFP_BERT_HP", "FTFP_BERT_HPT", "FTFP_BERT_ATL",  "FTFP_BERT_TRV", "FTFP_INCLXX", "FTFP_INCLXX_HP", "FTFP_INCLXX_HPT", "FTFQGS_BERT", "FTF_BIC",
+                    "QBBC", "QBBC_ABLA", 
+                    "QGSP_BERT", "QGSP_BERT_HP", "QGSP_BERT_HPT", "QGSP_FTFP_BERT", "QGSP_INCLXX", "QGSP_INCLXX_HP", "QGSP_INCLXX_HPT", 
+                    "QGSP_BIC", "QGSP_BIC_HP", "QGSP_BIC_HPT", "QGSP_BIC_AllHP", "QGSP_BIC_AllHPT",
+                    "Shielding", "Shielding_HP", "Shielding_HPT", "ShieldingM", "ShieldingM_HP", "ShieldingM_HPT", "ShieldingLEND",
+                    "LBE", "NuBeam",
+                    "emstandard", "emstandard_opt1", "emstandard_opt2", "emstandard_opt3", "emlivermore", "emlivermore_polar", "empenelope"]
+    PROCESS_TYPES: ["Bremsstrahlung", "Cerenkov", "Compton", "Decay", "ElectronIonisation", "Fictitious", "Fission", "GammaConversion", "NeutronCapture", "HadronElastic", "HadronIonisation", "IonInelastic", "IonIonisation", "MuBremsstrahlung", "MuIonisation", "MuPairProduction", "NanoAbsorption", "NeutronInelastic", "OpticalAbsorption", "OpticalBoundary", "OpticalMie", "OpticalRayleigh", "OpticalWLS", "PhotoElectric", "PionMinusInelastic", "PionPlusInelastic", "PositronAnnihilation", "G4PositronAnnihilation", "ProtonInelastic", "RadioactiveDecay", "RayleighScattering", "Scintillation", "SingleScattering", "XrayBoundary", "eMultipleScattering", "hMultipleScattering"]
     RANDOM_ENGINES: ["Ranlux64", "JamesRandom", "MixMaxRng", "MersenneTwister"]
     RANDOM_SEED_MODE: ["default", "auto", "manual"]
-    SOURCE_PARTICLES: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
+    SOURCE_particles: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
     SOURCE_ENERGY_TYPES: ["Mono", "Lin", "Pow", "Exp", "Gauss", "Brem", "Bbody", "Cdg", "UserSpectrum", "Arb", "Epn", "Fluor18"]
     SOURCE_ANG_TYPES: ["iso"]
     SOURCE_DOMAINS: ["Point", "Beam", "Plane", "Surface", "Volume"]
@@ -105,6 +116,187 @@ gate:
     OpticalSystem:
       component: ["crystal", "pixel"]
       geometry: ["any", "any"]
+
+  process_components:
+    Bremsstrahlung:
+      particles: ["all", "e+", "e-"]
+      models: ["StandardModel", "LivermoreModel", "PenelopeModel"]
+      data_sets: []
+
+    Cerenkov:
+      particles: ["all", "e+", "e-", "mu+", "mu-", "tau+", "tau-", "pi+", "pi-", "kaon+", "kaon-", "sigma+", "sigma-", "proton", "anti_proton", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "deuteron", "triton", "He3", "alpha", "GenericIon"]
+      models: []
+      data_sets: []
+
+    Compton:
+      particles: ["all", "gamma"]
+      models: ["StandardModel", "LivermoreModel", "LivermorePolarizedModel", "PenelopeModel"]
+      data_sets: []
+
+    Decay:
+      particles: ["all", "mu+", "mu-", "tau+", "tau-", "sigma0", "anti_sigma0", "pi+", "pi-", "pi0", "kaon+", "kaon-", "kaon0L", "kaon0S", "sigma+", "sigma-", "neutron", "lambda", "anti_lambda", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "xi0", "anti_xi0"]
+      models: []
+      data_sets: []
+
+    ElectronIonisation:
+      particles: ["all", "e+", "e-"]
+      models: ["StandardModel", "LivermoreModel", "PenelopeModel"]
+      data_sets: []
+
+    Fictitious:
+      particles: ["all", "gamma"]
+      models: []
+      data_sets: []
+
+    Fission:
+      particles: ["all", "neutron"]
+      models: ["G4LFission", "G4NeutronHPFission", "G4NeutronHPorLFission"]
+      data_sets: ["G4HadronFissionDataSet", "G4NeutronHPFissionData"]
+
+    GammaConversion:
+      particles: ["all", "gamma"]
+      models: ["StandardModel", "LivermoreModel", "LivermorePolarizedModel", "PenelopeModel"]
+      data_sets: []
+
+    NeutronCapture:
+      particles: ["all", "neutron"]
+      models: ["G4LCapture", "G4NeutronHPCapture", "G4NeutronHPorLCapture"]
+      data_sets: ["G4HadronCaptureDataSet", "G4NeutronHPCaptureData"]
+
+    HadronElastic:
+      particles: ["all", "sigma0", "anti_sigma0", "pi+", "pi-", "pi0", "kaon+", "kaon-", "kaon0L", "kaon0S", "sigma+", "sigma-", "proton", "anti_proton", "neutron", "anti_neutron", "lambda", "anti_lambda", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "xi0", "anti_xi0", "deuteron", "triton", "He3", "alpha", "GenericIon"]
+      models: ["G4LElastic", "G4NeutronHPElastic", "G4NeutronHPorLElastic", "G4ElasticHadrNucleusHE", "G4LEpp", "G4LEnp", "G4HadronElastic"]
+      data_sets: ["G4HadronElasticDataSet", "G4NeutronHPElasticData"]
+
+    HadronIonisation:
+      particles: ["all", "pi+", "pi-", "kaon+", "kaon-", "sigma+", "sigma-", "proton", "anti_proton", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "deuteron", "triton", "He3", "alpha", "GenericIon"]
+      models: []
+      data_sets: []
+
+    IonInelastic:
+      particles: ["all", "GenericIon", "alpha", "deuteron", "triton"]
+      models: ["G4BinaryLightIonReaction", "G4WilsonAbrasionModel", "G4LEDeuteronInelastic", "G4LETritonInelastic", "G4LEAlphaInelastic", "G4QMDReaction"]
+      data_sets: ["G4TripathiCrossSection", "G4IonsKoxCrossSection", "G4IonsShenCrossSection", "G4IonsSihverCrossSection", "G4TripathiLightCrossSection", "G4HadronInelasticDataSet"]
+
+    IonIonisation:
+      particles: ["all", "GenericIon", "alpha", "deuteron", "triton", "He3"]
+      models: []
+      data_sets: []
+
+    MuBremsstrahlung:
+      particles: ["all", "mu+", "mu-"]
+      models: []
+      data_sets: []
+
+    MuIonisation:
+      particles: ["all", "mu+", "mu-"]
+      models: []
+      data_sets: []
+
+    MuPairProduction:
+      particles: ["all", "mu+", "mu-"]
+      models: []
+      data_sets: []
+
+    NanoAbsorption:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    NeutronInelastic:
+      particles: ["all", "neutron"]
+      models: ["G4LENeutronInelastic", "G4BertiniCascade", "G4BinaryCascade", "GateBinaryCascade", "PreCompound", "LeadingParticleBias", "G4NeutronHPInelastic", "G4NeutronHPorLEInelastic"]
+      data_sets: ["G4HadronInelasticDataSet", "G4NeutronInelasticCrossSection", "G4NeutronHPInelasticData"]
+
+    OpticalAbsorption:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    OpticalBoundary:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    OpticalMie:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    OpticalRayleigh:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    OpticalWLS:
+      particles: ["all", "opticalphoton"]
+      models: []
+      data_sets: []
+
+    PhotoElectric:
+      particles: ["all", "gamma"]
+      models: ["StandardModel", "LivermoreModel", "PenelopeModel"]
+      data_sets: []
+
+    PionMinusInelastic:
+      particles: ["all", "pi-"]
+      models: ["G4LEPionMinusInelastic", "G4BertiniCascade", "G4BinaryCascade", "LeadingParticleBias"]
+      data_sets: ["G4HadronInelasticDataSet", "G4PiNuclearCrossSection"]
+
+    PionPlusInelastic:
+      particles: ["all", "pi+"]
+      models: ["G4LEPionPlusInelastic", "G4BertiniCascade", "G4BinaryCascade", "LeadingParticleBias"]
+      data_sets: ["G4HadronInelasticDataSet", "G4PiNuclearCrossSection"]
+
+    PositronAnnihilation:
+      particles: ["all", "e+"]
+      models: []
+      data_sets: []
+
+    G4PositronAnnihilation:
+      particles: ["all", "e+"]
+      models: ["StandardModel", "PenelopeModel"]
+      data_sets: []
+
+    ProtonInelastic:
+      particles: ["all", "proton"]
+      models: ["G4LEProtonInelastic", "G4BertiniCascade", "G4BinaryCascade", "GateBinaryCascade", "PreCompound", "LeadingParticleBias", "G4QMDReaction"]
+      data_sets: ["G4HadronInelasticDataSet", "G4ProtonInelasticCrossSection"]
+
+    RadioactiveDecay:
+      particles: ["all", "GenericIon"]
+      models: []
+      data_sets: []
+
+    RayleighScattering:
+      particles: ["all", "gamma"]
+      models: ["LivermoreModel", "LivermorePolarizedModel", "PenelopeModel"]
+      data_sets: []
+
+    Scintillation:
+      particles: ["all", "e+", "e-", "mu+", "mu-", "tau+", "tau-", "pi+", "pi-", "kaon+", "kaon-", "sigma+", "sigma-", "proton", "anti_proton", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "deuteron", "triton", "He3", "alpha", "GenericIon", "neutron", "gamma"]
+      models: []
+      data_sets: []
+
+    SingleScattering:
+      particles: ["all", "e+", "e-", "mu+", "mu-", "tau+", "tau-", "pi+", "pi-", "kaon+", "kaon-", "sigma+", "sigma-", "proton", "anti_proton", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "deuteron", "triton", "He3", "alpha", "GenericIon"]
+      models: []
+      data_sets: []
+
+    XrayBoundary:
+      particles: ["all", "gamma"]
+      models: []
+      data_sets: []
+
+    eMultipleScattering:
+      particles: ["all", "e+", "e-"]
+      models: ["UrbanModel"]
+      data_sets: []
+
+    hMultipleScattering:
+      particles: ["all", "mu+", "mu-", "tau+", "tau-", "pi+", "pi-", "kaon+", "kaon-", "sigma+", "sigma-", "proton", "anti_proton", "xi-", "anti_xi-", "anti_sigma+", "anti_sigma-", "omega-", "anti_omega-", "deuteron", "triton", "He3", "alpha", "GenericIon"]
+      models: []
+      data_sets: []
 
   parameter:
     volume:
@@ -853,7 +1045,7 @@ gate:
           property:
             type: dynamic_dropdown
             default_value: [0]
-            object_path: ["SYSTEMS"] # This path direct to the gateObject to search. 
+            object_path: ["/gate/systems"] # This path direct to the gateObject to search. 
             object_label: ["Systems Structure Type"] # This is the label name in which the value_list is stored
             object_label_index: [0] # Index of the field to get the value
             list_path: "gate/systems_components/&0/component"
@@ -867,13 +1059,98 @@ gate:
             value_list: SD_TYPE
             
     physics:
-      - label_list:
-        - label: "Physics List"
-          macro: "addPhysicsList"
-        property:
-          type: dropdown
-          default_value: [0]
-          value_list: PHYSICS_LISTS
+      physics_general:
+        - label_list:
+          - label: "Physics List"
+            macro: "addPhysicsList"
+          property:
+            type: dropdown
+            default_value: [0]
+            value_list: PHYSICS_TYPES
+      process:
+        - label_list:
+          - label: "Process Definition"
+            macro: ""
+          property:
+            type: label
+
+        - label_list:
+          - label: "Process"
+            macro: "addProcess"
+          property:
+            type: dropdown
+            default_value: [0]
+            value_list: PROCESS_TYPES
+        
+        - label_list:
+          - label: "Particle"
+            macro: ""
+          property:
+            type: dynamic_dropdown
+            default_value: [0]
+            object_path: ["."] # This path direct to the gateObject to search. Since it is a dot, it means that the parameter with the information is in the same gateObject.
+            object_label: ["Process"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+            list_path: "gate/process_components/&0/particles"
+
+        - label_list:
+          - label: "Model"
+            macro: "setModel"
+          property:
+            type: dynamic_dropdown
+            default_value: [0]
+            object_path: ["."] # This path direct to the gateObject to search. Since it is a dot, it means that the parameter with the information is in the same gateObject.
+            object_label: ["Process"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+            list_path: "gate/process_components/&0/models"
+        
+        - label_list:
+          - label: "DataSet"
+            macro: "setDataSet"
+          property:
+            type: dynamic_dropdown
+            default_value: [0]
+            object_path: ["."] # This path direct to the gateObject to search. Since it is a dot, it means that the parameter with the information is in the same gateObject.
+            object_label: ["Process"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+            list_path: "gate/process_components/&0/data_sets"
+        
+        - label_list:
+          - label: "Enable process"
+            macro: ""
+          property:
+            type: checkbox
+            default_value: [True]
+        
+        - label_list:
+          - label: "Process Energy Range"
+            macro: ""
+          property:
+            type: label
+
+        - label_list:
+          - label: "Maximal Energy"
+            macro: "setEmax"
+          - label: "Minimal Energy"
+            macro: "setEmin"
+          property:
+            type: text
+            default_value: [0]
+            units: ENERGY_UNITS
+            default_unit_index: 1
+
+        - label_list:
+          - label: "Enable Energy Max"
+            macro: "setEmax"
+          - label: "Enable Energy Min"
+            macro: "setEmin"
+          property:
+            type: checkbox
+            default_value: [False]
+
+        
+
+            
     
     digitizer:
       digitizer_general:
@@ -885,6 +1162,13 @@ gate:
             default_value: [False]
       
     distributions:
+      distributions_object_general:
+        - label_list:
+          - label: "Distribution Folder"
+            macro: ""
+          property:
+            type: label
+
       distributions_generic:
         - label_list:
           - label: "Distribution name"
@@ -1018,6 +1302,13 @@ gate:
 
 
     source:
+      source_folder:
+        - label_list:
+          - label: "Source Folder"
+            macro: ""
+          property:
+            type: label
+    
       source_general:
         - label_list:
           - label: "Activity"
@@ -1837,13 +2128,12 @@ gate:
           default_value: [null]
 
 
-
+placeholder:
+  empty_units: [" - "]
         
 
             
         
-
-
 
 
 

@@ -1,5 +1,6 @@
 import src.Model.StaticData.StaticData as StaticData
 from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from copy import deepcopy
 
 
@@ -25,6 +26,7 @@ class GateParameter(GateParameterInterface):
         self._yamlRawProperty = yaml_raw_property
 
         self._subscriberValueChanged: list[GateParameter] = []
+        self._gateObjectParent: GateObjectInterface = None
 
     def __repr__(self):
         return f"Param <\"{self._displayedLabel}\">"
@@ -80,12 +82,12 @@ class GateParameter(GateParameterInterface):
 
     def notifyAllSubscriber(self):
         for parameter in self._subscriberValueChanged:
-            parameter.receiveNotification(self)
+            parameter.receiveNotification()
 
     def notifyOneSubscriber(self, gateParameter: GateParameter):
-        gateParameter.receiveNotification(self)
+        gateParameter.receiveNotification()
 
-    def receiveNotification(self, context: GateParameter):
+    def receiveNotification(self):
         if self._inputType == "dynamic_dropdown":
             gateTree = GateTree()
 
@@ -94,18 +96,22 @@ class GateParameter(GateParameterInterface):
             labelIndex: list[int]       = self._yamlRawProperty["object_label_index"] 
             listPath: str               = self._yamlRawProperty["list_path"]
             
-            paramToReach: list[GateParameter] = [gateTree.getParamFromGateObjectPath(objectPath[i], labelName[i]) for i in range(len(objectPath))]
+            paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
             
-            pathToken: list[str]        = [paramToReach[0]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
+            pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
             
             for index in range(len(objectPath)):
                 listPath = listPath.replace(f"&{index}", pathToken[index])
             
             self.unitList: list[str] =  gateTree.getDataFromYamlPath(listPath)
+            if len(self.unitList) == 0:
+                self.unitList = gateTree.getDataFromYamlPath("placeholder/empty_units")
 
-            for index, value in enumerate(self._valueList):
+            for index, value in enumerate(self.valueList):
                 if value not in self._unitList:
-                    self._valueList[index] = self._unitList[0]
+                    self.valueList[index] = self._unitList[0]
+            
+
 
     def updateValue(self, fieldIndex: int, newData: str | float | bool):
         self._valueList[fieldIndex] = newData

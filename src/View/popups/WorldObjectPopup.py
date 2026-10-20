@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from Classes.GObjectCreator import GObjectCreator
-from src.Model.StaticData.StyleSheets import WORLD_OBJECT_WINDOW_STYLESHEET
+from src.View.StyleSheets import WORLD_OBJECT_WINDOW_STYLESHEET
 from src.Control.ControlAPI import ControlAPI
 
 class WorldObjectPopup(QDialog):

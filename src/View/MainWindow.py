@@ -10,7 +10,7 @@ from PyQt6.QtGui import QAction, QFont, QStandardItemModel, QStandardItem
 from PyQt6.QtCore import Qt, QSize
 from src.View.popups.PhysicsProcessPopup import PhysicsProcessPopup
 from src.View.popups.WorldObjectPopup import WorldObjectPopup
-import src.Model.StaticData.StyleSheets as Style
+import src.View.StyleSheets as Style
 
 
 from src.View.actions.toolbar import ToolbarBuilder

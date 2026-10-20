@@ -1,24 +1,25 @@
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QComboBox, QListWidget, QListWidgetItem, QWidget
+    QLineEdit, QListWidget, QListWidgetItem, QWidget
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 from src.Model.StaticData.StaticData import PHYSICS_PROCESSES
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
-import src.Model.StaticData.StyleSheets as Style
+import src.View.StyleSheets as Style
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Control.ControlAPI import ControlAPI
 
 class PhysicsProcessPopup(QDialog):
-    def __init__(self, parent, physics_gate_object: GateObjectInterface, on_change_callback):
+    def __init__(self, parent, existingNames: list[str], onChangeCallback):
         super().__init__(parent)
         self.setWindowTitle("Edit Physics Processes")
         self.setModal(True)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setMinimumSize(600, 400)
-        self.physics_obj = physics_gate_object
-        self.on_change_callback = on_change_callback
+        self.existingNames = existingNames
+        self.onChangeCallback = onChangeCallback
         self.font_size = parent.font().pointSize()
         self.default_font = QFont("Arial", self.font_size)
         self.setStyleSheet(Style.LIGHT_MODE_STYLESHEET)
@@ -33,13 +34,15 @@ class PhysicsProcessPopup(QDialog):
         label.setFont(self.default_font)
         layout.addWidget(label)
 
-        self.process_dropdown = QComboBox()
-        self.process_dropdown.setFont(self.default_font)
-        self.process_dropdown.setMinimumHeight(self.font_size * 2)
-        self.process_dropdown.addItems([
-            p for p in PHYSICS_PROCESSES.keys() if not self._already_added(p)
-        ])
-        layout.addWidget(self.process_dropdown)
+        label_font = QFont("Arial", self.font_size)
+        # Section: Name
+        name_label = QLabel("Object Name:")
+        name_label.setFont(label_font)
+        self.name_input = QLineEdit()
+        self.name_input.setFont(label_font)
+        self.name_input.setPlaceholderText("Enter object name")
+        layout.addWidget(name_label)
+        layout.addWidget(self.name_input)
 
         add_button = QPushButton("Add Process")
         add_button.setFont(self.default_font)
@@ -47,36 +50,6 @@ class PhysicsProcessPopup(QDialog):
         add_button.clicked.connect(self.add_process)
         layout.addWidget(add_button)
 
-        layout.addWidget(self._styled_label("Existing Processes:"))
-
-        self.process_list = QListWidget()
-        self.process_list.setFont(self.default_font)
-
-        for p in self._get_existing_processes():
-            item = QListWidgetItem()
-            widget = QWidget()
-            row_layout = QHBoxLayout()
-            row_layout.setContentsMargins(5, 2, 5, 2)
-            row_layout.setSpacing(10)
-
-            process_label = QLabel(p)
-            process_label.setFont(self.default_font)
-
-            remove_btn = QPushButton("❌")
-            remove_btn.setFont(self.default_font)
-            remove_btn.setFixedWidth(30)
-            remove_btn.setStyleSheet("font-size: 14px; color: red; border: none; background: transparent;")
-            remove_btn.clicked.connect(lambda _, proc=p: self.remove_process(proc))
-
-            row_layout.addWidget(process_label)
-            row_layout.addStretch()
-            row_layout.addWidget(remove_btn)
-
-            widget.setLayout(row_layout)
-            self.process_list.addItem(item)
-            self.process_list.setItemWidget(item, widget)
-
-        layout.addWidget(self.process_list)
         self.setLayout(layout)
 
     def _styled_label(self, text):
@@ -86,31 +59,22 @@ class PhysicsProcessPopup(QDialog):
 
     def _already_added(self, process_name):
         return any(param.path.endswith(process_name)
-                   for param in self.physics_obj.param if "Process" in param.displayed_name)
+                   for param in self.physics_obj.param.values() if "Process" in param.displayedLabel)
 
     def _get_existing_processes(self):
         return [p.displayed_name.split(" ")[0]
-                for p in self.physics_obj.param if "Process" in p.displayed_name]
+                for p in self.physics_obj.param.values() if "Process" in p.displayedLabel]
 
     def add_process(self):
-        selected = self.process_dropdown.currentText()
-        if selected:
-            data = PHYSICS_PROCESSES[selected]
-            new_param = GateParameter(
-                f"/physics/{selected}", 
-                f"{selected} Process",
-                "dropdown",
-                [list(data["process"])[0], list(data["model"])[0]],
-                [list(data["process"]), list(data["model"])]
-            )
-            self.physics_obj.param.append(new_param)
-            self.on_change_callback()
-            self.close()
-
-    def remove_process(self, proc_name):
-        self.physics_obj.param = [
-            p for p in self.physics_obj.param
-            if not p.displayed_name.startswith(proc_name)
-        ]
-        self.on_change_callback()
+        name = self.name_input.text()
+        if name in self.existingNames:
+            i = 1
+            newName = f"{name}{i}"
+            while newName in self.existingNames:
+                i += 1
+                newName = f"{name}{i}"
+            name = newName
+        
+        ControlAPI.createProcess(name)
+        self.onChangeCallback()
         self.close()

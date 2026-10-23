@@ -13,7 +13,9 @@ gate:
     SOURCE:
       yaml_path: "gate/parameter/source/source_folder"
       object_path: "/gate/source"
-    #DIGITIZER: "gate/digitizer"
+    DIGITIZER: 
+      yaml_path: "gate/parameter/digitizer/digitizer_folder"
+      object_path: "/gate/digitizer"
     OUTPUT:
       yaml_path: "gate/parameter/output"
       object_path: "/gate/output"
@@ -21,7 +23,7 @@ gate:
       yaml_path: "gate/parameter/acquisition"
       object_path: "/gate/acquisition"
     DISTRIBUTIONS:
-      yaml_path: "gate/parameter/distributions/distributions_object_general"
+      yaml_path: "gate/parameter/distributions/distributions_folder"
       object_path: "/gate/distributions"
     WORLD: 
       yaml_path: "gate/parameter/volume/box/ - "
@@ -39,6 +41,7 @@ gate:
     SPEED_UNITS: ['m/s', 'cm/s', 'mm/s', 'm/min', 'cm/min', 'mm/min', 'm/h', 'cm/h', 'mm/h']
     ANGULAR_SPEED_UNITS: ['rad/s', 'deg/s', 'rot/s', 'rad/min', 'deg/min', 'rot/min', 'rad/h', 'deg/h', 'rot/h']
     ENERGY_UNITS: ['eV', 'KeV', 'MeV', 'GeV', 'TeV', 'PeV', 'j']
+    INVERSE_ENERGY_UNITS: ['1/eV', '1/KeV', '1/MeV', '1/GeV', '1/TeV', '1/PeV', '1/j']
     ACTIVITY_DOSE_UNITS: ['Bq', 'Ci', 'Gy']
     AMOUNT_OF_SUBSTANCE_UNITS: ['mol']
     MASS_UNITS: ['mg', 'g', 'kg']
@@ -52,7 +55,10 @@ gate:
     POWER_UNITS: ['W']
     FREQUENCY_UNITS: ['Hz', 'kHz', 'MHz']
     NO_UNITS: []
-    AXIS_UNITS: [" - ", " X ", " Y ", " Z "]
+    AXIS_UNITS: [" - ", "X", "Y", "Z"]
+    AXIS_PLANE_UNITS: [" - ", "X", "Y", "Z", "XY", "XZ", "YZ"]
+    AXIS_ALL_UNITS: ["X", "Y", "Z" , "XY", "XZ", "YZ", "XYZ"]
+    BITSIZE_UNITS: ["B", "KB", "MB", "GB", "TB"]
     COLORS: ["white", "gray", "black", "red", "green", "blue", "cyan", "magenta", "yellow"]
     LINE_STYLE: ["dashed", "dotted", "unbroken"]
     INC_EXC: ["exclude", "include"]
@@ -70,7 +76,7 @@ gate:
     PROCESS_TYPES: ["Bremsstrahlung", "Cerenkov", "Compton", "Decay", "ElectronIonisation", "Fictitious", "Fission", "GammaConversion", "NeutronCapture", "HadronElastic", "HadronIonisation", "IonInelastic", "IonIonisation", "MuBremsstrahlung", "MuIonisation", "MuPairProduction", "NanoAbsorption", "NeutronInelastic", "OpticalAbsorption", "OpticalBoundary", "OpticalMie", "OpticalRayleigh", "OpticalWLS", "PhotoElectric", "PionMinusInelastic", "PionPlusInelastic", "PositronAnnihilation", "G4PositronAnnihilation", "ProtonInelastic", "RadioactiveDecay", "RayleighScattering", "Scintillation", "SingleScattering", "XrayBoundary", "eMultipleScattering", "hMultipleScattering"]
     RANDOM_ENGINES: ["Ranlux64", "JamesRandom", "MixMaxRng", "MersenneTwister"]
     RANDOM_SEED_MODE: ["default", "auto", "manual"]
-    SOURCE_particles: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
+    SOURCE_PARTICLES: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
     SOURCE_ENERGY_TYPES: ["Mono", "Lin", "Pow", "Exp", "Gauss", "Brem", "Bbody", "Cdg", "UserSpectrum", "Arb", "Epn", "Fluor18"]
     SOURCE_ANG_TYPES: ["iso"]
     SOURCE_DOMAINS: ["Point", "Beam", "Plane", "Surface", "Volume"]
@@ -80,6 +86,16 @@ gate:
     EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
     SYSTEMS_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystems"]
     SD_TYPE: ["CrystalSD", "PhantomSD"]
+    POSITION_POLICY: ["energyCentroid", "energyWeightedCentroid", "takeEnergyWinner"]
+    READOUT_POLICY: ["takeEnergyWinner", "takeEnergyCentroid"]
+    ENERGY_FRAMING_LAW: [" - ", "solidAngleWeighted"]
+    DIGITIZER_EFFICIENCY_MODE: ["energy", "crystal"]
+    DIGITIZER_DEADTIME_MODE: ["paralysable", "nonparalysable"]
+    DIGITIZER_DOI_MODEL: ["dualLayer", "DoIBlurrNegExp"]
+    DIGITIZER_TYPE: ["SinglesDigitizer", "CoincidencesDigitizer"]
+    ZERO_ONE_MODE: ["0", "1"]
+    
+
   systems_components:
     scanner:
       component: ["level1", "level2", "level3", "level4", "level5"]
@@ -302,12 +318,16 @@ gate:
     volume:
       box:
         - label_list:
-            - label: "X Length"
-              macro: "setXLength"
-            - label: "Y Length"
-              macro: "setYLength"
-            - label: "Z Length"
-              macro: "setZLength"
+          - label: "X Length"
+            macro: "setXLength"
+            multiplicity: False
+            multiplicity: False
+          - label: "Y Length"
+            macro: "setYLength"
+            multiplicity: False
+          - label: "Z Length"
+            macro: "setZLength"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -318,8 +338,10 @@ gate:
         - label_list:
             - label: "Internal Radius"
               macro: "setRmin"
+              multiplicity: False
             - label: "External Radius"
               macro: "setRmax"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -328,12 +350,16 @@ gate:
         - label_list:
             - label: "Start Phi Angle"
               macro: "setPhiStart"
+              multiplicity: False
             - label: "Phi Angular Span"
               macro: "setDeltaPhi"
+              multiplicity: False
             - label: "Start Theta Angle"
               macro: "setThetaStart"
+              multiplicity: False
             - label: "Theta Angular Span"
               macro: "setDeltaTheta"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -344,10 +370,13 @@ gate:
         - label_list:
             - label: "Internal Radius"
               macro: "setRmin"
+              multiplicity: False
             - label: "External Radius"
               macro: "setRmax"
+              multiplicity: False
             - label: "Height"
               macro: "setHeight"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -356,8 +385,10 @@ gate:
         - label_list:
             - label: "Start Phi Angle"
               macro: "setPhiStart"
+              multiplicity: False
             - label: "Phi Angular Span"
               macro: "setDeltaPhi"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -368,14 +399,19 @@ gate:
         - label_list:
             - label: "Internal Radius 1"
               macro: "setRmin1"
+              multiplicity: False
             - label: "External Radius 1"
               macro: "setRmax1"
+              multiplicity: False
             - label: "Internal Radius 2"
               macro: "setRmin2"
+              multiplicity: False
             - label: "External Radius 2"
               macro: "setRmax2"
+              multiplicity: False
             - label: "Height"
               macro: "setHeight"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -384,8 +420,10 @@ gate:
         - label_list:
             - label: "Start Phi Angle"
               macro: "setPhiStart"
+              multiplicity: False
             - label: "Phi Angular Span"
               macro: "setDeltaPhi"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -396,14 +434,19 @@ gate:
         - label_list:
             - label: "Half Axis Length X"
               macro: "setXLength"
+              multiplicity: False
             - label: "Half Axis Length Y"
               macro: "setYLength"
+              multiplicity: False
             - label: "Half Axis Length Z"
               macro: "setZLength"
+              multiplicity: False
             - label: "Z Bottom Cut"
               macro: "setZBottomCut"
+              multiplicity: False
             - label: "Z Top Cut"
               macro: "setZTopCut"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -414,10 +457,13 @@ gate:
         - label_list:
             - label: "Semimajor Axis Length"
               macro: "setLong"
+              multiplicity: False
             - label: "Semiminor Axis Length"
               macro: "setShort"
+              multiplicity: False
             - label: "Height"
               macro: "setHeight"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -428,8 +474,10 @@ gate:
         - label_list:
             - label: "Radius"
               macro: "setRadius"
+              multiplicity: False
             - label: "Height"
               macro: "setHeight"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -440,12 +488,16 @@ gate:
         - label_list:
             - label: "Shorter Side Length X"
               macro: "setNarrowerXLength"
+              multiplicity: False
             - label: "Wedge Length X"
               macro: "setXLength"
+              multiplicity: False
             - label: "Wedge Length Y"
               macro: "setYLength"
+              multiplicity: False
             - label: "Wedge Length Z"
               macro: "setZLength"
+              multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -456,12 +508,14 @@ gate:
         - label_list:
             - label: "Path to .ele File"
               macro: "setPathToELEFile"
+              multiplicity: False
           property:
             type: select
             default_value: [null]
         - label_list:
             - label: "Unit of Length"
               macro: "setUnitOfLength"
+              multiplicity: False
           property:
             type: dropdown
             default_value: [pc]
@@ -470,6 +524,7 @@ gate:
         - label_list:
             - label: "Path to Attribute Map"
               macro: "setPathToAttributeMap"
+              multiplicity: False
           property:
             type: select
             default_value: [null]
@@ -481,12 +536,14 @@ gate:
           - label_list:
             - label: "Material Settings"
               macro: ""
+              multiplicity: False
             property:
               type: label
           
           - label_list:
             - label: "Set Material"
               macro: "setMaterial"
+              multiplicity: False
             property:
               type: material_dropdown
               default_value: [0]
@@ -495,12 +552,14 @@ gate:
           - label_list:
             - label: "Placement Settings"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list :
             - label: "Set Translation"
               macro: "placement/setTranslation"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -510,8 +569,10 @@ gate:
           - label_list:
             - label: "Phi Angle (XY Plane)"
               macro: "placement/setPhiOfTranslation"
+              multiplicity: False
             - label: "Theta Angle (Z Axis)"
               macro: "placement/setThetaOfTranslation"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -521,6 +582,7 @@ gate:
           - label_list:
             - label: "Translation Magnitude"
               macro: "placement/setMagOfTranslation"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -530,6 +592,7 @@ gate:
           - label_list:
             - label: "Rotation Axis"
               macro: "placement/setRotationAxis"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [" - "]
@@ -538,6 +601,7 @@ gate:
           - label_list:
             - label: "Rotation Angle"
               macro: "placement/setRotationAngle"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -547,8 +611,10 @@ gate:
           - label_list:
             - label: "Axis"
               macro: "placement/setAxis"
+              multiplicity: False
             - label: "Align To Axis"
               macro: "placement/alignToX"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [" - "]
@@ -558,12 +624,14 @@ gate:
           - label_list:
             - label: "Moving Settings"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Enable Translational Movement"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -571,6 +639,7 @@ gate:
           - label_list:
             - label: "Translation Speed"
               macro: "translation/setSpeed"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -580,6 +649,7 @@ gate:
           - label_list:
             - label: "Enable Rotational Movement"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -587,6 +657,7 @@ gate:
           - label_list:
             - label: "Rotation Speed"
               macro: "rotation/setSpeed"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -596,6 +667,7 @@ gate:
           - label_list:
             - label: "Moving Rotation Axis"
               macro: "rotation/setAxis"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [" - "]
@@ -604,6 +676,7 @@ gate:
           - label_list:
             - label: "Enable Orbiting Movement"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -611,6 +684,7 @@ gate:
           - label_list:
             - label: "Orbiting Speed"
               macro: "orbiting/setSpeed"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -620,8 +694,10 @@ gate:
           - label_list:
             - label: "Orbiting Point 1"
               macro: "orbiting/setPoint1"
+              multiplicity: False
             - label: "Orbiting Point 2"
               macro: "orbiting/setPoint2"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -631,6 +707,7 @@ gate:
           - label_list:
             - label: "Enable Wobbling Movement"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -638,6 +715,7 @@ gate:
           - label_list:
             - label: "Wobbling Amplitude"
               macro: "osc-trans/setAmplitude"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -647,6 +725,7 @@ gate:
           - label_list:
             - label: "Wobbling Frequency"
               macro: "osc-trans/setFrequency"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -656,6 +735,7 @@ gate:
           - label_list:
             - label: "Wobbling Period"
               macro: "osc-trans/setPeriod"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -665,6 +745,7 @@ gate:
           - label_list:
             - label: "Wobbling Phase"
               macro: "osc-trans/setPhase"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -674,6 +755,7 @@ gate:
           - label_list:
             - label: "Enable Eccentric Rotation"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -681,6 +763,7 @@ gate:
           - label_list:
             - label: "Eccentric Rot Shift"
               macro: "eccent-rot/setSpeed"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -690,6 +773,7 @@ gate:
           - label_list:
             - label: "Eccentric Rot Speed"
               macro: "eccent-rot/setSpeed"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -699,6 +783,7 @@ gate:
           - label_list:
             - label: "Enable Generic Movement"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -706,6 +791,7 @@ gate:
           - label_list:
             - label: "Generic Movement Filepath"
               macro: "genericMove/setPlacementsFilename"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -713,6 +799,7 @@ gate:
           - label_list:
             - label: "Enable Generic Repeater Move"
               macro: "moves/insert"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -720,6 +807,7 @@ gate:
           - label_list:
             - label: "Generic Repeater Filepath"
               macro: "genericRepeaterMove/setPlacementsFilename"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -727,6 +815,7 @@ gate:
           - label_list:
             - label: "Use Relative Translation"
               macro: "genericRepeaterMove/useRelativeTranslation"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -735,12 +824,14 @@ gate:
           - label_list:
             - label: "Visualization Settings"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Color"
               macro: "setColor"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -749,6 +840,7 @@ gate:
           - label_list:
             - label: "IsVisible"
               macro: "setVisible"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -756,6 +848,7 @@ gate:
           - label_list:
             - label: "Hide Daughters"
               macro: "setDaughtersInvisible"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -763,6 +856,7 @@ gate:
           - label_list:
             - label: "Line Style"
               macro: "setLineStyle"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -771,6 +865,7 @@ gate:
           - label_list:
             - label: "Line Width"
               macro: "setLineWidth"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -780,8 +875,10 @@ gate:
           - label_list:
             - label: "Force Solid"
               macro: "forceSolid"
+              multiplicity: False
             - label: "Force Wireframe"
               macro: "forceWireframe"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -793,12 +890,14 @@ gate:
           - label_list:
             - label: "Insert Linear Repeater"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Repeat Number"
               macro: "linear/setRepeatNumber"
+              multiplicity: False
             property:
               type: text
               default_value: [1]
@@ -808,6 +907,7 @@ gate:
           - label_list:
             - label: "Repeat Vector (X, Y, Z)"
               macro: "linear/setRepeatVector"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 1]
@@ -817,6 +917,7 @@ gate:
           - label_list:
             - label: "Auto Center"
               macro: "linear/autoCenter"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -825,12 +926,14 @@ gate:
           - label_list:
             - label: "Insert Ring Repeater"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Repeat Number"
               macro: "ring/setRepeatNumber"
+              multiplicity: False
             property:
               type: text
               default_value: [1]
@@ -840,6 +943,7 @@ gate:
           - label_list:
             - label: "Axis Point 1 (X, Y, Z)"
               macro: "ring/setPoint1"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 1, 0]
@@ -849,6 +953,7 @@ gate:
           - label_list:
             - label: "Axis Point 2 (X, Y, Z)"
               macro: "ring/setPoint2"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -858,6 +963,7 @@ gate:
           - label_list:
             - label: "First Angle"
               macro: "ring/setFirstAngle"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -867,6 +973,7 @@ gate:
           - label_list:
             - label: "Angular Span"
               macro: "ring/setAngularSpan"
+              multiplicity: False
             property:
               type: text
               default_value: [360]
@@ -876,6 +983,7 @@ gate:
           - label_list:
             - label: "Auto Rotation"
               macro: "ring/enableAutoRotation"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -884,16 +992,20 @@ gate:
           - label_list:
             - label: "Insert Cubic Array"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Repeat X"
               macro: "cubicArray/setRepeatNumberX"
+              multiplicity: False
             - label: "Repeat Y"
               macro: "cubicArray/setRepeatNumberY"
+              multiplicity: False
             - label: "Repeat Z"
               macro: "cubicArray/setRepeatNumberZ"
+              multiplicity: False
             property:
               type: text
               default_value: [1]
@@ -903,6 +1015,7 @@ gate:
           - label_list:
             - label: "Repeat Vector (X, Y, Z)"
               macro: "cubicArray/setRepeatVector"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 5, 15]
@@ -912,6 +1025,7 @@ gate:
           - label_list:
             - label: "Auto Center"
               macro: "cubicArray/autoCenter"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -920,12 +1034,14 @@ gate:
           - label_list:
             - label: "Insert Quadrant"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Line Number"
               macro: "quadrant/setLineNumber"
+              multiplicity: False
             property:
               type: text
               default_value: [5]
@@ -935,6 +1051,7 @@ gate:
           - label_list:
             - label: "Orientation"
               macro: "quadrant/setOrientation"
+              multiplicity: False
             property:
               type: text
               default_value: [90]
@@ -944,6 +1061,7 @@ gate:
           - label_list:
             - label: "Copy Spacing"
               macro: "quadrant/setCopySpacing"
+              multiplicity: False
             property:
               type: text
               default_value: [6]
@@ -953,6 +1071,7 @@ gate:
           - label_list:
             - label: "Max Range"
               macro: "quadrant/setMaxRange"
+              multiplicity: False
             property:
               type: text
               default_value: [30]
@@ -963,12 +1082,14 @@ gate:
           - label_list:
             - label: "Insert Sphere Repeater"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Sphere Radius"
               macro: "sphere/setRadius"
+              multiplicity: False
             property:
               type: text
               default_value: [25]
@@ -978,6 +1099,7 @@ gate:
           - label_list:
             - label: "Repeat With Theta"
               macro: "sphere/setRepeatNumberWithTheta"
+              multiplicity: False
             property:
               type: text
               default_value: [10]
@@ -987,6 +1109,7 @@ gate:
           - label_list:
             - label: "Repeat With Phi"
               macro: "sphere/setRepeatNumberWithPhi"
+              multiplicity: False
             property:
               type: text
               default_value: [3]
@@ -996,6 +1119,7 @@ gate:
           - label_list:
             - label: "Theta Angle"
               macro: "sphere/setThetaAngle"
+              multiplicity: False
             property:
               type: text
               default_value: [36]
@@ -1005,6 +1129,7 @@ gate:
           - label_list:
             - label: "Phi Angle"
               macro: "sphere/setPhiAngle"
+              multiplicity: False
             property:
               type: text
               default_value: [20]
@@ -1015,12 +1140,14 @@ gate:
           - label_list:
             - label: "Insert Generic Repeater"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Placement File"
               macro: "genericRepeater/setPlacementsFilename"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1028,6 +1155,7 @@ gate:
           - label_list:
             - label: "Relative Translation"
               macro: "genericRepeater/useRelativeTranslation"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]         
@@ -1036,12 +1164,22 @@ gate:
         - label_list:
           - label: "Attach Systems"
             macro: ""
+            multiplicity: False
           property:
             type: label
         
         - label_list:
+          - label: "Attach Volume to System"
+            macro: ""
+            multiplicity: False
+          property:
+            type: checkbox
+            default_value: [False]
+        
+        - label_list:
           - label: "Level selection"
             macro: attach
+            multiplicity: False
           property:
             type: dynamic_dropdown
             default_value: [0]
@@ -1053,6 +1191,7 @@ gate:
         - label_list:
           - label: "Attach sensitive dectector"
             macro: attach&0
+            multiplicity: False
           property:
             type: macro_dropdown
             default_value: [0]
@@ -1063,6 +1202,7 @@ gate:
         - label_list:
           - label: "Physics List"
             macro: "addPhysicsList"
+            multiplicity: False
           property:
             type: dropdown
             default_value: [0]
@@ -1071,12 +1211,14 @@ gate:
         - label_list:
           - label: "Process Definition"
             macro: ""
+            multiplicity: False
           property:
             type: label
 
         - label_list:
           - label: "Process"
             macro: "addProcess"
+            multiplicity: False
           property:
             type: dropdown
             default_value: [0]
@@ -1085,6 +1227,7 @@ gate:
         - label_list:
           - label: "Particle"
             macro: ""
+            multiplicity: False
           property:
             type: dynamic_dropdown
             default_value: [0]
@@ -1096,6 +1239,7 @@ gate:
         - label_list:
           - label: "Model"
             macro: "setModel"
+            multiplicity: False
           property:
             type: dynamic_dropdown
             default_value: [0]
@@ -1107,6 +1251,7 @@ gate:
         - label_list:
           - label: "DataSet"
             macro: "setDataSet"
+            multiplicity: False
           property:
             type: dynamic_dropdown
             default_value: [0]
@@ -1118,6 +1263,7 @@ gate:
         - label_list:
           - label: "Enable process"
             macro: ""
+            multiplicity: False
           property:
             type: checkbox
             default_value: [True]
@@ -1125,14 +1271,17 @@ gate:
         - label_list:
           - label: "Process Energy Range"
             macro: ""
+            multiplicity: False
           property:
             type: label
 
         - label_list:
           - label: "Maximal Energy"
             macro: "setEmax"
+            multiplicity: False
           - label: "Minimal Energy"
             macro: "setEmin"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1142,163 +1291,997 @@ gate:
         - label_list:
           - label: "Enable Energy Max"
             macro: "setEmax"
+            multiplicity: False
           - label: "Enable Energy Min"
             macro: "setEmin"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
 
-        
-
-            
-    
     digitizer:
+      digitizer_folder:
+        - label_list:
+          - label: "Digitizer Folder"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
       digitizer_general:
         - label_list:
           - label: "Disable entire Digitizer"
             macro: "digitizerMgr/disable"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
+        
+        - label_list:
+          - label: "Digitizer Type"
+            macro: ""
+            multiplicity: False
+          - label: "Detector Volume Path"
+            macro: ""
+            multiplicity: False
+          property:
+            type: macro
+            default_value: [""]
+
+        
+        - label_list:
+          - label: "Type of Digitizer : &0"
+            macro: ""
+            multiplicity: False
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Digitizer Type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+
+      SinglesDigitizer_general:
+        - label_list: 
+          - label: "Use this module"
+            macro: ""
+            multiplicity: False
+          property:
+            type: checkbox
+            default_value: [False]
+
+      digitizer_type:
+        SinglesDigitizer:
+          adderComptPhotIdeal:
+            - label_list:
+              - label: "Adder Compton Photon Ideal Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+              
+            - label_list:
+              - label: "Reject Event Other Processes"
+                macro: "rejectEvtOtherProcesses"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: ZERO_ONE_MODE
+
+          adderCompton:
+            - label_list:
+              - label: "Adder Compton Configuration (No configuration needed for this module)"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+          adder:
+            - label_list:
+              - label: "Adder Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Position Policy"
+                macro: "positionPolicy"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: POSITION_POLICY
+
+          readout:
+            - label_list:
+              - label: "Readout Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "Set Policy"
+                macro: "setPolicy"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: READOUT_POLICY
+            
+            - label_list:
+              - label: "Set Depth"
+                macro: "setDepth"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+            
+            - label_list:
+              - label: "Set Readout Volume"
+                macro: "setReadoutVolume"
+                multiplicity: False
+              property:
+                type: dynamic_object_name_dropdown
+                default_value: [0]
+                object_path: [".."] # This path direct to the gateObject to search. 
+                object_label: ["Detector Volume Path"] # This is the label name in which the value_list is stored
+                object_label_index: [0] # Index of the field to get the value
+                list_path: "&0"
+
+          energyResolution:
+            - label_list:
+              - label: "Energy Resolution Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "fwhm Minimal"
+                macro: "fwhmMin"
+                multiplicity: False
+              - label: "fwhm Maximal"
+                macro: "fwhmMax"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+
+            - label_list:
+              - label: "Energy of Reference"
+                macro: "energyOfReference"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: ENERGY_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Use linear law"
+                macro: ""
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+            
+            - label_list:
+              - label: "Slope"
+                macro: "slope"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: INVERSE_ENERGY_UNITS
+                default_unit_index: 3
+
+          timeResolution:
+            - label_list:
+              - label: "Time Resolution Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "fwhm"
+                macro: "fwhm"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Use Coincidence Time Resolution (CTR) directly"
+                macro: ""
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+            
+            - label_list:
+              - label: "CTR"
+                macro: "CTR"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "DOI Dimension for CTR"
+                macro: "DOIdimention4CTR"
+                multiplicity: False
+              property:
+                type: text 
+                default_value: [0]
+                units: LENGTH_UNITS
+                default_unit_index: 4
+
+          spatialResolution:
+            - label_list:
+              - label: "Spatial Resolution Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "fwhm X"
+                macro: "fwhmX"
+                multiplicity: False
+              - label: "fwhm Y"
+                macro: "fwhmY"
+                multiplicity: False
+              - label: "fwhm Z"
+                macro: "fwhmZ"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 4
+            
+            - label_list:
+              - label: "Confine Inside Of Smallest Element"
+                macro: "confineInsideOfSmallestElement"
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+
+            - label_list:
+              - label: "Use Truncated Gaussian"
+                macro: "useTruncatedGaussian"
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+            
+            - label_list:
+              - label: "Axis Name"
+                macro: "nameAxis"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: AXIS_PLANE_UNITS
+            
+            - label_list:
+              - label: "Distribution"
+                macro: ""
+                multiplicity: False
+              property:
+                type: children_name_dropdown    # Get the name of the object and of its children
+                default_value: [0]
+                object_path: "/gate/distributions"              
+
+          energyFraming:
+            - label_list:
+              - label: "Energy Framing Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Minimal Energy"
+                macro: "setMin"
+                multiplicity: False
+              - label: "Maxmimal Energy"
+                macro: "setMax"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: ENERGY_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Law Selection"
+                macro: "setLaw"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: ENERGY_FRAMING_LAW
+
+            - label_list:
+              - label: "Rectangle Length X"
+                macro: "setRentangleLengthX"
+                multiplicity: False
+              - label: "Rectangle Length Y"
+                macro: "setRentangleLengthY"
+                multiplicity: False
+              - label: "Z Sense for Readout"
+                macro: "setZSense4Readout"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: LENGTH_UNITS
+                default_unit_index: 4
+
+          clustering:
+            - label_list:
+              - label: "Clustering Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Accepted Distance"
+                macro: "setAcceptedDistance"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: LENGTH_UNITS
+                default_unit_index: 4
+              
+            - label_list:
+              - label: "Reject Multiple Clusters"
+                macro: "setRejectionMultipleClusters"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: ZERO_ONE_MODE
+
+          efficiency:
+            - label_list:
+              - label: "Efficiency Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "Unique Efficiency"
+                macro: "setUniqueEfficiency"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+            
+            - label_list:
+              - label: "Mode Selection"
+                macro: "setMode"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: DIGITIZER_EFFICIENCY_MODE
+            
+            - label_list:
+              - label: "Distribution Selection"
+                macro: "setEfficiency"
+                multiplicity: False
+              property:
+                type: children_name_dropdown    # Get the name of the object and of its children
+                default_value: [0]
+                object_path: "/gate/distributions"  
+          
+            - label_list:
+              - label: "Enable Level (1 to 5)"
+                macro: "enableLevel"
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False, False, False, False, False]
+
+          pileup:
+            - label_list:
+              - label: "Pile Up Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Depth"
+                macro: "setDepth"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+            
+            - label_list:
+              - label: "use Pile Up Volume"
+                macro: ""
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+            
+            - label_list:
+              - label: "Pile Up Volume"
+                macro: "setPileupVolume"
+                multiplicity: False
+              property:
+                type: object_name_dropdown    # Get the name of the object and of its children
+                default_value: [0]
+                object_path: "/gate/world"
+            
+            - label_list:
+              - label: "Pile Up Time"
+                macro: "setPileup"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 3
+            
+          deadtime:
+            - label_list:
+              - label: "DeadTime Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Dead Time"
+                macro: "setDeadTime"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Mode Selection"
+                macro: "setMode"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: DIGITIZER_DEADTIME_MODE
+            
+            - label_list:
+              - label: "Detector Volume"
+                macro: "chooseDTVolume"
+                multiplicity: False
+              property:
+                type: attached_volume_dropdown
+                default_value: [0]
+            
+            - label_list:
+              - label: "Buffer Size"
+                macro: "setBufferSize"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: BITSIZE_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Buffer Mode"
+                macro: "setBufferMode"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                units: ZERO_ONE_MODE
+                default_unit_index: 0
+
+          noise:
+            - label_list:
+              - label: "Noise Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Delta T Distribution"
+                macro: "setDeltaTDistribution"
+                multiplicity: False
+              - label: "Energy Distribution"
+                macro: "setEnergyDistribution"
+                multiplicity: False
+              property:
+                type: children_name_dropdown    # Get the name of the object and of its children
+                default_value: [0]
+                object_path: "/gate/distributions"
+
+          merger:
+            - label_list:
+              - label: "Merger Configuration"
+                macro: ""
+                multiplicity: True
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Add Input"
+                macro: "addInput"
+                multiplicity: False
+              property:
+                type: digitizer_detector_dropdown
+                default_value: [0]
+
+            
+
+          intrinsicResolution:
+            - label_list:
+              - label: "Intrinsic Resolution Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "Intrinsic Resolution"
+                macro: "setInrinsicResolution"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+
+            - label_list:
+              - label: "Energy Of Reference"
+                macro: "setEnergyOfReference"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: ENERGY_UNITS
+                default_unit_index: 1
+            
+            - label_list:
+              - label: "TE Coefficient"
+                macro: "setTECoef"
+                multiplicity: False
+              - label: "Light Output"
+                macro: "setLightOutput"
+                multiplicity: False
+              - label: "Unique QE"
+                macro: "setUniqueQE"
+                multiplicity: False
+              - label: "Xtalk Edges Fraction"
+                macro: "setXtalkEdgesFraction"
+                multiplicity: False
+              - label: "Xtalk Corners Fraction"
+                macro: "setXtalkCornersFraction"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+              
+            - label_list:
+              - label: "Use Quantum Efficiency"
+                macro: "insert quantumEfficiency"
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+
+            - label_list:
+              - label: "Folder Data Fo QE (first file for first module, ...)"
+                macro: "useFileDataForQE"
+                multiplicity: False
+              property:
+                type: select
+                default_value: [null]
+
+          crosstalk:
+            - label_list:
+              - label: "Crosstalk Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Edges Fraction"
+                macro: "setEdgesFraction"
+                multiplicity: False
+              - label: "Corners Fraction"
+                macro: "setCornersFraction"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+
+          buffer:
+            - label_list:
+              - label: "Buffer Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+
+            - label_list:
+              - label: "Buffer Size"
+                macro: "setBufferSize"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: BITSIZE_UNITS
+                default_unit_index: 0
+            
+            - label_list:
+              - label: "Read Frequency"
+                macro: "setReadFrequency"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: FREQUENCY_UNITS
+                default_unit_index: 2
+          
+            - label_list:
+              - label: "Mode"
+                macro: "setMode"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: ZERO_ONE_MODE
+
+          gridDiscretizator:
+            - label_list:
+              - label: "Grid Discretizator Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Number Strips X"
+                macro: "setNumberStripsX"
+                multiplicity: False
+              - label: "Number Strips Y"
+                macro: "setNumberStripsY"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+            
+            - label_list:
+              - label: "Strip Offset X"
+                macro: "setStripOffsetX"
+                multiplicity: False
+              - label: "Strip Offset Y"
+                macro: "setStripOffsetY"
+                multiplicity: False
+              - label: "Strip Offset Z"
+                macro: "setStripOffsetZ"
+                multiplicity: False
+              - label: "Strip Width X"
+                macro: "setStripWidthX"
+                multiplicity: False
+              - label: "Strip Width Y"
+                macro: "setStriWidthY"
+                multiplicity: False
+              - label: "Strip Width Z"
+                macro: "setStripWidthZ"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: LENGTH_UNITS
+                default_unit_index: 3
+            
+            - label_list:
+              - label: "Number Read Out Blocks X"
+                macro: "setNumberReadOutBlocksX"
+                multiplicity: False
+              - label: "Number Read Out Blocks Y"
+                macro: "setNumberReadOutBlocksY"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: NO_UNITS
+                default_unit_index: null
+
+          doIModel:
+            - label_list:
+              - label: "DoI Model Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Axis (X, Y, Z)"
+                macro: "setAxis"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0, 0, 0]
+                units: NO_UNITS
+                default_unit_index: null
+            
+            - label_list:
+              - label: "DoI Model"
+                macro: "setDoIModel"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: DIGITIZER_DOI_MODEL
+            
+            - label_list:
+              - label: "Exp. Inv. Decay Constant"
+                macro: "setExpInvDecayConst"
+                multiplicity: False
+              - label: "Crystal Entrance FWHM"
+                macro: "setCrysEntranceFWHM"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: LENGTH_UNITS
+                default_unit_index: 6
+          
+          timeDelay:     
+            - label_list:
+              - label: "Time Delay Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Time Delay"
+                macro: "setTimeDelay"
+                multiplicity: False
+              property:
+                type: text
+                default_value: [0]
+                units: TIME_UNITS
+                default_unit_index: 3
+
+          multipleRejection:
+            - label_list:
+              - label: "Multiple Rejection Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Multiple Definition"
+                macro: "setMultipleDefinition"
+                multiplicity: False
+              property:
+                type: object_name_dropdown   # Get the name of the object and of its children
+                default_value: [0]
+                object_path: "/gate/world"
+            
+            - label_list:
+              - label: "Event Rejection"
+                macro: "setEventRejection"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: ZERO_ONE_MODE
+
+
+          virtualSegmentation:
+            - label_list:
+              - label: "Virtual Segmentation Configuration"
+                macro: ""
+                multiplicity: False
+              property:
+                type: label
+            
+            - label_list:
+              - label: "Axis Name"
+                macro: "nameAxis"
+                multiplicity: False
+              property:
+                type: dropdown
+                default_value: [0]
+                value_list: AXIS_ALL_UNITS
+            
+            - label_list:
+              - label: "Use Macro Genereator"
+                macro: "useMacroGenerator"
+                multiplicity: False
+              property:
+                type: checkbox
+                default_value: [False]
+          
+        CoincidenceSorter:
+          coincidenceSorter:
+
+
+
       
     distributions:
-      distributions_object_general:
+      distributions_folder:
         - label_list:
           - label: "Distribution Folder"
             macro: ""
+            multiplicity: False
           property:
             type: label
 
-      distributions_generic:
-        - label_list:
-          - label: "Distribution name"
-            macro: "distributions/name"
-          property:
-            type: path
-            default_value: [""]
-        
+      distributions_general:        
         - label_list:
           - label: "Distribution type"
             macro: "distribution/insert"
+            multiplicity: False
           property:
-            type: path
+            type: macro
             default_value: [""]
 
         - label_list:
           - label: "Distribution Information"
             macro: ""
+            multiplicity: False
           property:
             type: label
         
         - label_list:
-          - label: "Distribution name : &0"
-            macro: ""
-          property:
-            type: dynamic_label
-            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
-            object_label: ["Distribution name"] # This is the label name in which the value_list is stored
-            object_label_index: [0] # Index of the field to get the value
-        
-        - label_list:
           - label: "Distribution type : &0"
             macro: ""
+            multiplicity: False
           property:
             type: dynamic_label
             object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
             object_label: ["Distribution type"] # This is the label name in which the value_list is stored
             object_label_index: [0] # Index of the field to get the value
-          
-      Flat:
-        - label_list:
-          - label: "Low edge range (Min)"
-            macro: "setMin"
-          - label: "High edge range (Max)"
-            macro: "setMax"
-          - label: "Amplitude"
-            macro: "setAmplitude"
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
       
-      Gaussian:
-        - label_list:
-          - label: "Mean"
-            macro: "setMean"
-          - label: "Standard deviation"
-            macro: "setSigma"
-          - label: "Amplitude"
-            macro: "setAmplitude"
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
-      
-      Exponential:
-        - label_list:
-          - label: "Power"
-            macro: "setLambda"
-          - label: "Amplitude"
-            macro: "setAmplitude"
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
-      
-      File:
-        - label_list:
-          - label: "Units for X axis"
-            macro: "setUnitX"
-          - label: "Units for Y axis"
-            macro: "setUnitY"
-          property:
-              type: dropdown
-              default_value: [0]
-              value_list: ENERGY_UNITS
-        
-        - label_list:
-          - label: "Auto X"
-            macro: "autoX"
-          property:
-            type: checkbox
-            default_value: False
-        
-        - label_list:
-          - label: "Auto X start"
-            macro: "autoXstart"
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
-        
-        - label_list:
-          - label: "File name"
-            macro: "setFileName"
-          property:
-            type: select
-            default_value: [null]
+      distributions_type:
 
-        - label_list:
-          - label: "Column number with X axis data"
-            macro: "setColumnX"
-          - label: "Column number with Y axis data"
-            macro: "setColumnY"
-          property:
-            type: text
-            default_value: [0]
-            units: NO_UNITS
-            default_unit_index: null
+        Flat:
+          - label_list:
+            - label: "Low edge range (Min)"
+              macro: "setMin"
+              multiplicity: False
+            - label: "High edge range (Max)"
+              macro: "setMax"
+              multiplicity: False
+            - label: "Amplitude"
+              macro: "setAmplitude"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
         
-        - label_list:
-          - label: "File in 2D matrix format"
-            macro:
-          property:
-            type: checkbox
-            default_value: [True]
+        Gaussian:
+          - label_list:
+            - label: "Mean"
+              macro: "setMean"
+              multiplicity: False
+            - label: "Standard deviation"
+              macro: "setSigma"
+              multiplicity: False
+            - label: "Amplitude"
+              macro: "setAmplitude"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
+        
+        Exponential:
+          - label_list:
+            - label: "Power"
+              macro: "setLambda"
+              multiplicity: False
+            - label: "Amplitude"
+              macro: "setAmplitude"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
+        
+        File:
+          - label_list:
+            - label: "Units for X axis"
+              macro: "setUnitX"
+              multiplicity: False
+            - label: "Units for Y axis"
+              macro: "setUnitY"
+              multiplicity: False
+            property:
+                type: dropdown
+                default_value: [0]
+                value_list: ENERGY_UNITS
+          
+          - label_list:
+            - label: "Auto X"
+              macro: "autoX"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: False
+          
+          - label_list:
+            - label: "Auto X start"
+              macro: "autoXstart"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
+          
+          - label_list:
+            - label: "File name"
+              macro: "setFileName"
+              multiplicity: False
+            property:
+              type: select
+              default_value: [null]
+
+          - label_list:
+            - label: "Column number with X axis data"
+              macro: "setColumnX"
+              multiplicity: False
+            - label: "Column number with Y axis data"
+              macro: "setColumnY"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "File in 2D matrix format"
+              macro:
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [True]
 
 
     source:
@@ -1306,6 +2289,7 @@ gate:
         - label_list:
           - label: "Source Folder"
             macro: ""
+            multiplicity: False
           property:
             type: label
     
@@ -1313,6 +2297,7 @@ gate:
         - label_list:
           - label: "Activity"
             macro: "setActivity"
+            multiplicity: False
           property:
             type: text
             default_value: [0.0, "Bq"]
@@ -1322,6 +2307,7 @@ gate:
         - label_list:
           - label: "Intensity (priority)"
             macro: "setIntensity"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1331,6 +2317,7 @@ gate:
         - label_list:
           - label: "Visualize (count, px)"
             macro: "visualize"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 2]
@@ -1340,15 +2327,33 @@ gate:
         - label_list:
           - label: "Visualize (color)"
             macro: "visualize"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["yellow"]
             value_list: COLORS
+
+        - label_list:
+          - label: "Attach to volume"
+            macro: "attachTo"
+            multiplicity: False
+          property:
+            type: object_name_dropdown    # Get the name of the object and of its children
+            default_value: [0]
+            object_path: "/gate/world"
         
       gps:
         - label_list:
+          - label: "General Partical Source (GPS) Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
+        - label_list:
           - label: "Particle"
             macro: "gps/particle"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["gamma"]
@@ -1357,6 +2362,7 @@ gate:
         - label_list:
           - label: "Ion(Z,A,Q,E_keV)"
             macro: "gps/ion"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0, 0]
@@ -1366,6 +2372,7 @@ gate:
         - label_list:
           - label: "Forced Unstable"
             macro: "setForcedUnstableFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
@@ -1373,6 +2380,7 @@ gate:
         - label_list:
           - label: "Half-life"
             macro: "setForcedHalfLife"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1382,6 +2390,7 @@ gate:
         - label_list:
           - label: "Energy distribution"
             macro: "gps/energytype"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["Mono"]
@@ -1390,6 +2399,7 @@ gate:
         - label_list:
           - label: "Mono energy"
             macro: "gps/monoenergy"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1399,6 +2409,7 @@ gate:
         - label_list:
           - label: "UserSpectrum file"
             macro: "gps/setSpectrumFile"
+            multiplicity: False
           property:
             type: select
             default_value: [null]
@@ -1406,6 +2417,7 @@ gate:
         - label_list:
           - label: "Per-source Intensity"
             macro: "setIntensity"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1415,6 +2427,7 @@ gate:
         - label_list:
           - label: "Angular type"
             macro: "gps/angtype"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["iso"]
@@ -1423,12 +2436,16 @@ gate:
         - label_list:
           - label: "min theta"
             macro: "gps/mintheta"
+            multiplicity: False
           - label: "max theta"
             macro: "gps/maxtheta"
+            multiplicity: False
           - label: "min phi"
             macro: "gps/minphi"
+            multiplicity: False
           - label: "max phi"
             macro: "gps/maxphi"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1438,6 +2455,7 @@ gate:
         - label_list:
           - label: "Domain"
             macro: "gps/type"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["Point"]
@@ -1446,6 +2464,7 @@ gate:
         - label_list:
           - label: "Shape"
             macro: "gps/shape"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["Sphere"]
@@ -1454,12 +2473,16 @@ gate:
         - label_list:
           - label: "radius"
             macro: "gps/radius"
+            multiplicity: False
           - label: "half z"
             macro: "gps/halfz"
+            multiplicity: False
           - label: "half x"
             macro: "gps/halfx"
+            multiplicity: False
           - label: "half y"
             macro: "gps/halfy"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1469,6 +2492,7 @@ gate:
         - label_list:
           - label: "centre (x,y,z)"
             macro: "gps/centre"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1476,19 +2500,9 @@ gate:
             default_unit_index: 3
 
         - label_list:
-          - label: "Attach to volume"
-            macro: "attachTo"
-          - label: "Confine (vol_phys)"
-            macro: "gps/confine"
-          property:
-            type: text
-            default_value: [""]
-            units: NO_UNITS
-            default_unit_index: null
-
-        - label_list:
           - label: "Special type"
             macro: "setType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: [" - "]
@@ -1497,6 +2511,7 @@ gate:
         - label_list:
           - label: "Accolinearity"
             macro: "setAccolinearityFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
@@ -1504,6 +2519,7 @@ gate:
         - label_list:
           - label: "Accolinearity FWHM"
             macro: "setAccoValue"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1512,8 +2528,16 @@ gate:
 
       pencil_beam:
         - label_list:
+          - label: "Pencil Beam Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
+        - label_list:
           - label: "Particle"
             macro: "setParticleType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["proton"]
@@ -1522,6 +2546,7 @@ gate:
         - label_list:
           - label: "Ion(Z,A,Q,E_keV)"
             macro: "setIonProperties"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0, 0]
@@ -1531,8 +2556,10 @@ gate:
         - label_list:
           - label: "Mean Energy"
             macro: "setEnergy"
+            multiplicity: False
           - label: "Sigma Energy"
             macro: "setSigmaEnergy"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1542,6 +2569,7 @@ gate:
         - label_list:
           - label: "Position (x,y,z)"
             macro: "setPosition"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1551,8 +2579,10 @@ gate:
         - label_list:
           - label: "Sigma X"
             macro: "setSigmaX"
+            multiplicity: False
           - label: "Sigma Y"
             macro: "setSigmaY"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1562,8 +2592,10 @@ gate:
         - label_list:
           - label: "Sigma Theta"
             macro: "setSigmaTheta"
+            multiplicity: False
           - label: "Sigma Phi"
             macro: "setSigmaPhi"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1573,8 +2605,10 @@ gate:
         - label_list:
           - label: "Emittance X-Theta (mm*mrad)"
             macro: "setEllipseXThetaEmittance"
+            multiplicity: False
           - label: "Emittance Y-Phi (mm*mrad)"
             macro: "setEllipseYPhiEmittance"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1584,8 +2618,10 @@ gate:
         - label_list:
           - label: "X-Theta Rotation"
             macro: "setEllipseXThetaRotationNorm"
+            multiplicity: False
           - label: "Y-Phi Rotation"
             macro: "setEllipseYPhiRotationNorm"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["negative"]
@@ -1594,6 +2630,7 @@ gate:
         - label_list:
           - label: "Rotation Axis (x,y,z)"
             macro: "setRotationAxis"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1603,6 +2640,7 @@ gate:
         - label_list:
           - label: "Rotation Angle"
             macro: "setRotationAngle"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1612,14 +2650,23 @@ gate:
         - label_list:
           - label: "Test flag"
             macro: "setTestFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
 
       tps_pencil_beam:
         - label_list:
+          - label: "TPS Pencil Beam Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
+        - label_list:
           - label: "Particle"
             macro: "setParticleType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["proton"]
@@ -1628,8 +2675,10 @@ gate:
         - label_list:
           - label: "Plan description file"
             macro: "setPlan"
+            multiplicity: False
           - label: "Source description file"
             macro: "setSourceDescriptionFile"
+            multiplicity: False
           property:
             type: select
             default_value: [null]
@@ -1637,12 +2686,16 @@ gate:
         - label_list:
           - label: "Not allowed Field IDs (csv)"
             macro: "setNotAllowedFieldID"
+            multiplicity: False
           - label: "Allowed Field ID"
             macro: "setAllowedFieldID"
+            multiplicity: False
           - label: "Select Layer ID"
             macro: "selectLayerID"
+            multiplicity: False
           - label: "Select Spot ID"
             macro: "selectSpotID"
+            multiplicity: False
           property:
             type: text
             default_value: [""]
@@ -1652,8 +2705,10 @@ gate:
         - label_list:
           - label: "Flat generation"
             macro: "setFlatGenerationFlag"
+            multiplicity: False
           - label: "Sorted spot generation"
             macro: "setSortedSpotGenerationFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
@@ -1661,6 +2716,7 @@ gate:
         - label_list:
           - label: "Spot intensity is #ions"
             macro: "setSpotIntensityAsNbIons"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [True]
@@ -1668,22 +2724,35 @@ gate:
         - label_list:
           - label: "Beam convergence"
             macro: "setBeamConvergence"
+            multiplicity: False
           - label: "Convergent X-Theta"
             macro: "setBeamConvergenceXTheta"
+            multiplicity: False
           - label: "Convergent Y-Phi"
             macro: "setBeamConvergenceYPhi"
+            multiplicity: False
           - label: "SigmaEnergy in MeV"
             macro: "setSigmaEnergyInMeVFlag"
+            multiplicity: False
           - label: "Test flag"
             macro: "setTestFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
 
       fast_i124:
         - label_list:
+          - label: "Fast i124 Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
+        - label_list:
           - label: "Type"
             macro: "setType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["fastI124"]
@@ -1692,6 +2761,7 @@ gate:
         - label_list:
           - label: "Forced Unstable"
             macro: "setForcedUnstableFlag"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [True]
@@ -1699,6 +2769,7 @@ gate:
         - label_list:
           - label: "Half-life"
             macro: "setForcedHalfLife"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1707,8 +2778,16 @@ gate:
 
       fast_y90:
         - label_list:
+          - label: "Fast y90 Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+            
+        - label_list:
           - label: "Min Brem Energy"
             macro: "setMinBremEnergy"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1718,6 +2797,7 @@ gate:
         - label_list:
           - label: "Positron probability"
             macro: "setPositronProbability"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1727,6 +2807,7 @@ gate:
         - label_list:
           - label: "Load voxelized phantom (hdr)"
             macro: "loadVoxelizedPhantom"
+            multiplicity: False
           property:
             type: select
             default_value: [null]
@@ -1734,6 +2815,7 @@ gate:
         - label_list:
           - label: "Voxel pos (x,y,z)"
             macro: "setVoxelizedPhantomPosition"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1742,8 +2824,16 @@ gate:
 
       extended:
         - label_list:
+          - label: "Extended Source Parameters"
+            macro: ""
+            multiplicity: False
+          property:
+            type: label
+
+        - label_list:
           - label: "Extended model"
             macro: "setType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: ["sg"]
@@ -1752,6 +2842,7 @@ gate:
         - label_list:
           - label: "Emission energy (sg only)"
             macro: "setEmissionEnergy"
+            multiplicity: False
           property:
             type: text
             default_value: [511]
@@ -1761,6 +2852,7 @@ gate:
         - label_list:
           - label: "Fixed dir (x,y,z)"
             macro: "setFixedEmissionDirection"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 1]
@@ -1770,8 +2862,10 @@ gate:
         - label_list:
           - label: "Enable fixed dir"
             macro: "setEnableFixedEmissionDirection"
+            multiplicity: False
           - label: "Enable de-excitation gamma"
             macro: "setEnableDeexcitation"
+            multiplicity: False
           property:
             type: checkbox
             default_value: [False]
@@ -1779,6 +2873,7 @@ gate:
         - label_list:
           - label: "Prompt gamma energy"
             macro: "setPromptGammaEnergy"
+            multiplicity: False
           property:
             type: text
             default_value: [0.0]
@@ -1788,6 +2883,7 @@ gate:
         - label_list:
           - label: "Positronium lifetime (pPs/oPs,value,unit)"
             macro: "setPostroniumLifetime"
+            multiplicity: False
           property:
             type: text
             default_value: ["pPs", 0.125, "ns"]
@@ -1797,6 +2893,7 @@ gate:
         - label_list:
           - label: "Ps fraction (pPs/oPs,prob)"
             macro: "setPositroniumFraction"
+            multiplicity: False
           property:
             type: text
             default_value: ["pPs", 0.5]
@@ -1807,12 +2904,14 @@ gate:
       - label_list:
         - label: "[ASCII Output]"
           macro: ""
+          multiplicity: False
         property:
           type: label
 
       - label_list:
         - label: "Enable ASCII output"
           macro: "output/ascii/enable"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [True]
@@ -1820,6 +2919,7 @@ gate:
       - label_list:
         - label: "ASCII output filename"
           macro: "output/ascii/setFileName"
+          multiplicity: False
         property:
           type: text
           default_value: [""]
@@ -1829,10 +2929,13 @@ gate:
       - label_list:
         - label: "Write hits file"
           macro: "output/ascii/setOutFileHitsFlag"
+          multiplicity: False
         - label: "Write singles file"
           macro: "output/ascii/setOutFileSinglesFlag"
+          multiplicity: False
         - label: "Write coincidences file"
           macro: "output/ascii/setOutFileCoincidencesFlag"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [True]
@@ -1840,6 +2943,7 @@ gate:
       - label_list:
         - label: "Digitizer name (for singles tree flag)"
           macro: "output/ascii/__digitizerName"
+          multiplicity: False
         property:
           type: text
           default_value: [""]
@@ -1849,6 +2953,7 @@ gate:
       - label_list:
         - label: "Output for singles (resolved at export)"
           macro: "output/ascii/setOutFileSingles<digitizerName>Flag"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [True]
@@ -1856,6 +2961,7 @@ gate:
       - label_list:
         - label: "Coincidence mask (0/1 …)"
           macro: "output/ascii/setCoincidenceMask"
+          multiplicity: False
         property:
           type: text
           default_value: ["000000"]
@@ -1865,6 +2971,7 @@ gate:
       - label_list:
         - label: "Single mask (0/1 …)"
           macro: "output/ascii/setSingleMask"
+          multiplicity: False
         property:
           type: text
           default_value: ["0000"]
@@ -1874,6 +2981,7 @@ gate:
       - label_list:
         - label: "File size limit (bytes)"
           macro: "output/ascii/setOutFileSizeLimit"
+          multiplicity: False
         property:
           type: text
           default_value: [2000000000]
@@ -1883,12 +2991,14 @@ gate:
       - label_list:
         - label: "[ROOT Output]"
           macro: ""
+          multiplicity: False
         property:
           type: label
 
       - label_list:
         - label: "Enable ROOT ouput"
           macro: "output/root/enable"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [True]
@@ -1896,6 +3006,7 @@ gate:
       - label_list:
         - label: "ROOT output filename"
           macro: "output/root/setFileName"
+          multiplicity: False
         property:
           type: text
           default_value: [""]
@@ -1905,12 +3016,16 @@ gate:
       - label_list:
         - label: "Generate Hit tree"
           macro: "output/root/setRootHitFlag"
+          multiplicity: False
         - label: "Generate Singles tree"
           macro: "output/root/setRootSinglesFlag"
+          multiplicity: False
         - label: "Generate Coincidences tree"
           macro: "output/root/setRootCoincidencesFlag"
+          multiplicity: False
         - label: "Generate Ntuple tree"
           macro: "output/root/setRootNtupleFlag"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [True]
@@ -1918,16 +3033,25 @@ gate:
       - label_list:
         - label: "Adder Tree"
           macro: "output/root/setOutFileSinglesAdderFlag"
+          multiplicity: False
         - label: "Readout Tree"
           macro: "output/root/setOutFileSinglesReadoutFlag"
+          multiplicity: False
         - label: "Spblurring Tree"
           macro: "output/root/setOutFileSinglesSpblurringFlag"
+          multiplicity: False
         - label: "Blurring Tree"
           macro: "output/root/setOutFileSinglesBlurringFlag"
+          multiplicity: False
         - label: "Threshholder Tree"
           macro: "output/root/setOutFileSinglesThresholderFlag"
+          multiplicity: False
         - label: "Upholder Tree"
           macro: "output/root/setOutFileSinglesUpholderFlag"
+          multiplicity: False
+        - label: "Spatial Resolution 2D Standard Dev Output"
+          macro: "output/root/SpRes2DStdDevOutput"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [False]
@@ -1935,14 +3059,17 @@ gate:
       - label_list:
         - label: "[ROOT Online Plotter]"
           macro: ""
+          multiplicity: False
         property:
           type: label
 
       - label_list:
         - label: "Enable ROOT online plotter"
           macro: "output/plotter/enable"
+          multiplicity: False
         - label: "Show Plotter"
           macro: "output/plotter/showPlotter"
+          multiplicity: False
         property:
           type: checkbox
           default_value: [False]
@@ -1950,10 +3077,13 @@ gate:
       - label_list:
         - label: "Amount of Columns"
           macro: "output/plotter/setNColumns"
+          multiplicity: False
         - label: "Plot Height"
           macro: "output/plotter/setPlotHeight"
+          multiplicity: False
         - label: "Plot Width"
           macro: "output/plotter/setPlotWidth"
+          multiplicity: False
         property:
           type: text
           default_value: [0]
@@ -1964,24 +3094,27 @@ gate:
       - label_list:
         - label: "Total primaries (split over time)"
           macro: "application/setTotalNumberOfPrimaries"
+          multiplicity: False
         property:
           type: text
-          default_value: ["NaN"]
+          default_value: [0]
           units: NO_UNITS
           default_unit_index: null
 
       - label_list:
         - label: "Primaries per slice (weight by duration)"
           macro: "application/setNumberOfPrimariesPerRun"
+          multiplicity: False
         property:
           type: text
-          default_value: ["NaN"]
+          default_value: [0]
           units: NO_UNITS
           default_unit_index: null
 
       - label_list:
         - label: "Primaries per slice (from file)"
           macro: "application/readNumberOfPrimariesInAFile"
+          multiplicity: False
         property:
           type: select
           default_value: [null]
@@ -1989,6 +3122,7 @@ gate:
       - label_list:
         - label: "Time slice"
           macro: "application/setTimeSlice"
+          multiplicity: False
         property:
           type: text
           default_value: [1]
@@ -1998,6 +3132,7 @@ gate:
       - label_list:
         - label: "Time start"
           macro: "application/setTimeStart"
+          multiplicity: False
         property:
           type: text
           default_value: [0]
@@ -2007,6 +3142,7 @@ gate:
       - label_list:
         - label: "Time stop"
           macro: "application/setTimeStop"
+          multiplicity: False
         property:
           type: text
           default_value: [2]
@@ -2016,22 +3152,23 @@ gate:
       - label_list:
         - label: "Read slice times (file)"
           macro: "application/readTimeSlicesIn"
+          multiplicity: False
         property:
           type: select
           default_value: [null]
 
       - label_list:
-        - label: "Add slice (value, unit)"
-          macro: "application/addSlice"
+        - label: "Use slice times from file"
+          macro: ""
+          multiplicity: False
         property:
-          type: text
-          default_value: [0]
-          units: TIME_UNITS
-          default_unit_index: 0
+          type: checkbox
+          default_value: [False]
 
       - label_list:
         - label: "Seed mode"
           macro: "random/setEngineSeed"
+          multiplicity: False
         property:
           type: dropdown
           default_value: ["default"]
@@ -2040,6 +3177,7 @@ gate:
       - label_list:
         - label: "Manual seed (0..900000000)"
           macro: "random/setEngineSeed (manual value)"
+          multiplicity: False
         property:
           type: text
           default_value: [0]
@@ -2049,6 +3187,7 @@ gate:
       - label_list:
         - label: "Random engine"
           macro: "random/setEngineName"
+          multiplicity: False
         property:
           type: dropdown
           default_value: ["JamesRandom"]
@@ -2057,6 +3196,7 @@ gate:
       - label_list:
         - label: "Reset engine from seed file"
           macro: "random/resetEngineFrom"
+          multiplicity: False
         property:
           type: select
           default_value: [null]
@@ -2065,6 +3205,7 @@ gate:
       - label_list:
         - label: "Viewer"
           macro: "open"
+          multiplicity: False
         property:
           type: dropdown
           default_value: [2]
@@ -2073,6 +3214,7 @@ gate:
       - label_list:
         - label: "Pan to"
           macro: "viewer/panTo"
+          multiplicity: False
         property:
           type: text
           default_value: [0, 0]
@@ -2082,6 +3224,7 @@ gate:
       - label_list:
         - label: "Zoom"
           macro: "viewer/zoom"
+          multiplicity: False
         property:
           type: text
           default_value: [0.5]
@@ -2091,6 +3234,7 @@ gate:
       - label_list:
         - label: "Viewing Angle"
           macro: "viewer/set/viewpointThetaPhi"
+          multiplicity: False
         property:
           type: text
           default_value: [90, 90]
@@ -2102,12 +3246,14 @@ gate:
         - label_list:
           - label: "Systems definition"
             macro: ""
+            multiplicity: False
           property:
             type: label
         
         - label_list:
           - label: "Systems Structure Type"
             macro: ""
+            multiplicity: False
           property:
             type: dropdown
             default_value: [0]
@@ -2117,12 +3263,14 @@ gate:
       - label_list:
         - label: "Material Settings"
           macro: ""
+          multiplicity: False
         property:
           type: label
 
       - label_list:
         - label: "Download Material File (.db)"
           macro: "geometry/setMaterialDatabase"
+          multiplicity: False
         property:
           type: select
           default_value: [null]

@@ -14,6 +14,7 @@ from src.Model.StaticData.StaticData import SYSTEM_TYPES, SYSTEM_LEVELS_BY_TYPE,
 from src.View.parameters.BigPopupCombo import BigPopupCombo
 from src.View.parameters.ElidingLabel import ElidingLabel
 from src.View.popups.DistributionsPopup import DistributionPopup
+from src.View.popups.DigitizerPopup import DigitizerPopup
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
 from src.Control.ControlAPI import ControlAPI
@@ -145,6 +146,7 @@ class InspectorSection:
         self._maybe_add_physics_plus(model, item, gateObject, font_size)
         self._maybe_add_source_plus(model, item, gateObject, font_size)
         self._maybe_add_distributions_plus(model,item,gateObject,font_size)
+        self._maybe_add_digitizer_plus(model,item,gateObject,font_size)
         self._maybe_add_rename(model, gateObject, font_size)
         #self._maybe_add_role(model, gateObject, font_size)
         #self._maybe_add_system_root_row(model, gateObject, font_size)
@@ -189,7 +191,7 @@ class InspectorSection:
     # -----------------------------
 
     def _maybe_add_physics_plus(self, model, item, gate_object: GateObjectInterface, font_size):
-        if gate_object.path != "/gate/physics":
+        if gate_object.path != ControlAPI.getObjectPath("PHYSICS"):
             return
         
         btn = self._button("➕", font_size, 40, click=lambda: PhysicsProcessPopup(
@@ -199,25 +201,30 @@ class InspectorSection:
         
         
     def _maybe_add_source_plus(self, model, item, gate_object: GateObjectInterface, font_size):
-        if gate_object.name != "source":
+        if gate_object.path != ControlAPI.getObjectPath("SOURCE"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: SourcePopup(
-            self.host, lambda name, src_type: (
-                hasattr(self.host, "add_source_from_popup") and self.host.add_source_from_popup(name, src_type),
-                self.populate_parameters(item)
-            )).exec()
+            self.host, lambda: self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+            ).exec()
         )
         
         self._append_widget_row(model, btn, font_size)
         
     def _maybe_add_distributions_plus(self, model, item, gate_object: GateObjectInterface, font_size):
-        if gate_object.name != "distributions":
+        if gate_object.path != ControlAPI.getObjectPath("DISTRIBUTIONS"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: DistributionPopup(
-            self.host, on_create=lambda name, dtype: ( 
-                hasattr(self.host, "add_distribution_from_popup") and self.host.add_distribution_from_popup(name, dtype),
-                self.populate_parameters(item)
-            )).exec()
+            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
+            ).exec()
+        )
+        self._append_widget_row(model, btn, font_size)
+
+    def _maybe_add_digitizer_plus(self, model, item, gate_object: GateObjectInterface, font_size):
+        if gate_object.path != ControlAPI.getObjectPath("DIGITIZER"):
+            return
+        btn = self._button( "Add ➕", font_size, 120, click=lambda: DigitizerPopup(
+            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
+            ).exec()
         )
         self._append_widget_row(model, btn, font_size)
 
@@ -337,9 +344,9 @@ class InspectorSection:
     def _add_parameters_block(self, model, gateObject: GateObjectInterface, fontSize):
         for param in gateObject.param.values():
             # one param row
-            if param.inputType == "label":
+            if param.inputType in ("label", "dynamic_label"):
                 self._add_section_label(model, param.displayedLabel, fontSize)
-            else:              
+            elif param.inputType not in ("macro"):              
                 row_widget = self._build_param_row(gateObject.path, param, fontSize)
                 self._append_widget_row(model, row_widget, fontSize)
 
@@ -378,7 +385,12 @@ class InspectorSection:
             "macro_dropdown": self._build_dropdown_widget,
             "dynamic_dropdown": self._build_dropdown_widget,
             "checkbox": self._build_checkbox_widget,
-            "select": self._build_select_widget
+            "select": self._build_select_widget,
+            "object_name_dropdown": self._build_dropdown_widget,
+            "children_name_dropdown": self._build_dropdown_widget,
+            "attached_volume_dropdown": self._build_dropdown_widget,
+            "digitizer_detector_dropdown": self._build_dropdown_widget,
+            "dynamic_object_name_dropdown": self._build_dropdown_widget
         }
 
         return buildWidget[param.inputType](objectPath, param, fieldIndex, fontSize)
@@ -430,18 +442,20 @@ class InspectorSection:
     # -----------------------------
     # Utility actions
     # -----------------------------
+    def updateView(self, item):
+        self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+        self.populate_parameters(item)
+
     def updateParamValue(self, objectPath: str, paramName: str, fieldIndex: int, value: str):
         ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
-        self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
-        self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
+        self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
 
     
     def updateParamTextValue(self, widget, objectPath: str, paramName: str, fieldIndex: int, value: str):
         if widget._edited == True:
             widget._edited = False
             ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
-            self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
-            self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
+            self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
 
 
     def browse_file_for_param(self, button, objectPath: str, paramLabel: str, fieldIndex: int):
@@ -545,7 +559,7 @@ class InspectorSection:
 
         dd = self._combo(font_size, width=240 + font_size * 2)
         dd.addItem(" - ")
-        for name in ControlAPI.getWorldVolumeNames():
+        for name in ControlAPI.getObjectNames(ControlAPI.getObjectPath("WORLD")):
             dd.addItem(name)
 
         attach_param = next((p for p in src_obj.param.values() if p.path.endswith("/attachTo")), None)

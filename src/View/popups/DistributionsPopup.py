@@ -4,10 +4,11 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
-from src.Model.StaticData.StaticData import DISTRIBUTION_TYPES  # ["Flat","Gaussian","Exponential","Manual","File"]
+from src.Control.ControlAPI import ControlAPI
+from src.View.helper.PopupsHelper import PopupsHelper
 
 class DistributionPopup(QDialog):
-    def __init__(self, parent, on_create=None, existing_names=None):
+    def __init__(self, parent, on_create=None, on_create_args = []):
         super().__init__(parent)
         self.setModal(True)
         self.setWindowTitle("Create Distribution")
@@ -16,7 +17,7 @@ class DistributionPopup(QDialog):
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
         self.on_create = on_create
-        self.existing_names = set(existing_names or [])
+        self.on_create_args = on_create_args
 
         font_size = getattr(parent, "font_size_slider", None)
         self.font = QFont("Arial", font_size.value() if font_size else 12)
@@ -41,7 +42,7 @@ class DistributionPopup(QDialog):
         type_label.setFont(self.font)
         self.type_combo = QComboBox()
         self.type_combo.setFont(self.font)
-        self.type_combo.addItems(DISTRIBUTION_TYPES)
+        self.type_combo.addItems(ControlAPI.getDistributionTypes())
         layout.addWidget(type_label)
         layout.addWidget(self.type_combo)
 
@@ -52,19 +53,14 @@ class DistributionPopup(QDialog):
         layout.addWidget(create_btn)
 
     def _handle_create(self):
-        name = (self.name_edit.text() or "").strip()
-        if not name:
-            # keep it simple; you already log in your console elsewhere if needed
-            return
+        distributionName = self.name_edit.text().strip() or "distributionChild"
+        distributionName = PopupsHelper.uniqueName(distributionName, ControlAPI.getObjectNames("DISTRIBUTIONS"))
 
-        # ensure unique name (foo, foo_2, foo_3, …)
-        base = name
-        i = 2
-        while name in self.existing_names:
-            name = f"{base}_{i}"
-            i += 1
 
-        dtype = self.type_combo.currentText()
+        distributionType = self.type_combo.currentText()
+
+        ControlAPI.createDistributionChild(distributionName, distributionType)
+
         if self.on_create:
-            self.on_create(name, dtype)
+            self.on_create(*self.on_create_args)
         self.accept()

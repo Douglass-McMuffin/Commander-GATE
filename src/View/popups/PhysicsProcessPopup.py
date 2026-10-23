@@ -9,6 +9,7 @@ from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 import src.View.StyleSheets as Style
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Control.ControlAPI import ControlAPI
+from src.View.helper.PopupsHelper import PopupsHelper
 
 class PhysicsProcessPopup(QDialog):
     def __init__(self, parent, existingNames: list[str], onChangeCallback):
@@ -66,15 +67,9 @@ class PhysicsProcessPopup(QDialog):
                 for p in self.physics_obj.param.values() if "Process" in p.displayedLabel]
 
     def add_process(self):
-        name = self.name_input.text()
-        if name in self.existingNames:
-            i = 1
-            newName = f"{name}{i}"
-            while newName in self.existingNames:
-                i += 1
-                newName = f"{name}{i}"
-            name = newName
+        physicsName = self.name_input.text().strip() or "process"
+        physicsName = PopupsHelper.uniqueName(physicsName, ControlAPI.getObjectNames("PHYSICS"))
         
-        ControlAPI.createProcess(name)
+        ControlAPI.createProcess(physicsName)
         self.onChangeCallback()
         self.close()

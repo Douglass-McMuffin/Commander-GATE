@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QComboBox, 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from src.Model.StaticData.StaticData import SOURCE_TYPES
+from src.Control.ControlAPI import ControlAPI
+from src.View.helper.PopupsHelper import PopupsHelper
 
 class SourcePopup(QDialog):
     def __init__(self, parent, on_create):
@@ -23,7 +25,11 @@ class SourcePopup(QDialog):
             lay.addWidget(w)
 
     def _ok(self):
-        name = self.name_in.text().strip() or "source1"
-        src_type = self.type_dd.currentText()
-        self.on_create(name, src_type)
+        sourceName = self.name_in.text().strip() or "sourceChild"
+        sourceName = PopupsHelper.uniqueName(sourceName, ControlAPI.getObjectNames("SOURCE"))
+        sourceType = self.type_dd.currentText()
+
+        ControlAPI.createSource(sourceName, sourceType)
+
+        self.on_create()
         self.accept()

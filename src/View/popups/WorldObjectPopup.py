@@ -7,6 +7,7 @@ from PyQt6.QtCore import Qt
 from Classes.GObjectCreator import GObjectCreator
 from src.View.StyleSheets import WORLD_OBJECT_WINDOW_STYLESHEET
 from src.Control.ControlAPI import ControlAPI
+from src.View.helper.PopupsHelper import PopupsHelper
 
 class WorldObjectPopup(QDialog):
     def __init__(self, parent, material_db, on_create_callback=None):
@@ -24,7 +25,6 @@ class WorldObjectPopup(QDialog):
         self.font_size = parent.font_size_slider.value()
         self.material_db = material_db
         self.on_create_callback = on_create_callback
-        self.existing_names = ControlAPI.getWorldVolumeNames()
 
         self.init_ui()
         self.create_button.clicked.connect(self.handle_create)
@@ -69,18 +69,8 @@ class WorldObjectPopup(QDialog):
         layout.addWidget(self.create_button)
 
     def handle_create(self):
-        name = self.name_input.text().strip()
-        if not name:
-            print("Please enter a name.")
-            return
-
-        if name in self.existing_names:
-            i = 1
-            new_name = f"{name}{i}"
-            while new_name in self.existing_names:
-                i += 1
-                new_name = f"{name}{i}"
-            name = new_name
+        name = self.name_input.text().strip() or "volumeChild"
+        name = PopupsHelper.uniqueName(name, ControlAPI.getObjectNames("WORLD"))
 
         self.accept()
         volumeType = self.shape_dropdown.currentText()

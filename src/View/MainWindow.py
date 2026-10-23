@@ -370,6 +370,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.write_to_console(f"Failed to create source: {e}")
 
+
     # TODO : Need to change the function so it uses the ControlAPI
     def add_distribution_from_popup(self, name: str, dtype: str):
         """

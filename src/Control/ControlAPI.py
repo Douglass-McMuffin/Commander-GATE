@@ -44,14 +44,13 @@ class ControlAPI():
     @staticmethod
     def createGateVolumeChild(parentPath: str, childName: str, volumeType: str, repeaterType: str):
         gateTree = GateTree()
-        parentObject = ControlAPI._getGateObject(parentPath)
-        parentObject.addChild(gateTree.createVolume(childName, volumeType, repeaterType))
+        childObject = gateTree.createGateObjectEmpty("/".join([parentPath, childName]))
+        gateTree.addVolumeParam(childObject, volumeType, repeaterType)
+        gateTree.initObjectParam(childObject)
 
     @staticmethod
-    def getWorldVolumeNames() -> list[str]:
-        gateTree = GateTree()
-        objPath = gateTree.yamlData["gate"]["object_path"]["WORLD"]["object_path"]
-        gateObject = ControlAPI._getGateObject(objPath)
+    def getObjectNames(objectPath: str) -> list[str]:
+        gateObject = ControlAPI._getGateObject(objectPath)
 
         names: list[str] = [gateObject.name]
         childrenToSee: list[GateObjectInterface] = list(gateObject.children.values())
@@ -81,10 +80,41 @@ class ControlAPI():
         return gateTree.yamlData["gate"]["units"][unit]
 
     @staticmethod
-    def createDistributionChild(childName: str, distributionType: str):
+    def getDistributionTypes() -> list[str]:
+        return list(ControlAPI._getYamlData("gate/parameter/distributions/distributions_type").keys())
+
+    @staticmethod
+    def getDigitizerTypes() -> list[str]:
+        return list(ControlAPI._getYamlData("gate/parameter/digitizer/digitizer_type").keys())
+
+    @staticmethod
+    def getAttachedVolumes() -> list[str]:
+        gateTree = GateTree()
+        observedObjectList = [gateTree.getObjectFromGateObjectPath(gateTree, gateTree._getYamlData("gate/object_path/WORLD/object_path"))]
+        unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            if observedObject.param["Attach Volume to System"].valueList[0]:
+                unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+        return unitList
+
+    @staticmethod
+    def getObjectPath(objectKey: str) -> str:
+        gateTree = GateTree()
+        return gateTree.yamlData["gate"]["object_path"][objectKey]["object_path"]
+
+    @staticmethod
+    def createDistributionChild(distributionName: str, distributionType: str):
         gateTree = GateTree()
         distributionsInfo = ControlAPI._getYamlData("gate/object_path/DISTRIBUTIONS")
-        parentObject = ControlAPI._getGateObject(distributionsInfo["object_path"])
+        distributionObject = gateTree.createGateObjectEmpty("/".join([distributionsInfo["object_path"], distributionName]))
+        gateTree.addParamFromYamlSection(distributionObject, ControlAPI._getYamlData("gate/parameter/distributions/distributions_general"))
+        gateTree.addParamFromYamlSection(distributionObject, ControlAPI._getYamlData(f"gate/parameter/distributions/distributions_type/{distributionType}"))
+        gateTree.initObjectParam(distributionObject)
+        distributionObject.param["Distribution type"].updateValue(0, distributionType)
+
 
     @staticmethod
     def createProcess(processName: str):
@@ -92,6 +122,34 @@ class ControlAPI():
         physicsInfo = ControlAPI._getYamlData("gate/object_path/PHYSICS")
         processObject = gateTree.createGateObjectEmpty("/".join([physicsInfo["object_path"], processName]))
         gateTree.addParamFromYamlSection(processObject, ControlAPI._getYamlData("gate/parameter/physics/process"))
+        gateTree.initObjectParam(processObject)
+
+    @staticmethod
+    def createSource(sourceName: str, sourceType: str):
+        gateTree = GateTree()
+        sourceInfo = ControlAPI._getYamlData("gate/object_path/SOURCE")
+        sourceObject = gateTree.createGateObjectEmpty("/".join([sourceInfo["object_path"], sourceName]))
+        gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData("gate/parameter/source/source_general"))
+        gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData(f"gate/parameter/source/{sourceType}"))
+        gateTree.initObjectParam(sourceObject)
+
+    @staticmethod
+    def createDigitizer(sensitiveDetectorName: str, digitizerType: str, singlesDigitizerName: str):
+        gateTree = GateTree()
+        digitizerInfo = ControlAPI._getYamlData("gate/object_path/DIGITIZER")
+        digitizerObject = gateTree.createGateObjectEmpty("/".join([digitizerInfo["object_path"], singlesDigitizerName]))
+        gateTree.addParamFromYamlSection(digitizerObject, ControlAPI._getYamlData("gate/parameter/digitizer/digitizer_general"))
+        gateTree.initObjectParam(digitizerObject)
+        digitizerObject.param["Digitizer Type"].updateValue(0, digitizerType)
+
+        detectorVolumePath = ControlAPI._getDetectorVolume(sensitiveDetectorName).path
+        digitizerObject.param["Detector Volume Path"].updateValue(0, detectorVolumePath)
+
+        for moduleType in ControlAPI._getYamlData(f"gate/parameter/digitizer/{digitizerType}").keys():
+            digitizerModuleObject = gateTree.createGateObjectEmpty("/".join(digitizerObject.path, moduleType))
+            gateTree.addParamFromYamlSection(digitizerModuleObject, ControlAPI._getYamlData(f"gate/parameter/digitizer/{digitizerType}_general"))
+            gateTree.addParamFromYamlSection(digitizerModuleObject, ControlAPI._getYamlData(f"gate/parameter/digitizer/digitizer_type/{digitizerType}/{moduleType}"))
+            gateTree.initObjectParam(digitizerModuleObject)
 
     @staticmethod
     def _getGateObject(objectPath: str) -> GateObjectInterface:
@@ -104,16 +162,19 @@ class ControlAPI():
 
     @staticmethod
     def _getYamlData(yamlPath: str):
-        yamlToken = yamlPath.split("/")
-        if yamlPath[0] == "/":
-            yamlToken = yamlToken[1:]
-
         gateTree = GateTree()
-        yamlData = gateTree.yamlData
+        return gateTree._getYamlData(yamlPath)
 
-        for token in yamlToken:
-            yamlData = yamlData[token]
+    @staticmethod
+    def _getDetectorVolume(detectorName: str) -> GateObjectInterface:
+        observedVolume = ControlAPI._getGateObject(ControlAPI.getObjectPath("WORLD"))
 
-        return yamlData
+        volumeToSee = list(observedVolume.children.values())
+        while observedVolume.name != detectorName:
+            observedVolume = volumeToSee.pop(0)
+            volumeToSee += list(observedVolume.children.values())
+
+        return observedVolume
+
 
 

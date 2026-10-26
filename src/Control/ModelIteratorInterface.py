@@ -5,10 +5,10 @@ class ModelIteratorInterface(ABC):
 
     @abstractmethod
     def getNext(self) -> GateObjectInterface:
-        """Get the next item in the collection"""
+        """Get the next gate object of the iterator."""
         pass 
 
     @abstractmethod
     def hasMore(self) -> bool:
-        """Return True if there is more item to go through the collection"""
+        """Check if there is still gates objects left to iterate."""
         pass

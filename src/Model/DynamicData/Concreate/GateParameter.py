@@ -17,10 +17,24 @@ class GateParameter(GateParameterInterface):
             default_unit_index: int = 0,
             yaml_raw_property: dict[str, str | int | list[str]] = {}
         ):
+        """
+        Initialise the gate parameter.
+        
+        keyword arguments:
+        path -- macro associated with parameter
+        displayed_label -- label displayed by the parameter
+        input_type -- type of the input for the parameter ("text", "dropdown", "checkbox", ...)
+        default_value_list -- defautl value of the parameter before any user changes
+        multiplicity -- enables multiple instance of this parameter
+        unit_list -- list of the units for the "text" input and values to choose from for the "dropdown" input
+        default_unit_index -- default unit to show for either the "text" input or the value for the "dropdown" input
+        yaml_raw_property -- yaml section associated with the parameter
+        """
         self._path = path
         self._displayedLabel = displayed_label
         self._inputType = input_type
         self._defaultValueList = default_value_list
+        self._multiplicity = multiplicity
         self._valueList = deepcopy(default_value_list)
         self._unitList = unit_list
         self._defaultUnitIndex = default_unit_index
@@ -33,62 +47,38 @@ class GateParameter(GateParameterInterface):
         return f"Param <\"{self._displayedLabel}\">"
     
     def to_dict(self):
+        """Get the parameter information"""
         return {
             "path": self._path,
             "name": self._displayedLabel,
             "input_types": self._inputType,
             "default_values": self._defaultValueList,
             "values": self._valueList,
-            "unit_list": self.compare_lists(),
-            "chosen_unit": self._unitList
-        }
-        
-    def compare_lists(self):
-        """Compares the stored unit_list with unit lists in StaticData and returns the matching list name as a string."""
-        if not self._unitList:
-            return None  # No unit list to compare
-        
-        unit_lists = {
-            "LENGTH_UNITS": StaticData.LENGTH_UNITS,
-            "SURFACE_UNITS": StaticData.SURFACE_UNITS,
-            "VOLUME_UNITS": StaticData.VOLUME_UNITS,
-            "ANGLE_UNITS": StaticData.ANGLE_UNITS,
-            "TIME_UNITS": StaticData.TIME_UNITS,
-            "SPEED_UNITS": StaticData.SPEED_UNITS,
-            "ANGULAR_SPEED_UNITS": StaticData.ANGULAR_SPEED_UNITS,
-            "ENERGY_UNITS": StaticData.ENERGY_UNITS,
-            "ACTIVITY_DOSE_UNITS": StaticData.ACTIVITY_DOSE_UNITS,
-            "AMOUNT_OF_SUBSTANCE_UNITS": StaticData.AMOUNT_OF_SUBSTANCE_UNITS,
-            "MASS_UNITS": StaticData.MASS_UNITS,
-            "VOLUMIC_MASS_UNITS": StaticData.VOLUMIC_MASS_UNITS,
-            "ELECTRIC_CHARGE_UNITS": StaticData.ELECTRIC_CHARGE_UNITS,
-            "ELECTRIC_CURRENT_UNITS": StaticData.ELECTRIC_CURRENT_UNITS,
-            "ELECTRIC_POTENTIAL_UNITS": StaticData.ELECTRIC_POTENTIAL_UNITS,
-            "MAGNETIC_FLUX_UNITS": StaticData.MAGNETIC_FLUX_UNITS,
-            "TEMPERATURE_UNITS": StaticData.TEMPERATURE_UNITS,
-            "FORCE_PRESSURE_UNITS": StaticData.FORCE_PRESSURE_UNITS,
-            "POWER_UNITS": StaticData.POWER_UNITS,
-            "FREQUENCY_UNITS": StaticData.FREQUENCY_UNITS
+            "unit_list": self._unitList,
+            "chosen_unit": self._unitList[self._defaultUnitIndex]
         }
 
-        for list_name, predefined_list in unit_lists.items():
-            if set(self._unitList) == set(predefined_list):  # Compare as sets to avoid order dependency
-                return list_name
-
-        return "UNKNOWN"  # If no match is found
 
 
     def addSubcriber(self, gateParameter: GateParameter):
+        """
+        Add a subscriber to the subcriber-publisher model.
+        
+        keyword arguments:
+        gateParameter -- parameter to notify when a change has occured."""
         self._subscriberValueChanged.append(gateParameter)
 
     def notifyAllSubscriber(self):
+        """Notify every subscriber of the change."""
         for parameter in self._subscriberValueChanged:
             parameter.receiveNotification()
 
     def notifyOneSubscriber(self, gateParameter: GateParameter):
+        """Notify a selected subscriber of the change."""
         gateParameter.receiveNotification()
 
     def receiveNotification(self):
+        """Handle the noficiation received from the publishing parameter. Update for the most part dynamic parameter."""
         match self.inputType:
             case "dynamic_dropdown":
                 gateTree = GateTree()
@@ -149,10 +139,22 @@ class GateParameter(GateParameterInterface):
 
 
     def updateValue(self, fieldIndex: int, newData: str | float | bool):
+        """
+        Update value of the parameter and notify all subscriber of the update.
+        
+        keyword arguments:
+        fieldIndex -- index of the value in the value list
+        newData -- value to update the value list with"""
         self._valueList[fieldIndex] = newData
         self.notifyAllSubscriber()
 
     def updateUnitIndex(self, newIndex: int):
+        """
+        Update the units
+
+        keyword arguments:
+        newIndex -- index of the updated unit.
+        """
         self._defaultUnitIndex = newIndex
 
     ### GateParameterInterface Implementation

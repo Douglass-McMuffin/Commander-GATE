@@ -6,11 +6,12 @@ from src.Model.DynamicData.Concreate.GateTree import GateTree
 class ModelIterator(ModelIteratorInterface):
 
     def __init__(self):
+        """Initiliase the iterator."""
         self._gateTree: GateTree = GateTree()
         self._currentGateObject: GateObjectInterface = self._gateTree
 
     def getNext(self) -> GateObjectInterface:
-        """Depth First Search"""
+        """Get the next gate object of the iterator with depth first search."""
 
         gObj = self._currentGateObject
         #If the current gate object has children, check the children
@@ -35,6 +36,7 @@ class ModelIterator(ModelIteratorInterface):
         return None
 
     def hasMore(self) -> bool:
+        """Check if there is still gate object left to iterate."""
         gObj = self._currentGateObject
         #If the current gate object has children, check the children
         if len(gObj.children) >= 1:

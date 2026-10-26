@@ -4,6 +4,11 @@ from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 
 class GateObject(GateObjectInterface):
     def __init__(self, name: str):
+        """
+        Initialise the gate object.
+        
+        keyword arguments:
+        name -- name of the new gate object"""
         self._path: str
         self._name: str = name
         self._parent: GateObject
@@ -17,10 +22,11 @@ class GateObject(GateObjectInterface):
         # material, translation, rotation, color, style
         # TODO check the CSG Volumes to implement the parameters correctyly
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"name: {self.name}, parameter: {self.param}, children: {list(self.children.values())}"
         
     def to_dict(self):
+        """Get the gate object informations."""
         return {
         "path": self.path,
         "name": self.name,
@@ -29,16 +35,12 @@ class GateObject(GateObjectInterface):
         "children": self.children        
     }
 
-    def getParameter(self, parameterToGet: str) -> GateParameter:
-        for parameter in self.param:
-            if parameter.displayedLabel == parameterToGet:
-                return parameter
-
-    def updatePathRecursive(self):
+    def _updatePathRecursive(self):
+        """Update its object path in reference with its parent path"""
         parentPath = self.parent.path
         self.path = "/".join([parentPath, self.name])
         for child in self.children.values():
-            child.updatePathRecursive()
+            child._updatePathRecursive()
     
         
     ### GateObject abstract implementation
@@ -70,12 +72,12 @@ class GateObject(GateObjectInterface):
     @name.setter
     def name(self, name: str):
         self._name = name
-        self.updatePathRecursive()
+        self._updatePathRecursive()
 
     @parent.setter
     def parent(self, parent: GateObjectInterface):
         self._parent = parent
-        self.updatePathRecursive()
+        self._updatePathRecursive()
 
     @param.setter
     def param(self, param: dict[str, GateParameter]):

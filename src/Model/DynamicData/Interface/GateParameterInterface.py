@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 class GateParameterInterface(ABC):
+    """Interface to implement the caracteristics of a gate parameter."""
 
     @property
     def path(self) -> str:

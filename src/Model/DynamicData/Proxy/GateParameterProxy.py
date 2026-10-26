@@ -2,6 +2,7 @@ from src.Model.DynamicData.Interface.GateParameterInterface import GateParameter
 from sys import stderr
 
 class GateParameterProxy():
+    """Implementation of the GateParameterInterface that only give read acces to itself."""
 
     def __init__(self, gateParameter: GateParameterInterface):
         self._gateParameter = gateParameter

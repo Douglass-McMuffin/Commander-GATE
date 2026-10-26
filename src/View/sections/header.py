@@ -3,6 +3,13 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
 def create_header_section(parent, text: str) -> QLabel:
+    """
+    Create the header of a section (inspectorSection, hierarchySection)
+
+    keyword arguments:
+    parent -- QWidget that will have the header
+    text -- title of the section
+    """
     label = QLabel(parent)
     label.setText(text)
 

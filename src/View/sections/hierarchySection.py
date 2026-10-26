@@ -8,7 +8,6 @@ from .header import create_header_section
 from sys import stderr
 
 class HierarchySection:
-    
     """
     Encapsulates the hierarchy widget area.
     Exposes:
@@ -17,6 +16,12 @@ class HierarchySection:
     """
     
     def __init__(self, parent):
+        """
+        Get the hierarchy section
+
+        keyword arguments:
+        parent -- QWidget parent 
+        """
         self.widget = QWidget(parent)
         self.layout = QVBoxLayout(self.widget)
 
@@ -36,6 +41,9 @@ class HierarchySection:
         """
         Apply a consistent font to the Hierarchy section and adjust row height.
         Call this from MainWindow.update_font_size(size).
+
+        keyword arguments:
+        fs -- font size
         """
         base = QFont("Arial", fs)
         self.widget.setFont(base)
@@ -46,6 +54,9 @@ class HierarchySection:
     def _update_row_height(self, fs: int):
         """
         Keep rows comfortably tall but compact.
+
+        keyword arguments:
+        fs -- font size
         """
         fm = QFontMetrics(QFont("Arial", fs))
         row_h = max(22, fm.height() + 6)
@@ -56,7 +67,11 @@ class HierarchySection:
         )
 
     def populate(self, write_to_console):
-        """Populate the gate object tree in the hierarchy section"""
+        """
+        Populate the gate object tree in the hierarchy section.
+        
+        keyword arguments:
+        write_to_console -- function that write directly to the console"""
         # get the node iterator
         modelIterator: ModelIteratorInterface = ModelIterator()
         self.tree.clear()
@@ -81,6 +96,12 @@ class HierarchySection:
 
     
     def _find_tree_child(self, itemPath: str) -> QTreeWidgetItem:
+        """
+        Get the QTreeWidgetItem related to the item path.
+
+        keyword arguments:
+        itemPath -- path of the item inside the tree widget
+        """
         oldParent = self.tree.invisibleRootItem()
         newParent = self.tree.invisibleRootItem()
         if itemPath == "":
@@ -102,6 +123,13 @@ class HierarchySection:
             
     @staticmethod
     def _iterate(item, func):
+        """
+        Iterate through the item and its children recursively and execute a funcion for each.
+
+        keyword arguments:
+        item -- item that is iterated through
+        func -- funcion applied for each item in the following manner : func(item)
+        """
         itemToSee: list[QTreeWidgetItem] = [item]
         while len(itemToSee) > 0:
             itemObserved: QTreeWidgetItem = itemToSee.pop(0)
@@ -111,6 +139,13 @@ class HierarchySection:
 
     @staticmethod
     def _iterateReturnFirstNotNone(item, func):
+        """
+        Iterate through the item and its children recursively until the funcion returns.
+        
+        keyword arguments:
+        item -- item that is iterated through
+        func -- funcion applied for the item in the following manner : func(item)
+        """
         itemToSee: list[QTreeWidgetItem] = [item]
         while len(itemToSee) > 0:
             itemObserved: QTreeWidgetItem = itemToSee.pop(0)
@@ -122,7 +157,10 @@ class HierarchySection:
         
             
     def snapshot_state(self):
-        """Return (expanded_ids, selected_id, scroll_value)."""
+        """
+        Take a snapshot of the tree widget state and return the information concerning the expanded and selected items, but also the vertical scroll.
+        Return in this way : (expanded_ids, selected_id, scroll_value).
+        """
         expandedPaths = set()
         selectedPath = None
 
@@ -138,7 +176,15 @@ class HierarchySection:
         return expandedPaths, selectedPath, vscroll
     
     
-    def restore_state(self, expandedPaths: list[str], selectedPath: str, vscroll):      
+    def restore_state(self, expandedPaths: list[str], selectedPath: str, vscroll):   
+        """
+        Restore the tree widget state with expanded and selected items but also vertical scroll.
+
+        keyword arguments:
+        expandedPaths -- list of item's path that are expanded
+        selectedPath -- item's path that is selected
+        vscroll -- vertical scroll
+        """   
         for expandedItemPath in expandedPaths:
             expandedItem = self._find_tree_child(expandedItemPath)
             expandedItem.setExpanded(True)
@@ -151,7 +197,12 @@ class HierarchySection:
         self.tree.verticalScrollBar().setValue(vscroll)
     
     def add_child_item(self, parentPath: str, childObj: GateObjectInterface):
-        """Insert a single child into the existing tree without rebuilding."""
+        """
+        Insert a single child into the existing tree without rebuilding.
+        
+        keyword arguments:
+        parentPath -- item path of the parent
+        childObj -- child gate object"""
         from PyQt6.QtWidgets import QTreeWidgetItem
 
         # Find parent item

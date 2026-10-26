@@ -195,7 +195,7 @@ class InspectorSection:
             return
         
         btn = self._button("➕", font_size, 40, click=lambda: PhysicsProcessPopup(
-            self.host, ControlAPI.getProcessNames(), lambda: self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
             ).exec())
         self._append_widget_row(model, btn, font_size)
         

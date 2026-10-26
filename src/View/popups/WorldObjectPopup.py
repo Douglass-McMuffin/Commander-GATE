@@ -4,13 +4,21 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
-from Classes.GObjectCreator import GObjectCreator
 from src.View.StyleSheets import WORLD_OBJECT_WINDOW_STYLESHEET
 from src.Control.ControlAPI import ControlAPI
 from src.View.helper.PopupsHelper import PopupsHelper
 
 class WorldObjectPopup(QDialog):
-    def __init__(self, parent, material_db, on_create_callback=None):
+    def __init__(self, parent, parentObjectPath, on_create=None, on_create_args = []):
+        """
+        Create the DigitizerPopup handler.
+
+        keyword arguments:
+        parent -- QWidget parent of the popup
+        parentObjectPath -- path of the gate object that is the parent of the new volume
+        on_create -- function to call when the digitizer is created 
+        on_create_args -- arguments to call the on_create function
+        """
         super().__init__(parent)
         
         self.setModal(True)
@@ -23,13 +31,15 @@ class WorldObjectPopup(QDialog):
         self.repeaterType = ControlAPI.getYamlUnits("REPEATER_TYPES")
 
         self.font_size = parent.font_size_slider.value()
-        self.material_db = material_db
-        self.on_create_callback = on_create_callback
+        self.parentObjectPath = parentObjectPath
+        self.onCreate = on_create
+        self.onCreateArgs = on_create_args
 
-        self.init_ui()
-        self.create_button.clicked.connect(self.handle_create)
+        self._build_ui()
+        self.create_button.clicked.connect(self._handle_create)
 
-    def init_ui(self):
+    def _build_ui(self):
+        """Build the User Interface for the popup."""
         self.setStyleSheet(WORLD_OBJECT_WINDOW_STYLESHEET)
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -68,11 +78,15 @@ class WorldObjectPopup(QDialog):
         self.create_button.setFont(label_font)
         layout.addWidget(self.create_button)
 
-    def handle_create(self):
+    def _handle_create(self):
+        """Create the digitizer gate object, call the on_create function and close the popup."""
         name = self.name_input.text().strip() or "volumeChild"
         name = PopupsHelper.uniqueName(name, ControlAPI.getObjectNames("WORLD"))
-
-        self.accept()
         volumeType = self.shape_dropdown.currentText()
         repeaterType = self.repeater_dropdown.currentText()
-        self.on_create_callback(name, volumeType, repeaterType)
+
+        ControlAPI.createGateVolumeChild(self.parentObjectPath, name, volumeType, repeaterType)
+
+        if self.onCreate:
+            self.onCreate(*self.onCreateArgs)
+        self.accept()

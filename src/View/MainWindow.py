@@ -264,11 +264,11 @@ class MainWindow(QMainWindow):
             return
         
         dialog = WorldObjectPopup(
-            self, 
-            self.cManager.get_material_db(), 
-            on_create_callback=lambda name, volumeType, repeaterType, parentPath=parentObjPath: ControlAPI.createGateVolumeChild(parentPath, name, volumeType, repeaterType))
+            self,
+            parentObjPath,
+            self.populate_hierarchy_tree, 
+            [self.cManager.node_tree])
         dialog.exec()
-        self.populate_hierarchy_tree(self.cManager.node_tree)
         
     
     def add_object_to_tree(self, new_obj: GateObjectInterface, parent_obj: GateObjectInterface):

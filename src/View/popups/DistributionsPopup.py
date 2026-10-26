@@ -9,6 +9,14 @@ from src.View.helper.PopupsHelper import PopupsHelper
 
 class DistributionPopup(QDialog):
     def __init__(self, parent, on_create=None, on_create_args = []):
+        """
+        Create the DigitizerPopup handler.
+        
+        keyword arguments:
+        parent -- QWidget parent of the popup
+        on_create -- function to call when the digitizer is created 
+        on_create_args -- arguments to call the on_create function
+        """
         super().__init__(parent)
         self.setModal(True)
         self.setWindowTitle("Create Distribution")
@@ -25,6 +33,7 @@ class DistributionPopup(QDialog):
         self._build_ui()
 
     def _build_ui(self):
+        """Build the User Interface for the popup."""
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -53,6 +62,7 @@ class DistributionPopup(QDialog):
         layout.addWidget(create_btn)
 
     def _handle_create(self):
+        """Create the digitizer gate object, call the on_create function and close the popup."""
         distributionName = self.name_edit.text().strip() or "distributionChild"
         distributionName = PopupsHelper.uniqueName(distributionName, ControlAPI.getObjectNames("DISTRIBUTIONS"))
 

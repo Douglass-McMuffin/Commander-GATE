@@ -3,6 +3,7 @@ from src.Model.DynamicData.Proxy.GateParameterProxy import GateParameterProxy
 from sys import stderr
 
 class GateObjectProxy(GateObjectInterface):
+    """Implementation of the GateObjectInterface that only give read acces to itself."""
 
     def __init__(self, gateObject: GateObjectInterface):
         self._gateObject = gateObject

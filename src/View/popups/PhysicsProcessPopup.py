@@ -4,29 +4,35 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
-from src.Model.StaticData.StaticData import PHYSICS_PROCESSES
-from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 import src.View.StyleSheets as Style
-from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Control.ControlAPI import ControlAPI
 from src.View.helper.PopupsHelper import PopupsHelper
 
 class PhysicsProcessPopup(QDialog):
-    def __init__(self, parent, existingNames: list[str], onChangeCallback):
+    def __init__(self, parent, on_create=None, on_create_args = []):
+        """
+        Create the DigitizerPopup handler.
+        
+        keyword arguments:
+        parent -- QWidget parent of the popup
+        on_create -- function to call when the digitizer is created 
+        on_create_args -- arguments to call the on_create function
+        """
         super().__init__(parent)
         self.setWindowTitle("Edit Physics Processes")
         self.setModal(True)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setMinimumSize(600, 400)
-        self.existingNames = existingNames
-        self.onChangeCallback = onChangeCallback
+        self.onCreateCallback = on_create
+        self.onCreateCallbackArgs = on_create_args
         self.font_size = parent.font().pointSize()
         self.default_font = QFont("Arial", self.font_size)
         self.setStyleSheet(Style.LIGHT_MODE_STYLESHEET)
-        self.init_ui()
+        self._build_ui()
     
-    def init_ui(self):
+    def _build_ui(self):
+        """Build the User Interface for the popup."""
         layout = QVBoxLayout()
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -48,28 +54,18 @@ class PhysicsProcessPopup(QDialog):
         add_button = QPushButton("Add Process")
         add_button.setFont(self.default_font)
         add_button.setFixedHeight(self.font_size * 2)
-        add_button.clicked.connect(self.add_process)
+        add_button.clicked.connect(self._handle_create)
         layout.addWidget(add_button)
 
         self.setLayout(layout)
 
-    def _styled_label(self, text):
-        label = QLabel(text)
-        label.setFont(self.default_font)
-        return label
-
-    def _already_added(self, process_name):
-        return any(param.path.endswith(process_name)
-                   for param in self.physics_obj.param.values() if "Process" in param.displayedLabel)
-
-    def _get_existing_processes(self):
-        return [p.displayed_name.split(" ")[0]
-                for p in self.physics_obj.param.values() if "Process" in p.displayedLabel]
-
-    def add_process(self):
+    def _handle_create(self):
+        """Create the digitizer gate object, call the on_create function and close the popup."""
         physicsName = self.name_input.text().strip() or "process"
         physicsName = PopupsHelper.uniqueName(physicsName, ControlAPI.getObjectNames("PHYSICS"))
         
         ControlAPI.createProcess(physicsName)
-        self.onChangeCallback()
+
+        if self.onCreateCallback:
+            self.onCreateCallback(*self.onCreateCallbackArgs)
         self.close()

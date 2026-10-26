@@ -1,21 +1,45 @@
-from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
-from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
 from src.Model.DynamicData.Concreate.GateTree import GateTree
+from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
+from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterfaceg
 from src.Model.DynamicData.Proxy.GateObjectProxy import GateObjectProxy
 from sys import stderr
 
 class ControlAPI():
 
+    ### GateObject Methods ###
     @staticmethod
     def getGateObject(objectPath: str) -> GateObjectInterface:
+        """
+        Get the gate object from the gate tree.
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        """
         return GateObjectProxy(ControlAPI._getGateObject(objectPath))
 
     @staticmethod
     def updateGateObjectField(objectPath: str, field: str, value: float | str):
+        """
+        Update the attribute of a gate object.
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        field -- name of the attribute
+        value -- value to insert in the attribute
+        """
         setattr(ControlAPI._getGateObject(objectPath), field, value)
 
     @staticmethod
     def updateGateParamValue(objectPath: str, paramLabel: str, fieldIndex: str, value : str):
+        """
+        Update selected value of a selected gate parameter.
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        paramLabel -- displayed label of the parameter
+        fieldIndex -- index of the value to change in the value list of the gate parameter
+        value -- value to insert in the attribute
+        """
         gateObject = ControlAPI._getGateObject(objectPath)
         param = gateObject.param[paramLabel]
 
@@ -34,6 +58,14 @@ class ControlAPI():
 
     @staticmethod
     def updateGateParamUnitIndex(objectPath: str, paramLabel: str, index: int):
+        """
+        Update the selected gate parameter prefered unit for a text parameter.
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        paramLabel -- displayed label of the parameter
+        index -- index of the prefered unit in its unit list
+        """
         gateObject = ControlAPI._getGateObject(objectPath)
         param = gateObject.param[paramLabel]
         if param.inputType == "text":
@@ -43,6 +75,15 @@ class ControlAPI():
 
     @staticmethod
     def createGateVolumeChild(parentPath: str, childName: str, volumeType: str, repeaterType: str):
+        """
+        Create volume under the selected gate object.
+        
+        keyword arguments:
+        parentPath -- path to the parent object from the root of the gate tree
+        childName -- name of the new volume
+        volumeType -- type of volume to create ("box", "cylinder", ...)
+        repeaterType -- type of repeater to apply (" - " = None, "linear", "ring", ...)
+        """
         gateTree = GateTree()
         childObject = gateTree.createGateObjectEmpty("/".join([parentPath, childName]))
         gateTree.addVolumeParam(childObject, volumeType, repeaterType)
@@ -50,6 +91,12 @@ class ControlAPI():
 
     @staticmethod
     def getObjectNames(objectPath: str) -> list[str]:
+        """
+        Get the names of the selected object and its children.
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        """
         gateObject = ControlAPI._getGateObject(objectPath)
 
         names: list[str] = [gateObject.name]
@@ -62,33 +109,54 @@ class ControlAPI():
         return names
 
     @staticmethod
-    def getProcessNames() -> list[str]:
-        gateTree = GateTree()
-        objPath = gateTree.yamlData["gate"]["object_path"]["PHYSICS"]["object_path"]
-        gateObject = ControlAPI._getGateObject(objPath)
-
-        return [childName for childName in gateObject.children]
-
-    @staticmethod
     def setGateObjectName(objectPath: str, name: str):
+        """
+        Update the selected gate object's name
+
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        name -- new name for the selected gate object
+        """
         gateObject = ControlAPI._getGateObject(objectPath)
         gateObject.name = name    
 
     @staticmethod
     def getYamlUnits(unit: str) -> list[str]:
+        """
+        Get the selected units.
+
+        keyword arguments:
+        unit -- yaml static keyword for the selected unit
+        """
         gateTree = GateTree()
         return gateTree.yamlData["gate"]["units"][unit]
 
     @staticmethod
+    def getProcessTypes() -> list[str]:
+        """
+        Get every distribution type available.
+        """
+        return list(ControlAPI._getYamlData("gate/process_components").keys())
+
+    @staticmethod
     def getDistributionTypes() -> list[str]:
+        """
+        Get every distribution type available.
+        """
         return list(ControlAPI._getYamlData("gate/parameter/distributions/distributions_type").keys())
 
     @staticmethod
     def getDigitizerTypes() -> list[str]:
+        """
+        Get every digitizer type available.
+        """
         return list(ControlAPI._getYamlData("gate/parameter/digitizer/digitizer_type").keys())
 
     @staticmethod
     def getAttachedVolumes() -> list[str]:
+        """
+        Get the names of every attached volumes.
+        """
         gateTree = GateTree()
         observedObjectList = [gateTree.getObjectFromGateObjectPath(gateTree, gateTree._getYamlData("gate/object_path/WORLD/object_path"))]
         unitList = []
@@ -102,11 +170,24 @@ class ControlAPI():
 
     @staticmethod
     def getObjectPath(objectKey: str) -> str:
+        """
+        Get the path of a gate object predetermined folder
+
+        keyword arguments:
+        objectKey -- yaml static keyword for the selected predetermined gate object
+        """
         gateTree = GateTree()
         return gateTree.yamlData["gate"]["object_path"][objectKey]["object_path"]
 
     @staticmethod
     def createDistributionChild(distributionName: str, distributionType: str):
+        """
+        Create a new distribution.
+
+        keyword arguments:
+        distributionName -- name of the new distribution
+        distributionType -- type of the new distribution
+        """
         gateTree = GateTree()
         distributionsInfo = ControlAPI._getYamlData("gate/object_path/DISTRIBUTIONS")
         distributionObject = gateTree.createGateObjectEmpty("/".join([distributionsInfo["object_path"], distributionName]))
@@ -118,6 +199,12 @@ class ControlAPI():
 
     @staticmethod
     def createProcess(processName: str):
+        """
+        Create a process to alter the chosen physisc
+
+        keyword arguments:
+        processName -- name of the new process
+        """
         gateTree = GateTree()
         physicsInfo = ControlAPI._getYamlData("gate/object_path/PHYSICS")
         processObject = gateTree.createGateObjectEmpty("/".join([physicsInfo["object_path"], processName]))
@@ -126,6 +213,13 @@ class ControlAPI():
 
     @staticmethod
     def createSource(sourceName: str, sourceType: str):
+        """
+        Create a new source.
+
+        keyword arguments:
+        sourceName -- name of the new source
+        sourceType -- type of the new source
+        """
         gateTree = GateTree()
         sourceInfo = ControlAPI._getYamlData("gate/object_path/SOURCE")
         sourceObject = gateTree.createGateObjectEmpty("/".join([sourceInfo["object_path"], sourceName]))
@@ -135,6 +229,14 @@ class ControlAPI():
 
     @staticmethod
     def createDigitizer(sensitiveDetectorName: str, digitizerType: str, singlesDigitizerName: str):
+        """
+        Create a new digitizer link to a selected sensitive detector
+
+        keyword arguments:
+        sensitiveDetectorName -- name of the sensitive detector
+        digitizerType -- type of the new digitizer
+        singlesDigitizerName -- name of the new digitizer
+        """
         gateTree = GateTree()
         digitizerInfo = ControlAPI._getYamlData("gate/object_path/DIGITIZER")
         digitizerObject = gateTree.createGateObjectEmpty("/".join([digitizerInfo["object_path"], singlesDigitizerName]))
@@ -152,7 +254,20 @@ class ControlAPI():
             gateTree.initObjectParam(digitizerModuleObject)
 
     @staticmethod
+    def getMaterials() -> list[str]:
+        """Get the material list used by the project"""
+        gateTree = GateTree()
+        return gateTree.material
+
+    ### Private methods (helpers) ###
+    @staticmethod
     def _getGateObject(objectPath: str) -> GateObjectInterface:
+        """
+        Get the gate object from the gate tree.
+        
+        keyword arguments:
+        objectPath -- path to the object from the root of the gate tree
+        """
         gateObject = GateTree()
         
         for pathToken in objectPath.split("/")[1:]:
@@ -162,11 +277,23 @@ class ControlAPI():
 
     @staticmethod
     def _getYamlData(yamlPath: str):
+        """
+        Get a selected part of the static yaml data.
+
+        keyword arguments:
+        yamlPath -- path from the root of the yaml tree to the selected part
+        """
         gateTree = GateTree()
         return gateTree._getYamlData(yamlPath)
 
     @staticmethod
     def _getDetectorVolume(detectorName: str) -> GateObjectInterface:
+        """
+        Get the volume associated with a detector.
+
+        keyword arguments:
+        detectorName -- name of the detector associated with the volume
+        """
         observedVolume = ControlAPI._getGateObject(ControlAPI.getObjectPath("WORLD"))
 
         volumeToSee = list(observedVolume.children.values())

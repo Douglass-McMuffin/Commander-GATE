@@ -39,7 +39,7 @@ class GateObjectInterface(ABC):
         """
         Add child gate object to itself.
 
-        child -- new gate object child
+            child: new gate object child
         """
         child.parent = self
         child.path = self.path + "/" + child.name

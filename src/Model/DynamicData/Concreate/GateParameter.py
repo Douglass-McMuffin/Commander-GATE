@@ -20,15 +20,15 @@ class GateParameter(GateParameterInterface):
         """
         Initialise the gate parameter.
         
-        keyword arguments:
-        path -- macro associated with parameter
-        displayed_label -- label displayed by the parameter
-        input_type -- type of the input for the parameter ("text", "dropdown", "checkbox", ...)
-        default_value_list -- defautl value of the parameter before any user changes
-        multiplicity -- enables multiple instance of this parameter
-        unit_list -- list of the units for the "text" input and values to choose from for the "dropdown" input
-        default_unit_index -- default unit to show for either the "text" input or the value for the "dropdown" input
-        yaml_raw_property -- yaml section associated with the parameter
+        Args:
+            path: macro associated with parameter
+            displayed_label: label displayed by the parameter
+            input_type: type of the input for the parameter ("text", "dropdown", "checkbox", ...)
+            default_value_list: defautl value of the parameter before any user changes
+            multiplicity: enables multiple instance of this parameter
+            unit_list: list of the units for the "text" input and values to choose from for the "dropdown" input
+            default_unit_index: default unit to show for either the "text" input or the value for the "dropdown" input
+            yaml_raw_property: yaml section associated with the parameter
         """
         self._path = path
         self._displayedLabel = displayed_label
@@ -64,8 +64,8 @@ class GateParameter(GateParameterInterface):
         """
         Add a subscriber to the subcriber-publisher model.
         
-        keyword arguments:
-        gateParameter -- parameter to notify when a change has occured."""
+        Args:
+            gateParameter: parameter to notify when a change has occured."""
         self._subscriberValueChanged.append(gateParameter)
 
     def notifyAllSubscriber(self):
@@ -142,9 +142,9 @@ class GateParameter(GateParameterInterface):
         """
         Update value of the parameter and notify all subscriber of the update.
         
-        keyword arguments:
-        fieldIndex -- index of the value in the value list
-        newData -- value to update the value list with"""
+        Args:
+            fieldIndex: index of the value in the value list
+            newData: value to update the value list with"""
         self._valueList[fieldIndex] = newData
         self.notifyAllSubscriber()
 
@@ -152,8 +152,8 @@ class GateParameter(GateParameterInterface):
         """
         Update the units
 
-        keyword arguments:
-        newIndex -- index of the updated unit.
+        Args:
+            newIndex: index of the updated unit.
         """
         self._defaultUnitIndex = newIndex
 

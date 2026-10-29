@@ -27,6 +27,13 @@ from src.Control.ControlAPI import ControlAPI
 
 class MainWindow(QMainWindow):
     def __init__(self, commander, jsonHandler):
+        """
+        Create the main window.
+        
+        Args:
+            commander: instance of the CTCommanderManager
+            jsonHandler: class that manipulates the json data
+        """
         super().__init__()
         self.cManager = commander
         self.json_handler = jsonHandler
@@ -37,7 +44,12 @@ class MainWindow(QMainWindow):
     
         
     def write_to_console(self, message):
-        """Writes a message to the console"""
+        """
+        Writes a message to the console
+        
+        Args:
+            message: message to log on the console
+        """
         if hasattr(self, "consoleSection") and self.consoleSection:
             self.consoleSection.write(message)
         else:
@@ -113,7 +125,7 @@ class MainWindow(QMainWindow):
         
         # Populate
         if self.cManager.node_tree:
-            self.populate_hierarchy_tree(self.cManager.node_tree)
+            self.populate_hierarchy_tree()
 
         # Apply theme
         self.apply_theme(self.current_theme)
@@ -175,7 +187,8 @@ class MainWindow(QMainWindow):
     #     state = item.checkState(0) == Qt.CheckState.Checked
     #     self.hierarchySection.set_item_enabled_recursively(item, state)
 
-    def populate_hierarchy_tree(self, node: GateObjectInterface):
+    def populate_hierarchy_tree(self):
+        """Refresh the hierarchy tree while still keeping the expanded and selected items"""
         # snapshot
         exp, sel, scroll = self.hierarchySection.snapshot_state()
         
@@ -183,20 +196,23 @@ class MainWindow(QMainWindow):
         tree.setUpdatesEnabled(False)
         try:
             old_block = tree.blockSignals(True)
-            # self.hierarchySection.populate(node, self.consoleSection.write)
             self.hierarchySection.populate(self.consoleSection.write)
         finally:
             tree.blockSignals(old_block)
             tree.setUpdatesEnabled(True)
             
         #restore
-        self.hierarchySection.restore_state(exp, sel, scroll)    
-        self.node_tree = node
+        self.hierarchySection.restore_state(exp, sel, scroll)
     
 
     # ======= theme =======
-    def apply_theme(self, theme):
-        """Applies light or dark mode styles."""
+    def apply_theme(self, theme: str):
+        """
+        Applies light or dark mode styles.
+        
+        Args:
+            theme: theme label
+        """
         self.setStyleSheet(Style.DARK_MODE_STYLESHEET if theme == "dark" else Style.LIGHT_MODE_STYLESHEET)
         self.current_theme = theme
 
@@ -207,8 +223,11 @@ class MainWindow(QMainWindow):
                 
     def _find_project_root(self, start: Path) -> Path:
         """
-        Walk up until we find a folder that has 'Classes' (and preferably 'MaterialDB').
+        (DEPRECATED) Walk up until we find a folder that has 'Classes' (and preferably 'MaterialDB').
         Falls back to the top-most parent if not found.
+
+        Args:
+            start: path of the folder to start checking
         """
         for p in [start] + list(start.parents):
             if (p / "Classes").is_dir():
@@ -217,7 +236,11 @@ class MainWindow(QMainWindow):
         return start.parents[-1]
 
     def browse_file(self, action):
-        """Opens a file dialog and triggers the appropriate import/export method."""
+        """
+        Opens a file dialog and triggers the appropriate import/export method.
+        
+        Args:
+            action: action label to execute"""
         print("Browse File")
         dlg = QFileDialog(self)
 
@@ -252,6 +275,7 @@ class MainWindow(QMainWindow):
 
 
     def open_create_object_popup(self):
+        """Create the dialog window to create a new volume."""
         tree = self.hierarchySection.tree
         selected_item = tree.currentItem()
         if not selected_item:
@@ -267,11 +291,18 @@ class MainWindow(QMainWindow):
             self,
             parentObjPath,
             self.populate_hierarchy_tree, 
-            [self.cManager.node_tree])
+            [])
         dialog.exec()
         
     
     def add_object_to_tree(self, new_obj: GateObjectInterface, parent_obj: GateObjectInterface):
+        """
+        (DEPRECATED) Add the new child object in the hierarchy section's tree.
+
+        Args:
+            new_obj: newly gate object
+            parent_obj: parent of the newly gate object
+        """
         parent_obj.addChild(new_obj)
         self.consoleSection.write(f"Added object '{new_obj.name}' to '{parent_obj.name}'.")
         
@@ -283,7 +314,7 @@ class MainWindow(QMainWindow):
         
         if item is None:
             exp, sel, scroll = self.hierarchySection.snapshot_state()
-            self.populate_hierarchy_tree(self.cManager.node_tree)
+            self.populate_hierarchy_tree()
             self.hierarchySection.restore_state(exp, sel, scroll)
             # Select new node after fallback:
             tree = self.hierarchySection.tree
@@ -307,11 +338,17 @@ class MainWindow(QMainWindow):
                     break
                 
     def set_material_db_available(self, available: bool):
-        """Enable/disable the 'View Material DB' action."""
+        """
+        Enable/disable the 'View Material DB' action.
+        
+        Args:
+            available: enables the "View Material DB" 
+        """
         if self.action_view_mat:
             self.action_view_mat.setEnabled(bool(available))
 
     def open_material_db_viewer(self):
+        """Open a list through a dialog window of every materials saved in this project."""
         # Ask manager for the loaded GMaterialDB
         gmat_db = getattr(self.cManager, "material_db", None)
         if not gmat_db:
@@ -323,7 +360,11 @@ class MainWindow(QMainWindow):
     
     def add_source_from_popup(self, name: str, src_type: str):
         """
-        Create a new source under the 'source' node and update UI.
+        (DEPRECATED) Create a new source under the 'source' node and update UI.
+
+        Args:
+            name: name of the source
+            src_type: type of the source
         """
         try:
             # find the 'source' GateObject in your model
@@ -347,7 +388,7 @@ class MainWindow(QMainWindow):
             if item is None:
                 # fallback full refresh with state restore
                 exp, sel, scroll = self.hierarchySection.snapshot_state()
-                self.populate_hierarchy_tree(self.cManager.node_tree)
+                self.populate_hierarchy_tree()
                 self.hierarchySection.restore_state(exp, sel, scroll)
                 # try to select it
                 tree = self.hierarchySection.tree
@@ -371,10 +412,13 @@ class MainWindow(QMainWindow):
             self.write_to_console(f"Failed to create source: {e}")
 
 
-    # TODO : Need to change the function so it uses the ControlAPI
     def add_distribution_from_popup(self, name: str, dtype: str):
         """
-        Create a new distribution under the '/distributions' node and update UI.
+        (DEPRECATED) Create a new distribution under the '/distributions' node and update UI.
+
+        Args:
+            name: name of the new distribution
+            dtype: type of the new distribution
         """
         try:
             # find the 'distributions' GateObject
@@ -399,7 +443,7 @@ class MainWindow(QMainWindow):
             if item is None:
                 # fallback full refresh with state restore
                 exp, sel, scroll = self.hierarchySection.snapshot_state()
-                self.populate_hierarchy_tree(self.cManager.node_tree)
+                self.populate_hierarchy_tree()
                 self.hierarchySection.restore_state(exp, sel, scroll)
 
                 # try selecting the new node
@@ -426,6 +470,13 @@ class MainWindow(QMainWindow):
             
             
     def save_project_to_json(self, path: str, changed_only=False):
+        """
+        (DEPRECATED) Export the project into a json
+
+        Args:
+            path: where the file will be saved
+            changed_only: enable to filter the default values
+        """
         root: GateObjectInterface = self.cManager.node_tree
         ser = ProjectSerializer(include_only_changed=changed_only)
         data = ser.object_to_dict(root)
@@ -435,6 +486,12 @@ class MainWindow(QMainWindow):
         self.write_to_console(f"Saved project to {path}")
 
     def load_project_from_json(self, path: str):
+        """
+        (DEPRECATED) Import the project from a json
+
+        Args:
+            path: where the file is saved
+        """
         raw = JsonHandler().load(path)
         # You can validate schema here if you want
         deser = ProjectDeserializer(material_db=self.material_db, gate_version=(9,3,0))
@@ -443,6 +500,6 @@ class MainWindow(QMainWindow):
         # swap into controller + refresh UI
         self.cManager.node_tree = new_root
         exp, sel, scroll = self.hierarchySection.snapshot_state() if hasattr(self.hierarchySection, "snapshot_state") else (None,None,None)
-        self.populate_hierarchy_tree(new_root)
+        self.populate_hierarchy_tree()
         if exp is not None: self.hierarchySection.restore_state(exp, sel, scroll)
         self.write_to_console(f"Loaded project from {path}")

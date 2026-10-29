@@ -1,14 +1,15 @@
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from sys import stderr
 
 class GateObject(GateObjectInterface):
     def __init__(self, name: str):
         """
         Initialise the gate object.
         
-        keyword arguments:
-        name -- name of the new gate object"""
+        Args:
+            name: name of the new gate object"""
         self._path: str
         self._name: str = name
         self._parent: GateObject
@@ -86,3 +87,23 @@ class GateObject(GateObjectInterface):
     @children.setter
     def children(self, childDict: dict[str, GateObject]):
         self._children = childDict
+
+    def getObjectFromGateObjectPath(self, gateObjectPath: str) -> GateObjectInterface:
+        pathToken : list[str] = gateObjectPath.split("/")[1:]
+        if pathToken[0] not in (".", ".."):
+            gateObject = GateTree()
+        else:
+            gateObject = self
+
+        for token in pathToken:
+            if token == "..":
+                if gateObject.name == "root":
+                    print(f"\033[33mCannot get the root node parent since it is the root.\033[0m", file=stderr)
+                    return None
+                gateObject = gateObject.parent
+            elif token != ".":
+                gateObject = gateObject[token]
+
+        return gateObject
+
+from src.Model.DynamicData.Concreate.GateTree import GateTree

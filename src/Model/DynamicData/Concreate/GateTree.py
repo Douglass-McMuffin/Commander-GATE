@@ -24,8 +24,8 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Initialise the gate tree (Only needed once).
         
-        keyword arguments:
-        materialDBPath -- path to the material database file
+        Args:
+            materialDBPath: path to the material database file
         """
         self.yamlData: dict
         self._children: dict[str, GateObject] = {} 
@@ -78,9 +78,9 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Get the gate object either with absolute path starting at the root of the gate tree or with relative path starting at the selected gate object origin.
 
-        keyword arguments:
-        gateObjectOrigin -- gate object that act as the starting point of the search
-        gateObjectPath -- path to the selected object
+        Args:
+            gateObjectOrigin: gate object that act as the starting point of the search
+            gateObjectPath: path to the selected object
         """
         pathToken : list[str] = gateObjectPath.split("/")
         if pathToken[0] in (".", ".."):
@@ -99,12 +99,12 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
 
         return gateObject
 
-    def _getYamlData(self, yamlPath: str):
+    def _getYamlData(self, yamlPath: str) -> dict[str]:
         """
         Get the selected yaml section.
 
-        keyword arguments:
-        yamlPath -- path from the origin to the selected yaml section
+        Args:
+            yamlPath: path from the origin to the selected yaml section
         """
         yamlToken = yamlPath.split("/")
         if yamlPath[0] == "/":
@@ -121,8 +121,8 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Fill the material database list with the corresponding material names found in the material dabate file.
 
-        keyword arguments:
-        materialDBPath -- material database file path
+        Args:
+            materialDBPath: material database file path
         """        
         with open(materialDBPath, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -157,10 +157,10 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add to the selected gate object the static parameter.
 
-        keyword arguments:
-        gateObject -- gate object to add the parameters
-        paramSection -- yaml section containing the list of "label_list" for the parameter
-        macroFormater -- function that renders the macro of the parameter.
+        Args:
+            gateObject: gate object to add the parameters
+            paramSection: yaml section containing the list of "label_list" for the parameter
+            macroFormater: function that renders the macro of the parameter.
         """
         paramRowBuilder = {
             "text":     self.createParamTextRow,
@@ -186,10 +186,10 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add to the selected gate object the dynamic parameter.
        
-        keyword arguments:
-        gateObject -- gate object to add the parameters
-        paramSection -- yaml section containing the list of "label_list" for the parameter
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameters
+            paramSection: yaml section containing the list of "label_list" for the parameter
+            macroFormater: function that renders the macro of the parameter
         """
         paramRowBuilder = {
             "dynamic_dropdown": self.createParamDynamicDropdown,
@@ -219,11 +219,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a text input to selected gate object at a precise index.
 
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -239,11 +239,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -265,11 +265,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a object_name_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -301,11 +301,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a children_name_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -337,11 +337,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a digitizer_detector_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -373,11 +373,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a attached_volume_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -409,11 +409,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a checkbox input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -426,11 +426,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a select input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -443,11 +443,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a label input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -459,11 +459,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a dynamic_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         default_value: list[any]    = param["property"]["default_value"]
@@ -510,11 +510,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a dynamic_label input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -545,11 +545,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a macro input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         type_input: str = param["property"]["type"]
@@ -562,11 +562,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a dynamic_object_name_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         # Get the value out of "property"
         default_value: list[any]    = param["property"]["default_value"]
@@ -618,11 +618,11 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add a material_dropdown input to selected gate object at a precise index.
         
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        param -- yaml information on the parameter's caracteristic
-        paramIndex -- order of the parameter in the gate object paramete's list
-        macroFormater -- function that renders the macro of the parameter
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
         """
         default_value: list[any]    = param["property"]["default_value"]
         value_list: list[str]       = self.material
@@ -643,10 +643,10 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add the volume associated parameter to the selected gate object
 
-        keyword arguments:
-        gateObject -- gate object to add the parameter
-        volumeType -- type of volume to create ("box", "cylinder", ...)
-        repeaterTyper -- type of repeater to apply to the volume to create (" - " = None, "linear", "ring", ...)
+        Args:
+            gateObject: gate object to add the parameter
+            volumeType: type of volume to create ("box", "cylinder", ...)
+            repeaterTyper: type of repeater to apply to the volume to create (" - " = None, "linear", "ring", ...)
         """
         volumeParamList: list[dict] = self.yamlData["gate"]["parameter"]["volume"][volumeType]
 
@@ -681,8 +681,8 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Add the yaml section parameter to the selected gate object.
 
-        gateObject -- gate object to add the parameter
-        yamlSection -- yaml section with the parameter list of "label_list"
+            gateObject: gate object to add the parameter
+            yamlSection: yaml section with the parameter list of "label_list"
         """
         self.createStaticParam(gateObject, yamlSection, self._noNameMacroFormater)
         self.createDynamicParam(gateObject, yamlSection, self._noNameMacroFormater)
@@ -691,7 +691,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Create a new gate object with no parameter of children.
 
-        objectPath -- path of the new gate object to create
+            objectPath: path of the new gate object to create
         """
         parentPath, childName = objectPath.rsplit("/", 1)
         parentObject = self.getObjectFromGateObjectPath(self, parentPath)
@@ -708,7 +708,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         """
         Initialise the gate object's parameter and link them together.
 
-        gateObject -- gate object to initialise its parameters
+            gateObject: gate object to initialise its parameters
         """
         for param in gateObject.paramList:
             gateObject._param[param.displayedLabel] = param

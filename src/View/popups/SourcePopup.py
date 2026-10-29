@@ -10,10 +10,10 @@ class SourcePopup(QDialog):
         """
         Create the DigitizerPopup handler.
         
-        keyword arguments:
-        parent -- QWidget parent of the popup
-        on_create -- function to call when the digitizer is created 
-        on_create_args -- arguments to call the on_create function
+        Args:
+            parent: QWidget parent of the popup
+            on_create: function to call when the digitizer is created 
+            on_create_args: arguments to call the on_create function
         """
         super().__init__(parent)
         self.setModal(True)

@@ -12,8 +12,8 @@ class ControlAPI():
         """
         Get the gate object from the gate tree.
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
+        Args:
+            objectPath: path to the object from the root of the gate tree
         """
         return GateObjectProxy(ControlAPI._getGateObject(objectPath))
 
@@ -22,10 +22,10 @@ class ControlAPI():
         """
         Update the attribute of a gate object.
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
-        field -- name of the attribute
-        value -- value to insert in the attribute
+        Args:
+            objectPath: path to the object from the root of the gate tree
+            field: name of the attribute
+            value: value to insert in the attribute
         """
         setattr(ControlAPI._getGateObject(objectPath), field, value)
 
@@ -34,11 +34,11 @@ class ControlAPI():
         """
         Update selected value of a selected gate parameter.
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
-        paramLabel -- displayed label of the parameter
-        fieldIndex -- index of the value to change in the value list of the gate parameter
-        value -- value to insert in the attribute
+        Args:
+            objectPath: path to the object from the root of the gate tree
+            paramLabel: displayed label of the parameter
+            fieldIndex: index of the value to change in the value list of the gate parameter
+            value: value to insert in the attribute
         """
         gateObject = ControlAPI._getGateObject(objectPath)
         param = gateObject.param[paramLabel]
@@ -61,10 +61,10 @@ class ControlAPI():
         """
         Update the selected gate parameter prefered unit for a text parameter.
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
-        paramLabel -- displayed label of the parameter
-        index -- index of the prefered unit in its unit list
+        Args:
+            objectPath: path to the object from the root of the gate tree
+            paramLabel: displayed label of the parameter
+            index: index of the prefered unit in its unit list
         """
         gateObject = ControlAPI._getGateObject(objectPath)
         param = gateObject.param[paramLabel]
@@ -78,11 +78,11 @@ class ControlAPI():
         """
         Create volume under the selected gate object.
         
-        keyword arguments:
-        parentPath -- path to the parent object from the root of the gate tree
-        childName -- name of the new volume
-        volumeType -- type of volume to create ("box", "cylinder", ...)
-        repeaterType -- type of repeater to apply (" - " = None, "linear", "ring", ...)
+        Args:
+            parentPath: path to the parent object from the root of the gate tree
+            childName: name of the new volume
+            volumeType: type of volume to create ("box", "cylinder", ...)
+            repeaterType: type of repeater to apply (" - " = None, "linear", "ring", ...)
         """
         gateTree = GateTree()
         childObject = gateTree.createGateObjectEmpty("/".join([parentPath, childName]))
@@ -94,8 +94,8 @@ class ControlAPI():
         """
         Get the names of the selected object and its children.
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
+        Args:
+            objectPath: path to the object from the root of the gate tree
         """
         gateObject = ControlAPI._getGateObject(objectPath)
 
@@ -113,9 +113,9 @@ class ControlAPI():
         """
         Update the selected gate object's name
 
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
-        name -- new name for the selected gate object
+        Args:
+            objectPath: path to the object from the root of the gate tree
+            name: new name for the selected gate object
         """
         gateObject = ControlAPI._getGateObject(objectPath)
         gateObject.name = name    
@@ -125,8 +125,8 @@ class ControlAPI():
         """
         Get the selected units.
 
-        keyword arguments:
-        unit -- yaml static keyword for the selected unit
+        Args:
+            unit: yaml static keyword for the selected unit
         """
         gateTree = GateTree()
         return gateTree.yamlData["gate"]["units"][unit]
@@ -173,8 +173,8 @@ class ControlAPI():
         """
         Get the path of a gate object predetermined folder
 
-        keyword arguments:
-        objectKey -- yaml static keyword for the selected predetermined gate object
+        Args:
+            objectKey: yaml static keyword for the selected predetermined gate object
         """
         gateTree = GateTree()
         return gateTree.yamlData["gate"]["object_path"][objectKey]["object_path"]
@@ -184,9 +184,9 @@ class ControlAPI():
         """
         Create a new distribution.
 
-        keyword arguments:
-        distributionName -- name of the new distribution
-        distributionType -- type of the new distribution
+        Args:
+            distributionName: name of the new distribution
+            distributionType: type of the new distribution
         """
         gateTree = GateTree()
         distributionsInfo = ControlAPI._getYamlData("gate/object_path/DISTRIBUTIONS")
@@ -202,8 +202,8 @@ class ControlAPI():
         """
         Create a process to alter the chosen physisc
 
-        keyword arguments:
-        processName -- name of the new process
+        Args:
+            processName: name of the new process
         """
         gateTree = GateTree()
         physicsInfo = ControlAPI._getYamlData("gate/object_path/PHYSICS")
@@ -216,9 +216,9 @@ class ControlAPI():
         """
         Create a new source.
 
-        keyword arguments:
-        sourceName -- name of the new source
-        sourceType -- type of the new source
+        Args:
+            sourceName: name of the new source
+            sourceType: type of the new source
         """
         gateTree = GateTree()
         sourceInfo = ControlAPI._getYamlData("gate/object_path/SOURCE")
@@ -232,10 +232,10 @@ class ControlAPI():
         """
         Create a new digitizer link to a selected sensitive detector
 
-        keyword arguments:
-        sensitiveDetectorName -- name of the sensitive detector
-        digitizerType -- type of the new digitizer
-        singlesDigitizerName -- name of the new digitizer
+        Args:
+            sensitiveDetectorName: name of the sensitive detector
+            digitizerType: type of the new digitizer
+            singlesDigitizerName: name of the new digitizer
         """
         gateTree = GateTree()
         digitizerInfo = ControlAPI._getYamlData("gate/object_path/DIGITIZER")
@@ -265,8 +265,8 @@ class ControlAPI():
         """
         Get the gate object from the gate tree.
         
-        keyword arguments:
-        objectPath -- path to the object from the root of the gate tree
+        Args:
+            objectPath: path to the object from the root of the gate tree
         """
         gateObject = GateTree()
         
@@ -280,8 +280,8 @@ class ControlAPI():
         """
         Get a selected part of the static yaml data.
 
-        keyword arguments:
-        yamlPath -- path from the root of the yaml tree to the selected part
+        Args:
+            yamlPath: path from the root of the yaml tree to the selected part
         """
         gateTree = GateTree()
         return gateTree._getYamlData(yamlPath)
@@ -291,8 +291,8 @@ class ControlAPI():
         """
         Get the volume associated with a detector.
 
-        keyword arguments:
-        detectorName -- name of the detector associated with the volume
+        Args:
+            detectorName: name of the detector associated with the volume
         """
         observedVolume = ControlAPI._getGateObject(ControlAPI.getObjectPath("WORLD"))
 

@@ -30,6 +30,12 @@ class InspectorSection:
     """
     
     def __init__(self, parent):
+        """
+        Create the inspector section.
+
+        Args:
+            parent: widget that holds the inspector section (Main Window)
+        """
         self.host = parent
         self.widget = QWidget(parent)
         self.layout = QVBoxLayout(self.widget)
@@ -54,21 +60,52 @@ class InspectorSection:
     # --------------------------
     
     def _font(self, fs: int, bold: bool = False) -> QFont:
+        """
+        Get font widget
+
+        Args:
+            fs: font size
+            bold: enable bold letters
+        """
         return QFont("Arial", fs, QFont.Weight.Bold if bold else QFont.Weight.Normal)
     
     def _label_min_px(self, fs: int, ch: int = 32) -> int:
+        """
+        Get label minimal width in pixel
+
+        Args:
+            fs: font size
+            ch: number of caracter
+        """
         fm = QFontMetrics(self._font(fs))
         return int(ch * fm.horizontalAdvance("M"))
     
     def _std_label_width(self, fs: int) -> int:
+        """
+        Get standard label width
+
+        Args:
+            fs: font size
+        """
         return 175 + fs * 6
     
     def _control_height(self, fs: int) -> int:
-        """A control height based on font, with a floor"""
+        """
+        A control height based on font, with a floor
+
+        Args:
+            fs: font size
+        """
         fm = QFontMetrics(self._font(fs))
         return max(24, fm.height() + 4)
     
     def _prepare_combo(self, cb: BigPopupCombo):
+        """
+        Setup the combo widget
+
+        Args:
+            cb: combo widget
+        """
         cb.setMaxVisibleItems(20)
         view = QListView(cb)
         view.setUniformItemSizes(True)
@@ -76,6 +113,14 @@ class InspectorSection:
         cb.setView(view)
         
     def _combo(self, fs: int, items=None, width: int | None = None) -> BigPopupCombo:
+        """
+        Create the combo widget.
+
+        Args:
+            fs: font size
+            items: list of items to put in the dropdown list
+            width: custom width of the widget
+        """
         dd = BigPopupCombo(popup_rows=14, min_chars=16)
         dd.setFont(self._font(fs))
         self._prepare_combo(dd)
@@ -86,6 +131,14 @@ class InspectorSection:
         return dd
     
     def _button(self, text: str, fs: int, width: int | None, click):
+        """
+        Create the button widget.
+
+        Args:
+            text: label to display on the button
+            fs: font size
+            width: custom width of the widget
+        """
         btn = QPushButton(text)
         btn.setFont(self._font(fs))
         if width:
@@ -95,6 +148,7 @@ class InspectorSection:
         return btn
     
     def _row_widget(self) -> tuple[QWidget, QHBoxLayout]:
+        """Create a param row."""
         row = QWidget()
         h = QHBoxLayout(row)
         h.setContentsMargins(1, 2, 1, 2)
@@ -103,6 +157,16 @@ class InspectorSection:
         return row, h
     
     def _append_widget_row(self, model: QStandardItemModel, widget: QWidget, fs: int, vpad: int = 6, spacer: int = 1):
+        """
+        Add a param row to a model.
+
+        Args:
+            model: model to which the param row will be added
+            widget: param row
+            fs: font size
+            vpad: vertical padding on the row
+            spacer: number of empty row to add after
+        """
         row_item = QStandardItem()
         model.appendRow(row_item)
         self.listview.setIndexWidget(row_item.index(), widget)
@@ -111,6 +175,12 @@ class InspectorSection:
             self._add_spacer(model, spacer)
         
     def apply_font(self, fs: int):
+        """
+        Apply the font to the section.
+
+        Args:
+            fs: font size
+        """
         base = self._font(fs)
         self.widget.setFont(base)
         self.listview.setFont(base)
@@ -121,6 +191,12 @@ class InspectorSection:
     # Main population
     # -----------------------------
     def populate_parameters(self, item):
+        """
+        Refresh the parameters in the inspector section with the current selected item from the hierarchy section.
+
+        Args:
+            item: selected item from the hierarchy section
+        """
         if not item:
             return
         gateObjectPath: str = item.data(0, Qt.ItemDataRole.UserRole)
@@ -143,10 +219,10 @@ class InspectorSection:
         
 
         # special rows
-        self._maybe_add_physics_plus(model, item, gateObject, font_size)
-        self._maybe_add_source_plus(model, item, gateObject, font_size)
-        self._maybe_add_distributions_plus(model,item,gateObject,font_size)
-        self._maybe_add_digitizer_plus(model,item,gateObject,font_size)
+        self._maybe_add_physics_plus(model, gateObject, font_size)
+        self._maybe_add_source_plus(model, gateObject, font_size)
+        self._maybe_add_distributions_plus(model, gateObject,font_size)
+        self._maybe_add_digitizer_plus(model, gateObject,font_size)
         self._maybe_add_rename(model, gateObject, font_size)
         #self._maybe_add_role(model, gateObject, font_size)
         #self._maybe_add_system_root_row(model, gateObject, font_size)
@@ -157,7 +233,7 @@ class InspectorSection:
 
         # parameters
         self._add_parameters_block(model, gateObject, font_size)
-        self._sync_seed_manual_state()
+        #self._sync_seed_manual_state()
 
         # final pass for sizing
         self.resize_parameters(font_size)
@@ -173,10 +249,25 @@ class InspectorSection:
     # -----------------------------
     # Header and section labels
     # -----------------------------
-    def _add_header(self, model, gate_object: GateObjectInterface):
+    def _add_header(self, model: QStandardItemModel, gate_object: GateObjectInterface):
+        """
+        Add header rows to the inspector section.
+
+        Args:
+            model: model of the inspector section
+            gate_object: gate object with that is selected from the hierarchy section
+        """
         model.appendRow(QStandardItem(f"Object: {gate_object.name}"))
         
-    def _add_section_label(self, model, title, font_size):
+    def _add_section_label(self, model: QStandardItemModel, title: str, font_size: int):
+        """
+        Add title label to seperate different section of the param rows.
+
+        Args:
+            model: model of the inspector section
+            title: title of the section
+            font_size: font size
+        """
         label_item = QStandardItem()
         label = ElidingLabel(title)
         label.setFont(self._font(font_size, bold=True))
@@ -190,7 +281,15 @@ class InspectorSection:
     # Special rows (physics/source/etc.)
     # -----------------------------
 
-    def _maybe_add_physics_plus(self, model, item, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_physics_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the physics folder.
+
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         if gate_object.path != ControlAPI.getObjectPath("PHYSICS"):
             return
         
@@ -200,7 +299,15 @@ class InspectorSection:
         self._append_widget_row(model, btn, font_size)
         
         
-    def _maybe_add_source_plus(self, model, item, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_source_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the source folder.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         if gate_object.path != ControlAPI.getObjectPath("SOURCE"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: SourcePopup(
@@ -210,7 +317,15 @@ class InspectorSection:
         
         self._append_widget_row(model, btn, font_size)
         
-    def _maybe_add_distributions_plus(self, model, item, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_distributions_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the distributions folder.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         if gate_object.path != ControlAPI.getObjectPath("DISTRIBUTIONS"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: DistributionPopup(
@@ -219,7 +334,15 @@ class InspectorSection:
         )
         self._append_widget_row(model, btn, font_size)
 
-    def _maybe_add_digitizer_plus(self, model, item, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_digitizer_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the digitizer folder.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         if gate_object.path != ControlAPI.getObjectPath("DIGITIZER"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: DigitizerPopup(
@@ -228,7 +351,15 @@ class InspectorSection:
         )
         self._append_widget_row(model, btn, font_size)
 
-    def _maybe_add_rename(self, model, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_rename(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the text input to rename the item.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         pathToken = gate_object.path.split("/")[1:]
         if len(pathToken) == 1 or (pathToken[0] == "gate" and len(pathToken) == 2):
             return
@@ -236,14 +367,30 @@ class InspectorSection:
         self._append_widget_row(model, widget, font_size)
 
 
-    def _maybe_add_role(self, model, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_role(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        (DEPRECATED) Add the text input to choose the role for selected the item.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         if not getattr(gate_object, "parent", None) or gate_object.parent.name != "world":
             return
         widget = self._build_role_row(gate_object, font_size)
         self._append_widget_row(model, widget, font_size)
         
 
-    def _maybe_add_system_root_row(self, model, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_system_root_row(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        (DEPRECATED) Add the text input to enable system root for selected the item.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         # Only direct daughters of world can become a "system root"
         if not getattr(gate_object, "parent", None) or gate_object.parent.name != "world":
             return
@@ -279,7 +426,15 @@ class InspectorSection:
         h.addWidget(dd)
         self._append_widget_row(model, row, font_size)
 
-    def _maybe_add_attach_row(self, model, gate_object: GateObjectInterface, font_size):
+    def _maybe_add_attach_row(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        (DEPRECATED) Add the dropdown input row to attach volume for selected the item.
+        
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
         systems = self._all_system_roots()
         if not systems or gate_object.name == "gate" or not self._is_under_world(gate_object):
             return
@@ -300,6 +455,8 @@ class InspectorSection:
         level_dd = self._combo(font_size)
 
         def refresh_levels():
+            """(DEPRECATED) Refresh the levels of the attached volume."""
+
             name = sys_dd.currentText()
             if name.strip() in {"-", " - "}:
                 level_dd.clear(); return
@@ -315,6 +472,8 @@ class InspectorSection:
         sys_dd.currentTextChanged.connect(lambda _: refresh_levels())
 
         def apply_attach():
+            """(DEPRECATED) Apply the attached volume configuration"""
+
             name = sys_dd.currentText()
             if name.strip() in {"-", " - "}:
                 gate_object.system_name = None; gate_object.system_level = None; return
@@ -341,7 +500,15 @@ class InspectorSection:
     # -----------------------------
     # Parameters block
     # -----------------------------    
-    def _add_parameters_block(self, model, gateObject: GateObjectInterface, fontSize):
+    def _add_parameters_block(self, model: QStandardItemModel, gateObject: GateObjectInterface, fontSize: int):
+        """
+        Add the all the parameters in the section for selected the item.
+        
+        Args:
+            model: model of the inspector section
+            gateObject: gate object associated with the current selected item
+            fontSize: font size
+        """
         for param in gateObject.param.values():
             # one param row
             if param.inputType in ("label", "dynamic_label"):
@@ -350,7 +517,15 @@ class InspectorSection:
                 row_widget = self._build_param_row(gateObject.path, param, fontSize)
                 self._append_widget_row(model, row_widget, fontSize)
 
-    def _build_param_row(self, objectPath: str, param: GateParameterInterface, fontSize) -> QWidget:
+    def _build_param_row(self, objectPath: str, param: GateParameterInterface, fontSize: int) -> QWidget:
+        """
+        Arrange the label, input et if needed the unit in the section for selected the item.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fontSize: font size
+        """
         row, h = self._row_widget()
         
         label = ElidingLabel(param.displayedLabel)
@@ -377,7 +552,16 @@ class InspectorSection:
         self.inspector_widgets.append({"label":label, "inputs":inputs, "unit":unit_dd})
         return row
 
-    def _build_input_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+    def _build_input_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize: int):
+        """
+        Choose the constructor depending on the parameter's input type.
+
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
 
         buildWidget = {
             "text": self._build_text_widget,
@@ -395,7 +579,16 @@ class InspectorSection:
 
         return buildWidget[param.inputType](objectPath, param, fieldIndex, fontSize)
 
-    def _build_text_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+    def _build_text_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize: int):
+        """
+        Build the text input widget.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
         w = QLineEdit()
         w.setText(str(param.valueList[fieldIndex]))
         w.setFixedWidth(60 + fontSize)
@@ -409,7 +602,16 @@ class InspectorSection:
                               self.updateParamTextValue(w, objectPath, param.displayedLabel, fieldIndex, w.text()))
         return w
 
-    def _build_dropdown_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+    def _build_dropdown_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize: int):
+        """
+        Build the dropdown input widget.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
         w = self._combo(fontSize, items=param.unitList or [], width=100)
         w.setCurrentIndex(param.unitList.index(param.valueList[fieldIndex]))
         w.currentIndexChanged.connect(lambda index:
@@ -418,6 +620,15 @@ class InspectorSection:
         return w
 
     def _build_checkbox_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        """
+        Build the checkbox input widget.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
         w = QCheckBox()
         w.setChecked(param.valueList[fieldIndex])
         w.stateChanged.connect(lambda state: 
@@ -425,6 +636,15 @@ class InspectorSection:
         return w
 
     def _build_select_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize):
+        """
+        Build the select input widget.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
         selectValue = param.valueList[fieldIndex]
         if (selectValue == None):
             w = self._button("Browse...", fontSize, 200,
@@ -443,31 +663,66 @@ class InspectorSection:
     # Utility actions
     # -----------------------------
     def updateView(self, item):
+        """
+        Refresh view of hierarchy and inspector sections.
+
+        Args:
+            item: currently selected item from the hierarchy section
+        """
         self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
         self.populate_parameters(item)
 
     def updateParamValue(self, objectPath: str, paramName: str, fieldIndex: int, value: str):
+        """
+        Update data model with user selected value.
+        
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            paramName: displayed label of the parameter in which the value is changed
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            value: new value
+        """
         ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
         self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
 
     
     def updateParamTextValue(self, widget, objectPath: str, paramName: str, fieldIndex: int, value: str):
+        """
+        Update data model with user selected value.
+        
+        Args:
+            widget: text widget that had its value changed
+            objectPath: path to the object selected in the hierarchy section
+            paramName: displayed label of the parameter in which the value is changed
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            value: new value
+        """
         if widget._edited == True:
             widget._edited = False
             ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
             self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
 
 
-    def browse_file_for_param(self, button, objectPath: str, paramLabel: str, fieldIndex: int):
+    def browse_file_for_param(self, button, objectPath: str, paramName: str, fieldIndex: int):
+        """
+        Execute a dialog window to select a file.
+
+        Args:
+            button: select widget
+            objectPath: path to the object selected in the hierarchy section
+            paramName: displayed label of the parameter in which the value is changed
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            
+        """
         dlg = QFileDialog()
         dlg.setWindowTitle("Select a File")
         dlg.setFileMode(QFileDialog.FileMode.ExistingFile)
         if dlg.exec():
             selected_file = dlg.selectedFiles()[0]
-            ControlAPI.updateGateParamValue(objectPath, paramLabel, fieldIndex, selected_file)
+            ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, selected_file)
             button.setText(selected_file)
             button.setStyleSheet("text-align: right;")
-            self.host.write_to_console(f"Selected file for {paramLabel}: {selected_file}")
+            self.host.write_to_console(f"Selected file for {paramName}: {selected_file}")
             self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
             self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
     
@@ -476,6 +731,13 @@ class InspectorSection:
     # Rename / Role rows
     # -----------------------------
     def _build_rename_row(self, gate_object: GateObjectInterface, font_size):
+        """
+        Build the rename row in the inspector section
+
+        Args:
+            gate_object: gate object associated with the item currently selected in the hierarchy section
+            font_size: font size
+        """
         row, h = self._row_widget()
 
         lbl = ElidingLabel("Object Name:")
@@ -504,6 +766,13 @@ class InspectorSection:
         return row
     
     def _build_role_row(self, gate_object: GateObjectInterface, font_size):
+        """
+        (DEPRECATED) Build the role attribution row in the inspector section
+        
+        Args:
+            gate_object: gate object associated with the item currently selected in the hierarchy section
+            font_size: font size
+        """
         row, h = self._row_widget()
 
         lbl = ElidingLabel("Object Role: ")
@@ -529,6 +798,13 @@ class InspectorSection:
     
     
     def rename_gate_object(self, gate_object: GateObjectInterface, new_name):
+        """
+        Rename gate object and verify that is it a unique name
+        
+        Args:
+            gate_object: gate object associated with the item currently selected in the hierarchy section
+            font_size: font size
+        """
         existing_names = set()
         root = self.host.hierarchySection.tree.invisibleRootItem()
         for i in range(root.childCount()):
@@ -550,7 +826,16 @@ class InspectorSection:
     # -----------------------------
     # Source helpers
     # -----------------------------
-    def _maybe_add_source_controls(self, model, item, src_obj: GateObjectInterface, font_size):    
+    def _maybe_add_source_controls(self, model, item, src_obj: GateObjectInterface, font_size):   
+        """
+        (DEPRECATED) Add the source controls in the current item selected
+
+        Args:
+            model: model of the inspector section
+            item: current selected item
+            src_obj: gate object associated with the current selected item
+            font_size: font size
+        """ 
         row, h = self._row_widget()
 
         lbl = ElidingLabel("Attach to volume:")
@@ -586,6 +871,14 @@ class InspectorSection:
     
     
     def _delete_source(self, item, src_obj: GateObjectInterface):
+        """
+        (DEPRECATED) Delete the source selected
+        
+        Args:
+            model: model of the inspector section
+            item: current selected item
+            src_obj: gate object associated with the current selected item
+        """ 
         # Remove from GateObject parent
         parent_obj: GateObjectInterface = getattr(src_obj, "parent", None)
         if parent_obj and hasattr(parent_obj, "daughters"):
@@ -617,6 +910,13 @@ class InspectorSection:
     # Misc utilities
     # -----------------------------
     def _add_spacer(self, model, height=1):
+        """
+        Add an empty row to the model
+
+        Args:
+            model: model of the inspector section
+            height: height padding
+        """
         s = QStandardItem(); 
         s.setSizeHint(QSize(10, height)); 
         s.setEditable(False)
@@ -624,6 +924,7 @@ class InspectorSection:
         model.appendRow(s)
         
     def _all_system_roots(self):
+        """(DEPRECATED) return all the systems roots of the project"""
         # Scan the current tree for objects with system_type set
         systems = []
         tree = self.host.hierarchySection.tree
@@ -640,6 +941,14 @@ class InspectorSection:
         return systems 
         
     def _shape_hint_text(self, gate_object: GateObjectInterface, system_type, level):
+        """
+        (DEPRECATED) Get the shape of the volume
+
+        Args:
+            gate_object: gate object associated with the current selected item
+            system_type: type of system (See Gate documentation to see a list of system type)
+            level: depth of the level of the system
+        """
         from Classes.StaticData import SYSTEM_LEVEL_SHAPES
         required = SYSTEM_LEVEL_SHAPES.get(system_type, {}).get(level, "any")
         if required == "any":
@@ -656,6 +965,12 @@ class InspectorSection:
         return None
     
     def _is_under_world(self, obj: GateObjectInterface) -> bool:
+        """
+        (DEPRECATED) Is true if the gate object is under the world object.
+        
+        Args:
+            obj: gate object associated with the current selected item
+        """
         p = getattr(obj, "parent", None)
         while p:
             if p.name == "world":
@@ -665,6 +980,7 @@ class InspectorSection:
     
     
     def _sync_seed_manual_state(self):
+        """(DEPRECATED) Update the seed parameter."""
         if not self._seed_manual_edit:
             return
         mode = (self._seed_mode_dd.currentText() if self._seed_mode_dd else "").strip().lower()
@@ -679,7 +995,15 @@ class InspectorSection:
             
     
     def _apply_row_height(self, std_item, row_widget, fs: int, vpad: int = 6):
-        """Make the row and all its children tall enough so nothing clips."""
+        """
+        Make the row and all its children tall enough so nothing clips.
+        
+        Args:
+            std_item: current item selected
+            row_widget: row widget
+            fs: font size
+            vpad: vertical padding
+        """
         h = self._control_height(fs)
 
         # controls
@@ -697,6 +1021,12 @@ class InspectorSection:
     # Resizing (public API)
     # -----------------------------
     def resize_parameters(self, font_size: int):
+        """
+        Resize parameters of the inspector section
+
+        Args:
+            font_size: font size
+        """
         if not self.inspector_widgets:
             return
         

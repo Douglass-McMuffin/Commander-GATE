@@ -88,7 +88,7 @@ class CTCommanderManager:
 
         try:
             self.apply_project_snapshot(data)  # uses _apply_object_snapshot recursively
-            self.ct_commander_window.populate_hierarchy_tree(self.node_tree)
+            self.ct_commander_window.populate_hierarchy_tree()
             self.ct_commander_window.write_to_console(f"Imported project from: {file_path}")
         except Exception as e:
             self.ct_commander_window.write_to_console(f"Apply failed: {e}")
@@ -129,7 +129,7 @@ class CTCommanderManager:
             self.ct_commander_window.write_to_console("Material database loaded. Existing node tree preserved.")
         else:
             self.node_tree.material = self.material_db
-            self.ct_commander_window.populate_hierarchy_tree(self.node_tree)
+            self.ct_commander_window.populate_hierarchy_tree()
             
             
     def _param_to_value_snapshot(self, p: GateParameter) -> dict:
@@ -219,21 +219,21 @@ class CTCommanderManager:
 
         parent_name = (getattr(parent_obj, "name", None) or parent_obj.get_name() or "").lower()
 
-        # ---- Distributions ----
+        #    :--     Distributions:--
         dist_type = meta.get("distribution_type")
         if parent_name == "distributions" and dist_type:
             new_obj = None
             parent_obj.add_daughter(new_obj)
             return new_obj
 
-        # ---- Source ----
+        #    :--     Source:--
         src_type = meta.get("source_type")
         if parent_name == "source" and src_type:
             new_obj = None
             parent_obj.add_daughter(new_obj)
             return new_obj
 
-        # ---- Geometry (anywhere under world): use 'shape' ----
+        #    :-- Geometry (anywhere under world): use 'shape'    :--
         shape = meta.get("shape")
         if shape:
             # Check if parent is under world (at any depth)
@@ -299,5 +299,5 @@ class CTCommanderManager:
             self._apply_object_snapshot(self.node_tree, root_snap)
 
         # 3) refresh UI
-        self.ct_commander_window.populate_hierarchy_tree(self.node_tree)
+        self.ct_commander_window.populate_hierarchy_tree()
         self.ct_commander_window.write_to_console("Project imported and applied.")

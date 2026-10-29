@@ -19,8 +19,8 @@ class HierarchySection:
         """
         Get the hierarchy section
 
-        keyword arguments:
-        parent -- QWidget parent 
+        Args:
+            parent: QWidget parent 
         """
         self.widget = QWidget(parent)
         self.layout = QVBoxLayout(self.widget)
@@ -42,8 +42,8 @@ class HierarchySection:
         Apply a consistent font to the Hierarchy section and adjust row height.
         Call this from MainWindow.update_font_size(size).
 
-        keyword arguments:
-        fs -- font size
+        Args:
+            fs: font size
         """
         base = QFont("Arial", fs)
         self.widget.setFont(base)
@@ -55,8 +55,8 @@ class HierarchySection:
         """
         Keep rows comfortably tall but compact.
 
-        keyword arguments:
-        fs -- font size
+        Args:
+            fs: font size
         """
         fm = QFontMetrics(QFont("Arial", fs))
         row_h = max(22, fm.height() + 6)
@@ -70,8 +70,8 @@ class HierarchySection:
         """
         Populate the gate object tree in the hierarchy section.
         
-        keyword arguments:
-        write_to_console -- function that write directly to the console"""
+        Args:
+            write_to_console: function that write directly to the console"""
         # get the node iterator
         modelIterator: ModelIteratorInterface = ModelIterator()
         self.tree.clear()
@@ -99,8 +99,8 @@ class HierarchySection:
         """
         Get the QTreeWidgetItem related to the item path.
 
-        keyword arguments:
-        itemPath -- path of the item inside the tree widget
+        Args:
+            itemPath: path of the item inside the tree widget
         """
         oldParent = self.tree.invisibleRootItem()
         newParent = self.tree.invisibleRootItem()
@@ -126,9 +126,9 @@ class HierarchySection:
         """
         Iterate through the item and its children recursively and execute a funcion for each.
 
-        keyword arguments:
-        item -- item that is iterated through
-        func -- funcion applied for each item in the following manner : func(item)
+        Args:
+            item: item that is iterated through
+            func: funcion applied for each item in the following manner : func(item)
         """
         itemToSee: list[QTreeWidgetItem] = [item]
         while len(itemToSee) > 0:
@@ -142,9 +142,9 @@ class HierarchySection:
         """
         Iterate through the item and its children recursively until the funcion returns.
         
-        keyword arguments:
-        item -- item that is iterated through
-        func -- funcion applied for the item in the following manner : func(item)
+        Args:
+            item: item that is iterated through
+            func: funcion applied for the item in the following manner : func(item)
         """
         itemToSee: list[QTreeWidgetItem] = [item]
         while len(itemToSee) > 0:
@@ -180,10 +180,10 @@ class HierarchySection:
         """
         Restore the tree widget state with expanded and selected items but also vertical scroll.
 
-        keyword arguments:
-        expandedPaths -- list of item's path that are expanded
-        selectedPath -- item's path that is selected
-        vscroll -- vertical scroll
+        Args:
+            expandedPaths: list of item's path that are expanded
+            selectedPath: item's path that is selected
+            vscroll: vertical scroll
         """   
         for expandedItemPath in expandedPaths:
             expandedItem = self._find_tree_child(expandedItemPath)
@@ -200,9 +200,9 @@ class HierarchySection:
         """
         Insert a single child into the existing tree without rebuilding.
         
-        keyword arguments:
-        parentPath -- item path of the parent
-        childObj -- child gate object"""
+        Args:
+            parentPath: item path of the parent
+            childObj: child gate object"""
         from PyQt6.QtWidgets import QTreeWidgetItem
 
         # Find parent item

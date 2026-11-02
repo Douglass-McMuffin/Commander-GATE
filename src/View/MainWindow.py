@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("MainWindow")
         
         # Connect hierarchy events
-        self.hierarchySection.tree.itemClicked.connect(self.inspectorSection.populate_parameters)
+        self.hierarchySection.tree.itemClicked.connect(lambda item: self.inspectorSection.populate_parameters(item.data(0, Qt.ItemDataRole.UserRole)))
         # self.hierarchySection.tree.itemChanged.connect(self.on_tree_item_check_changed)
         
         # Populate
@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
         
         current = self.hierarchySection.tree.currentItem()
         if current:
-            self.inspectorSection.populate_parameters(current)        
+            self.inspectorSection.populate_parameters(current.data(0, Qt.ItemDataRole.UserRole))        
         
     # ======= hierarchy + inspector =======
     # def on_tree_item_check_changed(self, item, column: int):
@@ -267,9 +267,11 @@ class MainWindow(QMainWindow):
             path += ".json"
 
         if action == "export_json":
-            self.cManager.export_json(path)
+            ControlAPI.exportProject(path)
         elif action == "import_json":
-            self.cManager.import_json(path)
+            ControlAPI.importProject(path)
+            self.populate_hierarchy_tree()
+            self.inspectorSection.populate_parameters("/gate")
         elif action == "import_material_db":
             self.cManager.import_material_db(path)
 
@@ -309,7 +311,7 @@ class MainWindow(QMainWindow):
         # Try direct insert. If not found, fall back to repopulate-with-restore.
         item = self.hierarchySection.add_child_item(parent_obj,new_obj)
         if item is not None:
-            self.inspectorSection.populate_parameters(item)
+            self.inspectorSection.populate_parameters("/".join([parent_obj.path, new_obj.name]))
             return
         
         if item is None:

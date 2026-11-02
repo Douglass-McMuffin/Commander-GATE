@@ -56,7 +56,7 @@ class DigitizerPopup(QDialog):
         layout.addWidget(self.type_combo)
 
         # Type (immutable after creation — we’ll store it as a Label param on the child)
-        detector_label = QLabel(":")
+        detector_label = QLabel("Attached Volume:")
         detector_label.setFont(self.font)
         self.detector_combo = QComboBox()
         self.detector_combo.setFont(self.font)

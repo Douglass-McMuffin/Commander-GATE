@@ -4,6 +4,7 @@ from PyQt6.QtGui import QFont, QFontMetrics
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Control.ModelIteratorInterface import ModelIteratorInterface
 from src.Control.ModelIterator import ModelIterator
+from src.Control.ControlAPI import ControlAPI
 from .header import create_header_section
 from sys import stderr
 
@@ -82,7 +83,7 @@ class HierarchySection:
             childItem = QTreeWidgetItem([name])
             childItem.setData(0, Qt.ItemDataRole.UserRole, node.path)
 
-            if node.path == "/gate/world":
+            if node.path == ControlAPI.getObjectPath("WORLD"):
                 childItem.setFlags(childItem.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                 childItem.setCheckState(0, Qt.CheckState.Checked)
             

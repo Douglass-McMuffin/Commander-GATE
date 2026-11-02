@@ -26,14 +26,14 @@ class GateObject(GateObjectInterface):
     def __repr__(self) -> str:
         return f"name: {self.name}, parameter: {self.param}, children: {list(self.children.values())}"
         
-    def to_dict(self):
+    def toDict(self):
         """Get the gate object informations."""
         return {
-        "path": self.path,
-        "name": self.name,
-        "parent": self.parent,
-        "param": self.param,
-        "children": self.children        
+            "path": self.path,
+            "name": self.name,
+            "parent": self.parent.path,
+            "param": [param.toDict() for param in self.param.values()],
+            "children": [child.toDict() for child in self.children.values()]        
     }
 
     def _updatePathRecursive(self):
@@ -89,6 +89,13 @@ class GateObject(GateObjectInterface):
         self._children = childDict
 
     def getObjectFromGateObjectPath(self, gateObjectPath: str) -> GateObjectInterface:
+        """
+        Get the object pointed by the object path.
+
+        Args:
+            gateObjectPath: object's path through the gate tree
+        """
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
         pathToken : list[str] = gateObjectPath.split("/")[1:]
         if pathToken[0] not in (".", ".."):
             gateObject = GateTree()
@@ -106,4 +113,4 @@ class GateObject(GateObjectInterface):
 
         return gateObject
 
-from src.Model.DynamicData.Concreate.GateTree import GateTree
+

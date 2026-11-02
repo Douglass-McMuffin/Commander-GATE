@@ -46,16 +46,19 @@ class GateParameter(GateParameterInterface):
     def __repr__(self):
         return f"Param <\"{self._displayedLabel}\">"
     
-    def to_dict(self):
+    def toDict(self):
         """Get the parameter information"""
         return {
             "path": self._path,
-            "name": self._displayedLabel,
-            "input_types": self._inputType,
-            "default_values": self._defaultValueList,
-            "values": self._valueList,
-            "unit_list": self._unitList,
-            "chosen_unit": self._unitList[self._defaultUnitIndex]
+            "displayedLabel": self._displayedLabel,
+            "inputType": self._inputType,
+            "defaultValueList": self._defaultValueList,
+            "multiplicity": self._multiplicity,
+            "valueList": self._valueList,
+            "unitList": self._unitList,
+            "defaultUnitIndex": self._defaultUnitIndex,
+            "yamlRawProperty": self._yamlRawProperty,
+            "subscriberValueChanged": ["/".join((param.gateObjectParent.path, param.displayedLabel)) for param in self._subscriberValueChanged] # This make is able to find the parameter instance.
         }
 
 
@@ -79,64 +82,161 @@ class GateParameter(GateParameterInterface):
 
     def receiveNotification(self):
         """Handle the noficiation received from the publishing parameter. Update for the most part dynamic parameter."""
-        match self.inputType:
-            case "dynamic_dropdown":
-                gateTree = GateTree()
 
-                objectPath: list[str]       = self._yamlRawProperty["object_path"]
-                labelName: list[str]        = self._yamlRawProperty["object_label"]
-                labelIndex: list[int]       = self._yamlRawProperty["object_label_index"] 
-                listPath: str               = self._yamlRawProperty["list_path"]
-                
-                paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
-                
-                pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
-                
-                for index in range(len(objectPath)):
-                    listPath = listPath.replace(f"&{index}", pathToken[index])
-                
-                self.unitList: list[str] =  gateTree.getDataFromYamlPath(listPath)
-                if len(self.unitList) == 0:
-                    self.unitList = gateTree.getDataFromYamlPath("placeholder/empty_units")
+        notificationHandler = {
+            "dynamic_dropdown": self._receiveNotificationDynamicDropdown,
+            "object_name_dropdown": self._receiveNotificationObjectNameDropdown,
+            "children_name_dropdown": self._receiveNotificationChildrenNameDropdown,
+            "attached_volume_dropdown": self._receiveNotificationAttachedVolumeDropdown,
+            "digitizer_detector_dropdown": self._receiveNotificationDigitizerDetectorDropdown,
+            "dynamic_label": self._receiveNotificationDynamicLabel,
+            "dynamic_object_name_dropdown": self._receiveNotificationDynamicObjectNameDropdown
+        }
 
-                for index, value in enumerate(self.valueList):
-                    if value not in self.unitList:
-                        self.valueList[index] = self.unitList[0]
+        notificationHandler[self.inputType]()
 
-            case "object_name_dropdown":
-                gateTree = GateTree()
-                objectPath: str               = self._yamlRawProperty["object_path"]
+    def _receiveNotificationDynamicDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
 
-                observedObjectList = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath)]
-                self.unitList = []
-                while len(observedObjectList) > 0:
-                    observedObject = observedObjectList.pop(0)
-                    self.unitList.append(observedObject.name)
-                    for child in observedObject.children.values():
-                        observedObjectList.append(child)
+        objectPath: list[str]       = self._yamlRawProperty["object_path"]
+        labelName: list[str]        = self._yamlRawProperty["object_label"]
+        labelIndex: list[int]       = self._yamlRawProperty["object_label_index"] 
+        listPath: str               = self._yamlRawProperty["list_path"]
 
-                if len(self.unitList) == 0:
-                    self.unitList = gateTree.getDataFromYamlPath("placeholder/empty_units")
+        paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
 
-                for index, value in enumerate(self.valueList):
-                    if value not in self.unitList:
-                        self.valueList[index] = self.unitList[0]
+        pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
 
-            case "dynamic_label":
-                gateTree = GateTree()
-                
-                objectPath: list[str]       = self._yamlRawProperty["object_path"]
-                labelName: list[str]        = self._yamlRawProperty["object_label"]
-                labelIndex: list[int]       = self._yamlRawProperty["object_label_index"]
-                self.displayedLabel: str    = self._yamlRawProperty["label"]
-                
-                paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
-                
-                pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
-                
-                for index in range(len(objectPath)):
-                    self.displayedLabel = self.displayedLabel.replace(f"&{index}", pathToken[index])
+        for index in range(len(objectPath)):
+            listPath = listPath.replace(f"&{index}", pathToken[index])
 
+        self.unitList: list[str] =  gateTree._getYamlData(listPath)
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+
+        self._updateValueList()
+
+    def _receiveNotificationObjectNameDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        objectPath: str               = self._yamlRawProperty["object_path"]
+        
+        observedObjectList = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath)]
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            self.unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+        
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+        
+        self._updateValueList()
+
+    def _receiveNotificationChildrenNameDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        objectPath: str               = self._yamlRawProperty["object_path"]
+        
+        observedObjectList = list(gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath).children.values())
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            self.unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+        
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+        
+        self._updateValueList()
+
+    def _receiveNotificationAttachedVolumeDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        
+        observedObjectList = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, gateTree.yamlData["gate"]["object_path"]["WORLD"]["object_path"])]
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            if observedObject.param["Attach Volume to System"].valueList[0]:
+                self.unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+        
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+        
+        self._updateValueList()
+
+    def _receiveNotificationDigitizerDetectorDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+
+        observedObjectList = list(gateTree.getObjectFromGateObjectPath(self._gateObjectParent, gateTree.yamlData["gate"]["object_path"]["DIGITIZER"]["object_path"]).children.values())
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            if not observedObject.name == self._gateObjectParent.parent.name:
+                detectorObject = gateTree.getObjectFromGateObjectPath(self, observedObject.param["Detector Volume Path"].valueList[0])
+                inputName = f"{observedObject.name}_{detectorObject.name}"
+                self.unitList.append(inputName)
+
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+
+        self._updateValueList()
+
+    def _receiveNotificationDynamicLabel(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        
+        objectPath: list[str]       = self._yamlRawProperty["object_path"]
+        labelName: list[str]        = self._yamlRawProperty["object_label"]
+        labelIndex: list[int]       = self._yamlRawProperty["object_label_index"]
+        self.displayedLabel: str    = self._yamlRawProperty["label"]
+        
+        paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
+        
+        pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
+        
+        for index in range(len(objectPath)):
+            self.displayedLabel = self.displayedLabel.replace(f"&{index}", pathToken[index])
+
+    def _receiveNotificationDynamicObjectNameDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        objectPath: list[str]       = self._yamlRawProperty["object_path"]
+        labelName: list[str]        = self._yamlRawProperty["object_label"]
+        labelIndex: list[int]       = self._yamlRawProperty["object_label_index"] 
+        listPath: str               = self._yamlRawProperty["list_path"]
+        
+        paramToReach: list[GateParameter] = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath[i]).param[labelName[i]] for i in range(len(objectPath))]
+        
+        pathToken: list[str]        = [paramToReach[i]._valueList[labelIndex[i]] for i in range(len(paramToReach))]
+        
+        for index in range(len(objectPath)):
+            listPath = listPath.replace(f"&{index}", pathToken[index])
+        
+        observedObjectList = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, listPath)]
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            self.unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+        
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+        
+        self._updateValueList()      
+
+    def _updateValueList(self):
+        for index, value in enumerate(self.valueList):
+            if value not in self.unitList:
+                self.valueList[index] = self.unitList[0]
 
     def updateValue(self, fieldIndex: int, newData: str | float | bool):
         """
@@ -144,9 +244,16 @@ class GateParameter(GateParameterInterface):
         
         Args:
             fieldIndex: index of the value in the value list
-            newData: value to update the value list with"""
+            newData: value to update the value list with
+        """
         self._valueList[fieldIndex] = newData
+        # Notify static subscriber
         self.notifyAllSubscriber()
+
+        # Notify dynamic subscriber
+        broker = SignalBroker()
+        broker.emitSignalFromPublisher(self)
+
 
     def updateUnitIndex(self, newIndex: int):
         """
@@ -186,6 +293,10 @@ class GateParameter(GateParameterInterface):
     def defaultUnitIndex(self) -> int:
         return self._defaultUnitIndex
 
+    @property
+    def gateObjectParent(self) -> GateObjectInterface:
+        return self._gateObjectParent
+
     @path.setter
     def path(self, path: str):
         self._path = path
@@ -215,7 +326,8 @@ class GateParameter(GateParameterInterface):
         self._defaultUnitIndex = defaultUnitIndex
 
 
+from src.Control.SignalBroker import SignalBroker
     
 
 
-from src.Model.DynamicData.Concreate.GateTree import GateTree            
+            

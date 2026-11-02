@@ -84,7 +84,7 @@ gate:
     SPECIAL_SOURCE_TYPES: [" - ", "backtoback"]
     ROTATION_DIRECTIONS: ["negative", "positive"]
     EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
-    SYSTEMS_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystems"]
+    SYSTEMS_STRUCTURE_TYPE: ["scanner", "CTscanner", "CPET", "cylindricalPET", "SPECThead", "ecat", "ecatAccel", "OPET", "OpticalSystem"]
     SD_TYPE: ["CrystalSD", "PhantomSD"]
     POSITION_POLICY: ["energyCentroid", "energyWeightedCentroid", "takeEnergyWinner"]
     READOUT_POLICY: ["takeEnergyWinner", "takeEnergyCentroid"]
@@ -92,7 +92,6 @@ gate:
     DIGITIZER_EFFICIENCY_MODE: ["energy", "crystal"]
     DIGITIZER_DEADTIME_MODE: ["paralysable", "nonparalysable"]
     DIGITIZER_DOI_MODEL: ["dualLayer", "DoIBlurrNegExp"]
-    DIGITIZER_TYPE: ["SinglesDigitizer", "CoincidencesDigitizer"]
     ZERO_ONE_MODE: ["0", "1"]
     
 
@@ -520,7 +519,6 @@ gate:
             type: dropdown
             default_value: [pc]
             value_list: LENGTH_UNITS
-            default_unit_index: null
         - label_list:
             - label: "Path to Attribute Map"
               macro: "setPathToAttributeMap"
@@ -1173,7 +1171,7 @@ gate:
             macro: ""
             multiplicity: False
           property:
-            type: checkbox
+            type: attached_volume_checkbox
             default_value: [False]
         
         - label_list:
@@ -1798,8 +1796,7 @@ gate:
               property:
                 type: dropdown
                 default_value: [0]
-                units: ZERO_ONE_MODE
-                default_unit_index: 0
+                value_list: ZERO_ONE_MODE
 
           noise:
             - label_list:
@@ -1825,14 +1822,14 @@ gate:
             - label_list:
               - label: "Merger Configuration"
                 macro: ""
-                multiplicity: True
+                multiplicity: False
               property:
                 type: label
             
             - label_list:
               - label: "Add Input"
                 macro: "addInput"
-                multiplicity: False
+                multiplicity: True
               property:
                 type: digitizer_detector_dropdown
                 default_value: [0]
@@ -2300,8 +2297,8 @@ gate:
             multiplicity: False
           property:
             type: text
-            default_value: [0.0, "Bq"]
-            units: ENERGY_UNITS
+            default_value: [0]
+            units: ACTIVITY_DOSE_UNITS
             default_unit_index: 0
         
         - label_list:
@@ -2341,564 +2338,556 @@ gate:
             type: object_name_dropdown    # Get the name of the object and of its children
             default_value: [0]
             object_path: "/gate/world"
-        
-      gps:
-        - label_list:
-          - label: "General Partical Source (GPS) Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
+      
+      source_type:
+        gps:
+          - label_list:
+            - label: "General Partical Source (GPS) Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
 
-        - label_list:
-          - label: "Particle"
-            macro: "gps/particle"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["gamma"]
-            value_list: SOURCE_PARTICLES
+          - label_list:
+            - label: "Particle"
+              macro: "gps/particle"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["gamma"]
+              value_list: SOURCE_PARTICLES
 
-        - label_list:
-          - label: "Ion(Z,A,Q,E_keV)"
-            macro: "gps/ion"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0, 0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Ion(Z,A,Q,E_keV)"
+              macro: "gps/ion"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Forced Unstable"
-            macro: "setForcedUnstableFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Forced Unstable"
+              macro: "setForcedUnstableFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-        - label_list:
-          - label: "Half-life"
-            macro: "setForcedHalfLife"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: TIME_UNITS
-            default_unit_index: 0
+          - label_list:
+            - label: "Half-life"
+              macro: "setForcedHalfLife"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: TIME_UNITS
+              default_unit_index: 0
 
-        - label_list:
-          - label: "Energy distribution"
-            macro: "gps/energytype"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["Mono"]
-            value_list: SOURCE_ENERGY_TYPES
+          - label_list:
+            - label: "Energy distribution"
+              macro: "gps/energytype"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["Mono"]
+              value_list: SOURCE_ENERGY_TYPES
 
-        - label_list:
-          - label: "Mono energy"
-            macro: "gps/monoenergy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
+          - label_list:
+            - label: "Mono energy"
+              macro: "gps/monoenergy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
 
-        - label_list:
-          - label: "UserSpectrum file"
-            macro: "gps/setSpectrumFile"
-            multiplicity: False
-          property:
-            type: select
-            default_value: [null]
+          - label_list:
+            - label: "UserSpectrum file"
+              macro: "gps/setSpectrumFile"
+              multiplicity: False
+            property:
+              type: select
+              default_value: [null]
 
-        - label_list:
-          - label: "Per-source Intensity"
-            macro: "setIntensity"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Per-source Intensity"
+              macro: "setIntensity"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Angular type"
-            macro: "gps/angtype"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["iso"]
-            value_list: SOURCE_ANG_TYPES
+          - label_list:
+            - label: "Angular type"
+              macro: "gps/angtype"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["iso"]
+              value_list: SOURCE_ANG_TYPES
 
-        - label_list:
-          - label: "min theta"
-            macro: "gps/mintheta"
-            multiplicity: False
-          - label: "max theta"
-            macro: "gps/maxtheta"
-            multiplicity: False
-          - label: "min phi"
-            macro: "gps/minphi"
-            multiplicity: False
-          - label: "max phi"
-            macro: "gps/maxphi"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ANGLE_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "min theta"
+              macro: "gps/mintheta"
+              multiplicity: False
+            - label: "max theta"
+              macro: "gps/maxtheta"
+              multiplicity: False
+            - label: "min phi"
+              macro: "gps/minphi"
+              multiplicity: False
+            - label: "max phi"
+              macro: "gps/maxphi"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Domain"
-            macro: "gps/type"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["Point"]
-            value_list: SOURCE_DOMAINS
+          - label_list:
+            - label: "Domain"
+              macro: "gps/type"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["Point"]
+              value_list: SOURCE_DOMAINS
 
-        - label_list:
-          - label: "Shape"
-            macro: "gps/shape"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["Sphere"]
-            value_list: SOURCE_VOLUME_SHAPES
+          - label_list:
+            - label: "Shape"
+              macro: "gps/shape"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["Sphere"]
+              value_list: SOURCE_VOLUME_SHAPES
 
-        - label_list:
-          - label: "radius"
-            macro: "gps/radius"
-            multiplicity: False
-          - label: "half z"
-            macro: "gps/halfz"
-            multiplicity: False
-          - label: "half x"
-            macro: "gps/halfx"
-            multiplicity: False
-          - label: "half y"
-            macro: "gps/halfy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: LENGTH_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "radius"
+              macro: "gps/radius"
+              multiplicity: False
+            - label: "half z"
+              macro: "gps/halfz"
+              multiplicity: False
+            - label: "half x"
+              macro: "gps/halfx"
+              multiplicity: False
+            - label: "half y"
+              macro: "gps/halfy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "centre (x,y,z)"
-            macro: "gps/centre"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0]
-            units: LENGTH_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "centre (x,y,z)"
+              macro: "gps/centre"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Special type"
-            macro: "setType"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: [" - "]
-            value_list: SPECIAL_SOURCE_TYPES
+          - label_list:
+            - label: "Special type"
+              macro: "setType"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: [" - "]
+              value_list: SPECIAL_SOURCE_TYPES
 
-        - label_list:
-          - label: "Accolinearity"
-            macro: "setAccolinearityFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Accolinearity"
+              macro: "setAccolinearityFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-        - label_list:
-          - label: "Accolinearity FWHM"
-            macro: "setAccoValue"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ANGLE_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "Accolinearity FWHM"
+              macro: "setAccoValue"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
 
-      pencil_beam:
-        - label_list:
-          - label: "Pencil Beam Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
+        pencil_beam:
+          - label_list:
+            - label: "Pencil Beam Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
 
-        - label_list:
-          - label: "Particle"
-            macro: "setParticleType"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["proton"]
-            value_list: SOURCE_PARTICLES
+          - label_list:
+            - label: "Particle"
+              macro: "setParticleType"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["proton"]
+              value_list: SOURCE_PARTICLES
 
-        - label_list:
-          - label: "Ion(Z,A,Q,E_keV)"
-            macro: "setIonProperties"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0, 0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Ion(Z,A,Q,E_keV)"
+              macro: "setIonProperties"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Mean Energy"
-            macro: "setEnergy"
-            multiplicity: False
-          - label: "Sigma Energy"
-            macro: "setSigmaEnergy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 2
+          - label_list:
+            - label: "Mean Energy"
+              macro: "setEnergy"
+              multiplicity: False
+            - label: "Sigma Energy"
+              macro: "setSigmaEnergy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
 
-        - label_list:
-          - label: "Position (x,y,z)"
-            macro: "setPosition"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0]
-            units: LENGTH_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "Position (x,y,z)"
+              macro: "setPosition"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Sigma X"
-            macro: "setSigmaX"
-            multiplicity: False
-          - label: "Sigma Y"
-            macro: "setSigmaY"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: LENGTH_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "Sigma X"
+              macro: "setSigmaX"
+              multiplicity: False
+            - label: "Sigma Y"
+              macro: "setSigmaY"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Sigma Theta"
-            macro: "setSigmaTheta"
-            multiplicity: False
-          - label: "Sigma Phi"
-            macro: "setSigmaPhi"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ANGLE_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "Sigma Theta"
+              macro: "setSigmaTheta"
+              multiplicity: False
+            - label: "Sigma Phi"
+              macro: "setSigmaPhi"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Emittance X-Theta (mm*mrad)"
-            macro: "setEllipseXThetaEmittance"
-            multiplicity: False
-          - label: "Emittance Y-Phi (mm*mrad)"
-            macro: "setEllipseYPhiEmittance"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Emittance X-Theta (mm*mrad)"
+              macro: "setEllipseXThetaEmittance"
+              multiplicity: False
+            - label: "Emittance Y-Phi (mm*mrad)"
+              macro: "setEllipseYPhiEmittance"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "X-Theta Rotation"
-            macro: "setEllipseXThetaRotationNorm"
-            multiplicity: False
-          - label: "Y-Phi Rotation"
-            macro: "setEllipseYPhiRotationNorm"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["negative"]
-            value_list: ROTATION_DIRECTIONS
+          - label_list:
+            - label: "X-Theta Rotation"
+              macro: "setEllipseXThetaRotationNorm"
+              multiplicity: False
+            - label: "Y-Phi Rotation"
+              macro: "setEllipseYPhiRotationNorm"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["negative"]
+              value_list: ROTATION_DIRECTIONS
 
-        - label_list:
-          - label: "Rotation Axis (x,y,z)"
-            macro: "setRotationAxis"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Rotation Axis (x,y,z)"
+              macro: "setRotationAxis"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Rotation Angle"
-            macro: "setRotationAngle"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ANGLE_UNITS
-            default_unit_index: 3
+          - label_list:
+            - label: "Rotation Angle"
+              macro: "setRotationAngle"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ANGLE_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Test flag"
-            macro: "setTestFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Test flag"
+              macro: "setTestFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-      tps_pencil_beam:
-        - label_list:
-          - label: "TPS Pencil Beam Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
+        tps_pencil_beam:
+          - label_list:
+            - label: "TPS Pencil Beam Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
 
-        - label_list:
-          - label: "Particle"
-            macro: "setParticleType"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["proton"]
-            value_list: SOURCE_PARTICLES
+          - label_list:
+            - label: "Particle"
+              macro: "setParticleType"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["proton"]
+              value_list: SOURCE_PARTICLES
 
-        - label_list:
-          - label: "Plan description file"
-            macro: "setPlan"
-            multiplicity: False
-          - label: "Source description file"
-            macro: "setSourceDescriptionFile"
-            multiplicity: False
-          property:
-            type: select
-            default_value: [null]
+          - label_list:
+            - label: "Plan description file"
+              macro: "setPlan"
+              multiplicity: False
+            - label: "Source description file"
+              macro: "setSourceDescriptionFile"
+              multiplicity: False
+            property:
+              type: select
+              default_value: [null]
 
-        - label_list:
-          - label: "Not allowed Field IDs (csv)"
-            macro: "setNotAllowedFieldID"
-            multiplicity: False
-          - label: "Allowed Field ID"
-            macro: "setAllowedFieldID"
-            multiplicity: False
-          - label: "Select Layer ID"
-            macro: "selectLayerID"
-            multiplicity: False
-          - label: "Select Spot ID"
-            macro: "selectSpotID"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [""]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Not allowed Field IDs (csv)"
+              macro: "setNotAllowedFieldID"
+              multiplicity: False
+            - label: "Allowed Field ID"
+              macro: "setAllowedFieldID"
+              multiplicity: False
+            - label: "Select Layer ID"
+              macro: "selectLayerID"
+              multiplicity: False
+            - label: "Select Spot ID"
+              macro: "selectSpotID"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [""]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Flat generation"
-            macro: "setFlatGenerationFlag"
-            multiplicity: False
-          - label: "Sorted spot generation"
-            macro: "setSortedSpotGenerationFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Flat generation"
+              macro: "setFlatGenerationFlag"
+              multiplicity: False
+            - label: "Sorted spot generation"
+              macro: "setSortedSpotGenerationFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-        - label_list:
-          - label: "Spot intensity is #ions"
-            macro: "setSpotIntensityAsNbIons"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [True]
+          - label_list:
+            - label: "Spot intensity is #ions"
+              macro: "setSpotIntensityAsNbIons"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [True]
 
-        - label_list:
-          - label: "Beam convergence"
-            macro: "setBeamConvergence"
-            multiplicity: False
-          - label: "Convergent X-Theta"
-            macro: "setBeamConvergenceXTheta"
-            multiplicity: False
-          - label: "Convergent Y-Phi"
-            macro: "setBeamConvergenceYPhi"
-            multiplicity: False
-          - label: "SigmaEnergy in MeV"
-            macro: "setSigmaEnergyInMeVFlag"
-            multiplicity: False
-          - label: "Test flag"
-            macro: "setTestFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Beam convergence"
+              macro: "setBeamConvergence"
+              multiplicity: False
+            - label: "Convergent X-Theta"
+              macro: "setBeamConvergenceXTheta"
+              multiplicity: False
+            - label: "Convergent Y-Phi"
+              macro: "setBeamConvergenceYPhi"
+              multiplicity: False
+            - label: "SigmaEnergy in MeV"
+              macro: "setSigmaEnergyInMeVFlag"
+              multiplicity: False
+            - label: "Test flag"
+              macro: "setTestFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-      fast_i124:
-        - label_list:
-          - label: "Fast i124 Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
+        fast_i124:
+          - label_list:
+            - label: "Fast i124 Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
 
-        - label_list:
-          - label: "Type"
-            macro: "setType"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["fastI124"]
-            value_list: ["fastI124"]
+          - label_list:
+            - label: "Forced Unstable"
+              macro: "setForcedUnstableFlag"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [True]
 
-        - label_list:
-          - label: "Forced Unstable"
-            macro: "setForcedUnstableFlag"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [True]
+          - label_list:
+            - label: "Half-life"
+              macro: "setForcedHalfLife"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: TIME_UNITS
+              default_unit_index: 0
 
-        - label_list:
-          - label: "Half-life"
-            macro: "setForcedHalfLife"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: TIME_UNITS
-            default_unit_index: 0
+        fast_y90:
+          - label_list:
+            - label: "Fast y90 Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
+              
+          - label_list:
+            - label: "Min Brem Energy"
+              macro: "setMinBremEnergy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
 
-      fast_y90:
-        - label_list:
-          - label: "Fast y90 Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
-            
-        - label_list:
-          - label: "Min Brem Energy"
-            macro: "setMinBremEnergy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
+          - label_list:
+            - label: "Positron probability"
+              macro: "setPositronProbability"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Positron probability"
-            macro: "setPositronProbability"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Load voxelized phantom (hdr)"
+              macro: "loadVoxelizedPhantom"
+              multiplicity: False
+            property:
+              type: select
+              default_value: [null]
 
-        - label_list:
-          - label: "Load voxelized phantom (hdr)"
-            macro: "loadVoxelizedPhantom"
-            multiplicity: False
-          property:
-            type: select
-            default_value: [null]
+          - label_list:
+            - label: "Voxel pos (x,y,z)"
+              macro: "setVoxelizedPhantomPosition"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
 
-        - label_list:
-          - label: "Voxel pos (x,y,z)"
-            macro: "setVoxelizedPhantomPosition"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 0]
-            units: LENGTH_UNITS
-            default_unit_index: 3
+        extended:
+          - label_list:
+            - label: "Extended Source Parameters"
+              macro: ""
+              multiplicity: False
+            property:
+              type: label
 
-      extended:
-        - label_list:
-          - label: "Extended Source Parameters"
-            macro: ""
-            multiplicity: False
-          property:
-            type: label
+          - label_list:
+            - label: "Extended model"
+              macro: "setType"
+              multiplicity: False
+            property:
+              type: dropdown
+              default_value: ["sg"]
+              value_list: EXTENDED_MODELS
 
-        - label_list:
-          - label: "Extended model"
-            macro: "setType"
-            multiplicity: False
-          property:
-            type: dropdown
-            default_value: ["sg"]
-            value_list: EXTENDED_MODELS
+          - label_list:
+            - label: "Emission energy (sg only)"
+              macro: "setEmissionEnergy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [511]
+              units: ENERGY_UNITS
+              default_unit_index: 1
 
-        - label_list:
-          - label: "Emission energy (sg only)"
-            macro: "setEmissionEnergy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [511]
-            units: ENERGY_UNITS
-            default_unit_index: 1
+          - label_list:
+            - label: "Fixed dir (x,y,z)"
+              macro: "setFixedEmissionDirection"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0, 0, 1]
+              units: NO_UNITS
+              default_unit_index: null
 
-        - label_list:
-          - label: "Fixed dir (x,y,z)"
-            macro: "setFixedEmissionDirection"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0, 0, 1]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Enable fixed dir"
+              macro: "setEnableFixedEmissionDirection"
+              multiplicity: False
+            - label: "Enable de-excitation gamma"
+              macro: "setEnableDeexcitation"
+              multiplicity: False
+            property:
+              type: checkbox
+              default_value: [False]
 
-        - label_list:
-          - label: "Enable fixed dir"
-            macro: "setEnableFixedEmissionDirection"
-            multiplicity: False
-          - label: "Enable de-excitation gamma"
-            macro: "setEnableDeexcitation"
-            multiplicity: False
-          property:
-            type: checkbox
-            default_value: [False]
+          - label_list:
+            - label: "Prompt gamma energy"
+              macro: "setPromptGammaEnergy"
+              multiplicity: False
+            property:
+              type: text
+              default_value: [0.0]
+              units: ENERGY_UNITS
+              default_unit_index: 1
 
-        - label_list:
-          - label: "Prompt gamma energy"
-            macro: "setPromptGammaEnergy"
-            multiplicity: False
-          property:
-            type: text
-            default_value: [0.0]
-            units: ENERGY_UNITS
-            default_unit_index: 1
+          - label_list:
+            - label: "Positronium lifetime (pPs/oPs,value,unit)"
+              macro: "setPostroniumLifetime"
+              multiplicity: False
+            property:
+              type: text
+              default_value: ["pPs", 0.125, "ns"]
+              units: TIME_UNITS
+              default_unit_index: 0
 
-        - label_list:
-          - label: "Positronium lifetime (pPs/oPs,value,unit)"
-            macro: "setPostroniumLifetime"
-            multiplicity: False
-          property:
-            type: text
-            default_value: ["pPs", 0.125, "ns"]
-            units: TIME_UNITS
-            default_unit_index: 0
-
-        - label_list:
-          - label: "Ps fraction (pPs/oPs,prob)"
-            macro: "setPositroniumFraction"
-            multiplicity: False
-          property:
-            type: text
-            default_value: ["pPs", 0.5]
-            units: NO_UNITS
-            default_unit_index: null
+          - label_list:
+            - label: "Ps fraction (pPs/oPs,prob)"
+              macro: "setPositroniumFraction"
+              multiplicity: False
+            property:
+              type: text
+              default_value: ["pPs", 0.5]
+              units: NO_UNITS
+              default_unit_index: null
       
     output:
       - label_list:

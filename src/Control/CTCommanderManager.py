@@ -6,6 +6,7 @@ from src.Model.DynamicData.Concreate.GateObject import GateObject
 from src.Model.DynamicData.Concreate.GateTree import GateTree
 from src.Model.DynamicData.Concreate.GateParameter import GateParameter
 from Classes.GMaterialDB import GMaterialDB
+from src.Control.SignalBroker import SignalBroker
 
 class CTCommanderManager:
     def __init__(self):
@@ -15,10 +16,16 @@ class CTCommanderManager:
         self.json_handler = JsonHandler()
         
         if self.node_tree is None:
+            signalBroker = SignalBroker()
+            signalBroker.setup()
+
             gateTree = GateTree()
             gateTree.setup("MaterialDB/AF_GateMaterials.db")
+
             self.node_tree = gateTree
             self.material_db = gateTree.material
+
+            
         
         self.ct_commander_window = MainWindow(self, self.json_handler)
         self.ct_commander_window.show()

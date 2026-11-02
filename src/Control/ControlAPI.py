@@ -1,7 +1,12 @@
 from src.Model.DynamicData.Concreate.GateTree import GateTree
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
-from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterfaceg
+from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
 from src.Model.DynamicData.Proxy.GateObjectProxy import GateObjectProxy
+from src.Model.DynamicData.Concreate.GateObject import GateObject
+from src.Model.DynamicData.Concreate.GateParameter import GateParameter
+from copy import deepcopy
+
+import json
 from sys import stderr
 
 class ControlAPI():
@@ -43,12 +48,12 @@ class ControlAPI():
         gateObject = ControlAPI._getGateObject(objectPath)
         param = gateObject.param[paramLabel]
 
-        if "text" == param.inputType:
+        if "text" in param.inputType:
             if value in ("", "-"):
                 value = 0
             else:
                 value = float(value)
-        elif "checkbox" == param.inputType:
+        elif "checkbox" in param.inputType:
             value = value == "True"
         elif "dropdown" in param.inputType:
             if value not in param.unitList:
@@ -118,7 +123,12 @@ class ControlAPI():
             name: new name for the selected gate object
         """
         gateObject = ControlAPI._getGateObject(objectPath)
+        parentObject = gateObject.parent
+        oldName = gateObject.name
         gateObject.name = name    
+        parentObject.children.pop(oldName)
+        parentObject.children[name] = gateObject
+
 
     @staticmethod
     def getYamlUnits(unit: str) -> list[str]:
@@ -151,6 +161,11 @@ class ControlAPI():
         Get every digitizer type available.
         """
         return list(ControlAPI._getYamlData("gate/parameter/digitizer/digitizer_type").keys())
+
+    @staticmethod
+    def getSourceTypes() -> list[str]:
+        """Get every source types available."""
+        return list(ControlAPI._getYamlData("gate/parameter/source/source_type").keys())
 
     @staticmethod
     def getAttachedVolumes() -> list[str]:
@@ -224,7 +239,7 @@ class ControlAPI():
         sourceInfo = ControlAPI._getYamlData("gate/object_path/SOURCE")
         sourceObject = gateTree.createGateObjectEmpty("/".join([sourceInfo["object_path"], sourceName]))
         gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData("gate/parameter/source/source_general"))
-        gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData(f"gate/parameter/source/{sourceType}"))
+        gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData(f"gate/parameter/source/source_type/{sourceType}"))
         gateTree.initObjectParam(sourceObject)
 
     @staticmethod
@@ -247,8 +262,8 @@ class ControlAPI():
         detectorVolumePath = ControlAPI._getDetectorVolume(sensitiveDetectorName).path
         digitizerObject.param["Detector Volume Path"].updateValue(0, detectorVolumePath)
 
-        for moduleType in ControlAPI._getYamlData(f"gate/parameter/digitizer/{digitizerType}").keys():
-            digitizerModuleObject = gateTree.createGateObjectEmpty("/".join(digitizerObject.path, moduleType))
+        for moduleType in ControlAPI._getYamlData(f"gate/parameter/digitizer/digitizer_type/{digitizerType}").keys():
+            digitizerModuleObject = gateTree.createGateObjectEmpty("/".join([digitizerObject.path, moduleType]))
             gateTree.addParamFromYamlSection(digitizerModuleObject, ControlAPI._getYamlData(f"gate/parameter/digitizer/{digitizerType}_general"))
             gateTree.addParamFromYamlSection(digitizerModuleObject, ControlAPI._getYamlData(f"gate/parameter/digitizer/digitizer_type/{digitizerType}/{moduleType}"))
             gateTree.initObjectParam(digitizerModuleObject)
@@ -259,6 +274,99 @@ class ControlAPI():
         gateTree = GateTree()
         return gateTree.material
 
+    @staticmethod
+    def exportProject(filePath: str):
+        """
+        Export the model into a json file.
+
+        Args:
+            filePath: where to save the project json file
+        """
+        gateTree = GateTree()
+        modelData = gateTree.toDict()
+        file = open(filePath, "w")
+        json.dump(modelData, file, indent=4)
+        file.close()
+
+    @staticmethod
+    def importProject(filePath: str):
+        """
+        Import the model stored in the json file.
+
+        Args:
+            filePath: where the project json file is saved
+        """
+        gateTree = GateTree()
+        file = open(filePath, "r")
+        jsonContent = json.load(file)
+        file.close()
+
+        gateTree.children.clear()
+        gateTree.material.clear()
+        gateTree.gateTreeSubscriber.clear()
+
+        # Create every gate object empty
+        gateObjectDictToView = deepcopy(jsonContent["children"])
+        while len(gateObjectDictToView) > 0:
+            gateObjectDict = gateObjectDictToView.pop(0)
+            gateObjectDictToView += gateObjectDict["children"]
+
+            # Find the parent
+            parentObject = gateTree.getObjectFromGateObjectPath(gateTree, gateObjectDict["parent"])
+            
+            gateObject = GateObject(gateObjectDict["name"])
+            gateObject.path = gateObjectDict["path"]
+            gateObject.parent = parentObject
+            parentObject.children[gateObject.name] = gateObject
+
+        
+
+        # Add every gate parameter without subscriber (they are maybe not initialized yet)
+        gateObjectDictToView = deepcopy(jsonContent["children"])
+        while len(gateObjectDictToView) > 0:
+            gateObjectDict = gateObjectDictToView.pop(0)
+            gateObjectDictToView += gateObjectDict["children"]
+            gateObject = gateTree.getObjectFromGateObjectPath(gateTree, gateObjectDict["path"])
+
+            for paramDict in gateObjectDict["param"]:
+                gateParameter = GateParameter(
+                    paramDict["path"],
+                    paramDict["displayedLabel"],
+                    paramDict["inputType"],
+                    paramDict["defaultValueList"],
+                    paramDict["multiplicity"],
+                    paramDict["unitList"],
+                    paramDict["defaultUnitIndex"],
+                ) 
+                gateParameter.valueList = paramDict["valueList"]
+                gateParameter._yamlRawProperty = paramDict["yamlRawProperty"]
+                gateParameter._gateObjectParent = gateObject
+
+                gateObject.param[gateParameter.displayedLabel] = gateParameter
+
+        for treeSubscriberPath in deepcopy(jsonContent["gateTreeSubscriber"]):
+            objectPath, displayedLabel = treeSubscriberPath.rsplit("/", maxsplit=1)
+            treeSubscriber = gateTree.getObjectFromGateObjectPath(gateTree, objectPath)
+            gateTree.gateTreeSubscriber.append(treeSubscriber.param[displayedLabel])
+
+        # Add the subscriberValueChanged to the params
+        gateObjectDictToView = deepcopy(jsonContent["children"])
+        while len(gateObjectDictToView) > 0:
+            gateObjectDict = gateObjectDictToView.pop(0)
+            gateObjectDictToView += gateObjectDict["children"]
+            gateObject = gateTree.getObjectFromGateObjectPath(gateTree, gateObjectDict["path"])
+
+            for paramDict in gateObjectDict["param"]:
+                gateParameter = gateObject.param[paramDict["displayedLabel"]]
+
+                for paramSubscriberPath in paramDict["subscriberValueChanged"]:
+                    objectPath, displayedLabel = paramSubscriberPath.rsplit("/", maxsplit=1)
+                    gateObjectSubscriber = gateTree.getObjectFromGateObjectPath(gateTree, objectPath)
+                    gateParameterSubscriber = gateObjectSubscriber.param[displayedLabel]
+                    gateParameter._subscriberValueChanged.append(gateParameterSubscriber)
+            
+
+
     ### Private methods (helpers) ###
     @staticmethod
     def _getGateObject(objectPath: str) -> GateObjectInterface:
@@ -268,12 +376,8 @@ class ControlAPI():
         Args:
             objectPath: path to the object from the root of the gate tree
         """
-        gateObject = GateTree()
-        
-        for pathToken in objectPath.split("/")[1:]:
-            gateObject = gateObject[pathToken]
-        
-        return gateObject
+        gateTree = GateTree()
+        return gateTree.getObjectFromGateObjectPath(gateTree, objectPath)
 
     @staticmethod
     def _getYamlData(yamlPath: str):

@@ -31,7 +31,7 @@ class SourcePopup(QDialog):
         name_lbl = QLabel("Source name:"); name_lbl.setFont(QFont("Arial", self.fs))
         self.name_in = QLineEdit(); self.name_in.setFont(QFont("Arial", self.fs))
         type_lbl = QLabel("Source type:"); type_lbl.setFont(QFont("Arial", self.fs))
-        self.type_dd = QComboBox(); self.type_dd.addItems(SOURCE_TYPES); self.type_dd.setFont(QFont("Arial", self.fs))
+        self.type_dd = QComboBox(); self.type_dd.addItems(ControlAPI.getSourceTypes()); self.type_dd.setFont(QFont("Arial", self.fs))
         btn = QPushButton("Create"); btn.setFont(QFont("Arial", self.fs)); btn.clicked.connect(self._handle_create)
 
         for w in (name_lbl, self.name_in, type_lbl, self.type_dd, btn):

@@ -19,11 +19,11 @@ class PhysicsProcessPopup(QDialog):
             on_create_args: arguments to call the on_create function
         """
         super().__init__(parent)
-        self.setWindowTitle("Edit Physics Processes")
+        self.setWindowTitle("Add Physics Processes")
         self.setModal(True)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(400, 100)
         self.onCreateCallback = on_create
         self.onCreateCallbackArgs = on_create_args
         self.font_size = parent.font().pointSize()
@@ -37,13 +37,9 @@ class PhysicsProcessPopup(QDialog):
         layout.setSpacing(15)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        label = QLabel("Add a physics process:")
-        label.setFont(self.default_font)
-        layout.addWidget(label)
-
         label_font = QFont("Arial", self.font_size)
         # Section: Name
-        name_label = QLabel("Object Name:")
+        name_label = QLabel("Process Name:")
         name_label.setFont(label_font)
         self.name_input = QLineEdit()
         self.name_input.setFont(label_font)

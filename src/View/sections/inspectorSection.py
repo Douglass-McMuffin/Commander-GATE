@@ -190,22 +190,25 @@ class InspectorSection:
     # -----------------------------
     # Main population
     # -----------------------------
-    def populate_parameters(self, item):
+    def populate_parameters(self, itemPath: str):
         """
         Refresh the parameters in the inspector section with the current selected item from the hierarchy section.
 
         Args:
             item: selected item from the hierarchy section
         """
-        if not item:
-            return
-        gateObjectPath: str = item.data(0, Qt.ItemDataRole.UserRole)
-        gateObject : GateObjectInterface = ControlAPI.getGateObject(gateObjectPath)
+        gateObject : GateObjectInterface = ControlAPI.getGateObject(itemPath)
 
         # reset model + cache
         verticalScrollValue = self.listview.verticalScrollBar().value()
         self.inspector_widgets = []
+
         model: QStandardItemModel = self.listview.model()
+        selectedIndex = self.listview.selectedIndexes()
+        if selectedIndex:
+            # Get the first element since there are just one element selected at a time
+            selectedIndex = selectedIndex[0]
+
         if model:
             model.clear()
         else:
@@ -226,10 +229,10 @@ class InspectorSection:
         self._maybe_add_rename(model, gateObject, font_size)
         #self._maybe_add_role(model, gateObject, font_size)
         #self._maybe_add_system_root_row(model, gateObject, font_size)
-        self._maybe_add_attach_row(model, gateObject, font_size)
+        #self._maybe_add_attach_row(model, gateObject, font_size)
         
-        if getattr(gateObject, "path", "") == "/gate/source":
-            self._maybe_add_source_controls(model, item, gateObject, font_size)
+        # if getattr(gateObject, "path", "") == "/gate/source":
+        #     self._maybe_add_source_controls(model, item, gateObject, font_size)
 
         # parameters
         self._add_parameters_block(model, gateObject, font_size)
@@ -239,7 +242,12 @@ class InspectorSection:
         self.resize_parameters(font_size)
 
         # Getting the vertical scroll back
+        
+        self.listview.verticalScrollBar().setValue(1)
         self.listview.verticalScrollBar().setValue(verticalScrollValue)
+        # if selectedIndex:
+        #     self.listview.setCurrentIndex(selectedIndex)
+        
 
         # Update layout
         # model.layoutChanged.emit()
@@ -294,7 +302,7 @@ class InspectorSection:
             return
         
         btn = self._button("➕", font_size, 40, click=lambda: PhysicsProcessPopup(
-            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
+            self.host, self.host.populate_hierarchy_tree, []
             ).exec())
         self._append_widget_row(model, btn, font_size)
         
@@ -311,7 +319,7 @@ class InspectorSection:
         if gate_object.path != ControlAPI.getObjectPath("SOURCE"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: SourcePopup(
-            self.host, lambda: self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
+            self.host, self.host.populate_hierarchy_tree, []
             ).exec()
         )
         
@@ -329,7 +337,7 @@ class InspectorSection:
         if gate_object.path != ControlAPI.getObjectPath("DISTRIBUTIONS"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: DistributionPopup(
-            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
+            self.host, self.host.populate_hierarchy_tree, []
             ).exec()
         )
         self._append_widget_row(model, btn, font_size)
@@ -346,7 +354,7 @@ class InspectorSection:
         if gate_object.path != ControlAPI.getObjectPath("DIGITIZER"):
             return
         btn = self._button( "Add ➕", font_size, 120, click=lambda: DigitizerPopup(
-            self.host, self.host.populate_hierarchy_tree, [self.host.cManager.node_tree]
+            self.host, self.host.populate_hierarchy_tree, []
             ).exec()
         )
         self._append_widget_row(model, btn, font_size)
@@ -361,7 +369,10 @@ class InspectorSection:
             font_size: font size
         """
         pathToken = gate_object.path.split("/")[1:]
-        if len(pathToken) == 1 or (pathToken[0] == "gate" and len(pathToken) == 2):
+        if (len(pathToken) == 1 
+            or (pathToken[0] == "gate" and len(pathToken) == 2)
+            or (pathToken[1] == "digitizer" and len(pathToken) == 4)
+        ):
             return
         widget = self._build_rename_row(gate_object, font_size)
         self._append_widget_row(model, widget, font_size)
@@ -573,6 +584,7 @@ class InspectorSection:
             "object_name_dropdown": self._build_dropdown_widget,
             "children_name_dropdown": self._build_dropdown_widget,
             "attached_volume_dropdown": self._build_dropdown_widget,
+            "attached_volume_checkbox": self._build_checkbox_widget,
             "digitizer_detector_dropdown": self._build_dropdown_widget,
             "dynamic_object_name_dropdown": self._build_dropdown_widget
         }
@@ -662,15 +674,16 @@ class InspectorSection:
     # -----------------------------
     # Utility actions
     # -----------------------------
-    def updateView(self, item):
+    def updateView(self, itemPath):
         """
         Refresh view of hierarchy and inspector sections.
 
         Args:
             item: currently selected item from the hierarchy section
         """
-        self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
-        self.populate_parameters(item)
+
+        self.host.populate_hierarchy_tree()
+        self.populate_parameters(itemPath)
 
     def updateParamValue(self, objectPath: str, paramName: str, fieldIndex: int, value: str):
         """
@@ -683,7 +696,7 @@ class InspectorSection:
             value: new value
         """
         ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
-        self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
+        self.updateView(objectPath)
 
     
     def updateParamTextValue(self, widget, objectPath: str, paramName: str, fieldIndex: int, value: str):
@@ -700,7 +713,7 @@ class InspectorSection:
         if widget._edited == True:
             widget._edited = False
             ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
-            self.updateView(self.host.hierarchySection._find_tree_child(objectPath))
+            self.updateView(objectPath)
 
 
     def browse_file_for_param(self, button, objectPath: str, paramName: str, fieldIndex: int):
@@ -723,8 +736,7 @@ class InspectorSection:
             button.setText(selected_file)
             button.setStyleSheet("text-align: right;")
             self.host.write_to_console(f"Selected file for {paramName}: {selected_file}")
-            self.host.populate_hierarchy_tree(self.host.cManager.node_tree)
-            self.populate_parameters(self.host.hierarchySection._find_tree_child(objectPath))
+            self.updateView(objectPath)
     
     
     # -----------------------------
@@ -817,7 +829,7 @@ class InspectorSection:
                 i += 1
             unique_name = f"{new_name}{i}"
 
-        ControlAPI.setGateObjectName(gate_object.path, new_name)
+        ControlAPI.setGateObjectName(gate_object.path, unique_name)
         selected_item = self.host.hierarchySection.tree.currentItem()
         if selected_item:
             selected_item.setText(0, unique_name)

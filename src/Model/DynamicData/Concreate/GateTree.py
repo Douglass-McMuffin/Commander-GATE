@@ -59,7 +59,8 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
     def __repr__(self):
         return f"material: {self.material}, children: {list(self.children.values())}\n"
 
-    defi        return {
+    def toDict(self):
+        return {
             "children": [child.toDict() for child in self.children.values()],
             "material": self.material,
             "gateTreeSubscriber": ["/".join((gateParameter.gateObjectParent.path, gateParameter.displayedLabel)) for gateParameter in self.gateTreeSubscriber]

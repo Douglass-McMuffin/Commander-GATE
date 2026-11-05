@@ -545,6 +545,23 @@ gate:
             property:
               type: material_dropdown
               default_value: [0]
+        
+        shape:
+          - label_list:
+            - label: "Shape of the Volume"
+              macro: ""
+              multiplicity: False
+            property:
+              type: macro
+              default_value: [""]
+          
+          - label_list:
+            - label: "Repeater Type"
+              macro: ""
+              multiplicity: False
+            property:
+              type: macro
+              default_value: [""]
 
         placement_parameters:
           - label_list:

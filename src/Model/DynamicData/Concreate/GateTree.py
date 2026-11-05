@@ -52,14 +52,19 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
             yamlPathToken = yamlPath.split("/")
             if gateObject.path.startswith("/gate/world"):
                 self.addVolumeParam(gateObject, yamlPathToken[-2], yamlPathToken[-1])
+                self.initObjectParam(gateObject)
+                gateObject.param["Shape of the Volume"] = yamlPathToken[-2]
+                gateObject.param["Repeater Type"] = yamlPathToken[-1]
             else:
                 self.addParamFromYamlSection(gateObject, self._getYamlData(yamlPath))
-            self.initObjectParam(gateObject)
+                self.initObjectParam(gateObject)
+            
 
     def __repr__(self):
         return f"material: {self.material}, children: {list(self.children.values())}\n"
 
     def toDict(self):
+        """Store and return the gateTree data in a dictionnary."""
         return {
             "children": [child.toDict() for child in self.children.values()],
             "material": self.material,
@@ -658,6 +663,10 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         # material parameters
         paramSection: list[dict] = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["material"]
         self.createStaticParam(gateObject, paramSection, self._normalMacroFormater)
+
+        # shape parameters
+        paramSection = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["shape"]
+        self.createStaticParam(gateObject, paramSection, self._noMacroFormater)
         
         # placement parameters
         paramSection = self.yamlData["gate"]["parameter"]["volume"]["volume_general"]["placement_parameters"]

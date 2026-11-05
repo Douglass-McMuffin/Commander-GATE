@@ -27,7 +27,7 @@ class GateObject(GateObjectInterface):
         return f"name: {self.name}, parameter: {self.param}, children: {list(self.children.values())}"
         
     def toDict(self):
-        """Get the gate object informations."""
+        """Store and return the gate object data in a dictionnary."""
         return {
             "path": self.path,
             "name": self.name,

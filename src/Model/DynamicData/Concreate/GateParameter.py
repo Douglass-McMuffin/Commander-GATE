@@ -47,7 +47,7 @@ class GateParameter(GateParameterInterface):
         return f"Param <\"{self._displayedLabel}\">"
     
     def toDict(self):
-        """Get the parameter information"""
+        """Store and return the gate paramter data in a dictionnary."""
         return {
             "path": self._path,
             "displayedLabel": self._displayedLabel,

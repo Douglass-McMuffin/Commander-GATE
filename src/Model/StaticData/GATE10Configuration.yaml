@@ -34,13 +34,16 @@ gate:
 
   units:
     LENGTH_UNITS : ['pc', 'km', 'm', 'cm', 'mm', 'mum', 'nm', 'Ang']
+    LENGTH_INVERSE_UNITS : ['1/m', '1/cm', '1/mm']
     SURFACE_UNITS : ['km2', 'm2', 'cm2', 'mm2']
+    DIFFUSION_UNITS : ['m2/s', 'cm2/s', 'mm2/s']
     VOLUME_UNITS: ['km3', 'm3', 'cm3', 'mm3']
     ANGLE_UNITS: ['rad', 'mrad', 'sr', 'deg']
     TIME_UNITS: ['s', 'ms', 'mus', 'ns', 'ps']
     SPEED_UNITS: ['m/s', 'cm/s', 'mm/s', 'm/min', 'cm/min', 'mm/min', 'm/h', 'cm/h', 'mm/h']
     ANGULAR_SPEED_UNITS: ['rad/s', 'deg/s', 'rot/s', 'rad/min', 'deg/min', 'rot/min', 'rad/h', 'deg/h', 'rot/h']
-    ENERGY_UNITS: ['eV', 'KeV', 'MeV', 'GeV', 'TeV', 'PeV', 'j']
+    ENERGY_UNITS: ['eV', 'KeV', 'MeV', 'GeV', 'TeV']
+    ENERGY_LINEAR_DENSITY_UNITS: ['eV/cm', 'KeV/cm', 'MeV/cm', 'GeV/cm']
     INVERSE_ENERGY_UNITS: ['1/eV', '1/KeV', '1/MeV', '1/GeV', '1/TeV', '1/PeV', '1/j']
     ACTIVITY_DOSE_UNITS: ['Bq', 'Ci', 'Gy']
     AMOUNT_OF_SUBSTANCE_UNITS: ['mol']
@@ -76,11 +79,12 @@ gate:
     PROCESS_TYPES: ["Bremsstrahlung", "Cerenkov", "Compton", "Decay", "ElectronIonisation", "Fictitious", "Fission", "GammaConversion", "NeutronCapture", "HadronElastic", "HadronIonisation", "IonInelastic", "IonIonisation", "MuBremsstrahlung", "MuIonisation", "MuPairProduction", "NanoAbsorption", "NeutronInelastic", "OpticalAbsorption", "OpticalBoundary", "OpticalMie", "OpticalRayleigh", "OpticalWLS", "PhotoElectric", "PionMinusInelastic", "PionPlusInelastic", "PositronAnnihilation", "G4PositronAnnihilation", "ProtonInelastic", "RadioactiveDecay", "RayleighScattering", "Scintillation", "SingleScattering", "XrayBoundary", "eMultipleScattering", "hMultipleScattering"]
     RANDOM_ENGINES: ["Ranlux64", "JamesRandom", "MixMaxRng", "MersenneTwister"]
     RANDOM_SEED_MODE: ["default", "auto", "manual"]
-    SOURCE_PARTICLES: ["gamma", "e+", "e-", "proton", "neutron", "ion", "GenericIon"]
+    SOURCE_PARTICLES: ["gamma", "e+", "e-", "proton", "neutron", "user defined"]
     SOURCE_ENERGY_TYPES: ["Mono", "Lin", "Pow", "Exp", "Gauss", "Brem", "Bbody", "Cdg", "UserSpectrum", "Arb", "Epn", "Fluor18"]
     SOURCE_ANG_TYPES: ["iso"]
     SOURCE_DOMAINS: ["Point", "Beam", "Plane", "Surface", "Volume"]
     SOURCE_VOLUME_SHAPES: ["Sphere", "Ellipsoid", "Cylinder", "Para"]
+    SOURCE_VOLUME_PLANES: ["Circle", "Annulus", "Ellipsoid", "Square", "Rectangle"]
     SPECIAL_SOURCE_TYPES: [" - ", "backtoback"]
     ROTATION_DIRECTIONS: ["negative", "positive"]
     EXTENDED_MODELS: ["sg", "pPs", "oPs", "Ps"]
@@ -93,7 +97,14 @@ gate:
     DIGITIZER_DEADTIME_MODE: ["paralysable", "nonparalysable"]
     DIGITIZER_DOI_MODEL: ["dualLayer", "DoIBlurrNegExp"]
     ZERO_ONE_MODE: ["0", "1"]
-    
+    HIT_TYPE: ["pre", "post", "middle", "random"]
+    PARTICLE_NAME: ["photon", "electron", "positron", "proton", "neutron"]
+    DOSE_CALCULATION_ALGORITHM: ["VolumeWeighting", "MassWeighting"]
+    CELL_LINE: ["HSG"]
+    BIO_PHYSICAL_MODEL: ["NanOx"]
+    AVERAGING_METHOD: ["DoseAveraged", "TrackAveraged"]
+    PARTICLE_SELECTION_METHOD: ["Atomic Number (Z, A)", "Particle Data Group (PDG)"]
+
 
   systems_components:
     scanner:
@@ -1314,6 +1325,1137 @@ gate:
             type: checkbox
             default_value: [False]
 
+    actor:
+      actor_folder:
+        - label_list:
+          - label: "Actor Folder"
+            macro: ""
+          property:
+            type: label
+      
+      actor_general:
+        - label_list:
+          - label: "Actor Type"
+            macro: ""
+          property:
+            type: macro
+            default_value: [""]
+        
+        - label_list:
+          - label: "&0 General Properties"
+            macro: ""
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Actor Type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+
+        - label_list:
+          - label: "Volume Attached To"
+            macro: "attachTo"
+          property:
+            type: object_name_dropdown    # Get the name of the object and of its children
+            default_value: [0]
+            object_path: "/gate/world"
+        
+        - label_list:
+          - label: "File Output"
+            macro: "save"
+          property:
+            type: select
+            default_value: [null]
+        
+        - label_list:
+          - label: "Save Output Every N Events"
+            macro: "saveEveryNEvents"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+        
+        - label_list:
+          - label: "Save Output Every N Seconds"
+            macro: "saveEveryNSeconds"
+          property:
+            type: text
+            default_value: [0]
+            units: NO_UNITS
+            default_unit_index: null
+
+        
+
+        # Dose Actor only
+        
+        - label_list:
+          - label: "Size of the Matrix"
+            macro: "setSize"
+          - label: "Size of the Voxel"
+            macro: "voxelsize"
+          - label: "Set Position"
+            macro: "setPosition"
+          - label: "Set Resolution"
+            macro: "setResolution"
+          property:
+            type: text
+            default_value: [0, 0, 0]
+            units: LENGTH_UNITS
+            default_unit_index: 3
+        
+        - label_list:
+          - label: "Hit Type"
+            macro: "setpHitType"
+          property:
+            type: dropdown
+            default_value: [3]
+            value_list: HIT_TYPE
+        
+        - label_list:
+          - label: "&0 Specific Properties"
+            macro: ""
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Actor Type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+        
+      actor_type:
+        SimulationStatisticActor:
+
+        EmCalculatorActor:          
+          - label_list:
+            - label: "Particle Name"
+              macro: "setParticleName"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: PARTICLE_NAME
+        
+        DoseActor:          
+          - label_list:
+            - label: "Enable Edep"
+              macro: "enableEdep"
+            - label: "Enable Uncertainty Edep"
+              macro: "enableUncertaintyEdep"
+            - label: "Enable Squared Edep"
+              macro: "enableSquaredEdep"
+            - label: "Enable Dose"
+              macro: "enableDose"
+            - label: "Enable Uncertainty Dose"
+              macro: "enableUncertaintyDose"
+            - label: "Enable Squared Dose"
+              macro: "enableSquaredDose"
+            - label: "Enable Number Of Hits"
+              macro: "enableNumberOfHits"
+            - label: "Enable Dose To Water"
+              macro: "enableDoseToWater"
+            - label: "Normalise Dose To Max"
+              macro: "normaliseDoseToMax"
+            - label: "Normalise Dose To Water"
+              macro: "normaliseDoseToWater"
+            - label: "Normalise Dose To Integral"
+              macro: "normaliseDoseToIntegral"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Size of the Matrix"
+              macro: "setSize"
+            - label: "Size of the Voxel"
+              macro: "voxelsize"
+            - label: "Set Position"
+              macro: "setPosition"
+            - label: "Set Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+          
+          - label_list:
+            - label: "Dose By Regions"
+              macro: ""
+            property:
+              type : label
+          
+          - label_list:
+            - label: "Input Dose By Regions"
+              macro: "inputDoseByRegions"
+            - label: "Output Dose By Regions"
+              macro: "outputDoseByRegions"
+            property:
+              type: select
+              default_value: [null]
+          
+          - label_list:
+            - label: "Dose Calculation Algorithms"
+              macro: ""
+            property:
+              type : label
+
+          - label_list:
+            - label: "Dose Algorithm"
+              macro: "setDoseAlgorithm"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: DOSE_CALCULATION_ALGORITHM
+          
+          - label_list:
+            - label: "Import Mass Image"
+              macro: "importMassImage"
+            - label: "Export Mass Image"
+              macro: "exportMassImage"
+            property:
+              type: select
+              default_value: [null]
+        
+        TetMeshDoseActor:
+
+        BioDoseActor:
+          - label_list:
+            - label: "Enable Edep"
+              macro: "enableEdep"
+            - label: "Enable Dose"
+              macro: "enableDose"
+            - label: "Enable Alpha Mix"
+              macro: "enableAlphaMix"
+            - label: "Enable Squared Beta Mix"
+              macro: "enableSqrtBetaMix"
+            - label: "Enable RBE"
+              macro: "enableRBE"
+            - label: "Enable Uncertainty"
+              macro: "enableUncertainty"
+            - label: "Enable Uncertainty Details"
+              macro: "enableUncertaintyDetails"
+            - label: "Enable Hit Even Count"
+              macro: "enableHitEventCount"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Set Cell Line"
+              macro: "setCellLine"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: CELL_LINE
+          
+          - label_list:
+            - label: "Set Bio Physical Model"
+              macro: "setBioPhysicalModel"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: BIO_PHYSICAL_MODEL
+          
+          - label_list:
+            - label: "Alpha Ref"
+              macro: "setAlphaRef"
+            - label: "Beta Ref"
+              macro: "setBetaRef"
+            - label: "Dose Scale Factor"
+              macro: "setDoseScaleFactor"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          
+        KillActor:
+
+        StopOnScriptActor:
+          - label_list:
+            - label: "Save All Actors"
+              macro: "saveAllActors"
+            property:
+              type: checkbox
+              default_value: [False]
+        
+        TrackLengthActor:
+          - label_list:
+            - label: "Minimum Length"
+              macro: "setLmin"
+            - label: "Maximum Length"
+              macro: "setLmax"
+            property:
+              type: text
+              default_value: [0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Number Of Bins"
+              macros: "setNumberOfBins"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+        
+        EnergySpectrumActor:
+          ### Energy Spectrum
+          - label_list:
+            - label: "Enable Energy Spectrum"
+              macro: "enableEnergySpectrum"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Energy Spectrum Minium"
+              macro: "energySpectrum/setEmin"
+            - label: "Energy Spectrum Maximum"
+              macro: "energySpectrum/setEmax"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
+          
+          - label_list:
+            - label: "Energy Spectrum Number of Bins"
+              macro: "energySpectrum/setNumberOfBins"
+            property:
+              type: text
+              default_value: [2000]
+              units: NO_UNITS
+              default_unit_index: null
+
+          ### LET Spectrum
+          - label_list:
+            - label: "Enable LET Spectrum"
+              macro: "enableLETSpectrum"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "LET Spectrum Minium"
+              macro: "LETSpectrum/setEmin"
+            - label: "LET Spectrum Maximum"
+              macro: "LETSpectrum/setEmax"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_LINEAR_DENSITY_UNITS
+              default_unit_index: 1
+          
+          - label_list:
+            - label: "LET Spectrum Number of Bins"
+              macro: "LETSpectrum/setNumberOfBins"
+            property:
+              type: text
+              default_value: [2000]
+              units: NO_UNITS
+              default_unit_index: null
+
+          ### Energy Loss Histogram
+          - label_list:
+            - label: "Enable Energy Loss Histogram"
+              macro: "enableLossSpectrum"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Energy Loss Histogram Minium"
+              macro: "energyLossHisto/setEdepmin"
+            - label: "Energy Loss Histogram Maximum"
+              macro: "energyLossHisto/setEdepmax"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
+          
+          - label_list:
+            - label: "Energy Loss Spectrum Number of Bins"
+              macro: "energyLossHisto/setNumberOfEdepBins"
+            property:
+              type: text
+              default_value: [2000]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          ### Properties
+          # TODO: Find the gate macro for the potential spectrum and histo below
+          - label_list:
+            - label: "Save Output As Text"
+              macro: "saveAsText"
+            - label: "Enable Logarithmic Bin Width"
+              macro: "setLogBinWidth"
+            - label: "Normalize To Number Primary Events"
+              macro: "normalizeToNbPrimaryEvents"
+            - label: "Energy Per Unit Mass"
+              macro: "setEnergyPerUnitMass"
+            - label: "Enable Number Part Spectrum"
+              macro: "enableNbPartSpectrum"
+            - label: "Enable Fluence Track Spectrum"
+              macro: "enableFluenceTrackSpectrum"
+            - label: "Enable Edep Spectrum"
+              macro: "enableEdepSpectrum"
+            - label: "Enable Edep Histo"
+              macro: "enableEdepHisto"
+            - label: "Enable Edep Time Histo"
+              macro: "enableEdepTimeHisto"
+            - label: "Enable Edep Track Histo"
+              macro: "enableEdepTrackHisto"
+            - label: "Enable Edep Step Histo"
+              macro: "enableEdepStepHisto"
+            - label: "Enable Differential (Q) Spectrum"
+              macro: "enableQSpectrum"
+            property:
+              type: checkbox
+              default_value: [False]
+
+        ProductionAndStoppingActor:
+          - label_list:
+            - label: "Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [1]
+              value_list: HIT_TYPE
+        
+        SecondaryProductionActor:
+        
+        StoppingPowerActor:
+          - label_list:
+            - label: "Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+        
+        ParticleInVolumeActor:
+          - label_list:
+            - label: "Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [1]
+              value_list: HIT_TYPE
+        
+        QvalueActor:
+          - label_list:
+            - label: "Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+        
+        CrossSectionProductionActor:
+          - label_list:
+            - label: "Add Oxygen 15"
+              macro: "addO15"
+            - label: "Add Carbon 11"
+              macro: "addC11"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          # TODO: Check if this macro is the same as voxelSize or if it is different (an error from the wikipage)
+          # Unable to get help from the help function of the Gate 9.2 docker containter
+          - label_list:
+            - label: "Voxel Size of the Actor in mm"
+              macro: "setVoxelSize"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+        
+        WashOutActor:
+          - label_list:
+            - label: "Import Table File"
+              macro: "readTable"
+            property:
+              type: select
+              default_value: [null]
+        
+        FluenceActor: 
+          - label_list:
+            - label: "Enable Scatter"
+              macro: "enableScatter"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Size of the Matrix"
+              macro: "setSize"
+            - label: "Size of the Voxel"
+              macro: "voxelsize"
+            - label: "Set Position"
+              macro: "setPosition"
+            - label: "Set Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+        
+        TLEDoseActor:
+          - label_list:
+            - label: "Enable Dose"
+              macro: "enableDose"
+            - label: "Enable Hybridino"
+              macro: "enableHybridino"
+            property:
+              type: checkbox
+              default_value: [True]
+
+          - label_list:
+            - label: "Primary Multiplicity"
+              macro: "setPrimaryMultiplicity"
+            - label: "Secondary Multiplicity"
+              macro: "setSecondaryMultiplicity"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "DoseActor specific properties"
+              macro: ""
+            property:
+              type: label
+
+          - label_list:
+            - label: "Enable Edep"
+              macro: "enableEdep"
+            - label: "Enable Uncertainty Edep"
+              macro: "enableUncertaintyEdep"
+            - label: "Enable Squared Edep"
+              macro: "enableSquaredEdep"
+            - label: "Enable Dose"
+              macro: "enableDose"
+            - label: "Enable Uncertainty Dose"
+              macro: "enableUncertaintyDose"
+            - label: "Enable Squared Dose"
+              macro: "enableSquaredDose"
+            - label: "Enable Number Of Hits"
+              macro: "enableNumberOfHits"
+            - label: "Enable Dose To Water"
+              macro: "enableDoseToWater"
+            - label: "Normalise Dose To Max"
+              macro: "normaliseDoseToMax"
+            - label: "Normalise Dose To Water"
+              macro: "normaliseDoseToWater"
+            - label: "Normalise Dose To Integral"
+              macro: "normaliseDoseToIntegral"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Size of the Matrix"
+              macro: "setSize"
+            - label: "Size of the Voxel"
+              macro: "voxelsize"
+            - label: "Set Position"
+              macro: "setPosition"
+            - label: "Set Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+          
+          - label_list:
+            - label: "Dose By Regions"
+              macro: ""
+            property:
+              type : label
+          
+          - label_list:
+            - label: "Input Dose By Regions"
+              macro: "inputDoseByRegions"
+            - label: "Output Dose By Regions"
+              macro: "outputDoseByRegions"
+            property:
+              type: select
+              default_value: [null]
+          
+          - label_list:
+            - label: "Dose Calculation Algorithms"
+              macro: ""
+            property:
+              type : label
+
+          - label_list:
+            - label: "Dose Algorithm"
+              macro: "setDoseAlgorithm"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: DOSE_CALCULATION_ALGORITHM
+          
+          - label_list:
+            - label: "Import Mass Image"
+              macro: "importMassImage"
+            - label: "Export Mass Image"
+              macro: "exportMassImage"
+            property:
+              type: select
+              default_value: [null]
+        
+        FixedForcedDetectionActor:
+          - label_list:
+            - label: "Detector"
+              macro: "setDetector"
+            property:
+              type: object_name_dropdown
+              default_value: [0]
+              object_path: "/gate/world"
+          
+          - label_list:
+            - label: "Dectector Resolution"
+              macro: "setDetectorResolution"
+            property:
+              type: text
+              default_value: [0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Detector Response Filename"
+              macro: "responseDectectorFilename"
+            property:
+              type: select
+              default_value: [null]
+        
+        # TODO: Check if the Fixed Forced Detection CT with Fresnel phase contrast really exist
+        # In the documentation (https://opengate.readthedocs.io/en/latest/tools_to_interact_with_the_simulation_actors.html#id30), the mention of the GateHybridForcedDetectionActor is there, but not present the docker container 
+
+        PromptGammaTLEActor:
+          - label_list:
+            - label: "Enable Overwrite Files"
+              macro: "setOverWrtieFilesFlag"
+            - label: "Reset Data At Each Run"
+              macro: "setResetDataAtEachRunFlag"
+            - label: "Enable Debug Output"
+              macro: "enableDebugOutput"
+            - label: "Enable Output Match"
+              macro: "enableOutputMatch"
+            property:
+              type: checkbox
+              default_value: [True]
+
+          - label_list:
+            - label: "Input Data File"
+              macro: "setInputDataFile"
+            property:
+              type: select
+              default_value: [null]
+          
+          - label_list:
+            - label: "Number of Bins"
+              macro: "setTimeNbBins"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+
+        LETActor:
+          - label_list:
+            - label: "Overwrite Files"
+              macro: "setOverWriteFilesFlag"
+            - label: "Reset Data At Each Run"
+              macro: "setResetDataAtEachRunFlag"
+            - label: "Enable LET to Water"
+              macro: "setLETtoWater"
+            - label: "Parallel Calculation"
+              macro: "doParallelCalculation"
+            property:
+              type: checkbox
+              default_value: [True]
+          
+          - label_list:
+            - label: "Half Size"
+              macro: "setHalfSize"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Averaging Method Type"
+              macro: "setType"
+            property:
+              type: dropdown
+              default_value: [0]
+              value_list: AVERAGING_METHOD
+          
+          - label_list:
+            - label: "Cut Value"
+              macro: "setCutVal"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_value: 2
+          
+          - label_list:
+            - label: "LET Threshold Minimum"
+              macro: "setLETthresholdMin"
+            - label: "LET Threshold Maximum"
+              macro: "setLETthresholdMax"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_LINEAR_DENSITY_UNITS
+              default_value: 2
+          
+        TEPCActor:
+          - label_list:
+            - label: "Pressure"
+              macro: "setPressure"
+            property:
+              type: text
+              default_value: [0]
+              units: FORCE_PRESSURE_UNITS
+              default_unit_index: 0
+          
+          - label_list: 
+            - label: "Energy Minimum"
+              macro: "setEmin"
+            - label: "Energy Maximum"
+              macro: "setEmax"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
+          
+          - label_list:
+            - label: "Number of bins"
+              macro: "setNumberOfBins"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Enable Log scale"
+              macro: "setLogscale"
+            property:
+              type: checkbox
+              default_value: [False]
+          
+          - label_list:
+            - label: "Number of Order"
+              macro: "setNOrders"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Normalise by Events"
+              macro: "setNormByEvent"
+            - label: "Save as Text"
+              macro: "saveAsText"
+            property:
+              type: checkbox
+              default_value: [False]
+        
+        PhaseSpaceActor:
+          - label_list:
+            - label: "Enable Production Process"
+              macro: "enableProductionProcess"
+            - label: "Enable Direction"
+              macro: "enableDirection"
+            - label: "Use Volume Frame"
+              macro: "useVolumeFrame"
+            - label: "Enable Ekine"
+              macro: "enableEkine"
+            - label: "Enable X Position"
+              macro: "enableXPosition"
+            - label: "Enable Y Position"
+              macro: "enableYPosition"
+            - label: "Enable Z Position"
+              macro: "enableZPosition"
+            - label: "Enable X Direction"
+              macro: "enableXDirection"
+            - label: "Enable Y Direction"
+              macro: "enableYDirection"
+            - label: "Enable Z Direction"
+              macro: "enableZDirection"
+            - label: "Enable Production Volume"
+              macro: "enableProductionVolume"
+            - label: "Enable Production Process"
+              macro: "enableProductionProcess"
+            - label: "Enable Particle Name"
+              macro: "enableParticleName"
+            - label: "Enable Weight"
+              macro: "enableWeight"
+            - label: "Enable Track Length"
+              macro: "enableTrackLength"
+            - label: "Store Outgoing Particles"
+              macro: "storeOutgoingParticles"
+            - label: "Store Secondaries"
+              macro: "storeSecondaries"
+            - label: "Store All Step"
+              macro: "storeAllStep"
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Max File Size"
+              macro: "setMaxFileSize"
+            property:
+              type: text
+              default_value: [0]
+              units: BITSIZE_UNITS
+              default_unit_index: 1
+          
+        ThermalActor:
+          - label_list:
+            - label: "Thermal Diffusivity"
+              macro: "setThermalDiffusivity"
+            property:
+              type: text
+              default_value: [0]
+              units: DIFFUSION_UNITS
+              default_unit_index: 2
+          
+          - label_list:
+            - label: "Blood Density in kg/mm3"
+              macro: "setBloodDensity"
+            - label: "Blood Heat Capacity in mJ/(kg*°C)"
+              macro: "setBloodHeatCapacity"
+            - label: "Tissue Density kg/mm3"
+              macro: "setTissueDensity"
+            - label: "Tissue Heat Capacity mJ/(kg*°C)"
+              macro: "setTissueHeatCapacity"
+            - label: "Blood Perfusion Rate"
+              macro: "setBloodPerfusionRate"
+            - label: "Number of Time Frames"
+              macro: "setNumberOfTimeFrames"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Diffusion Time"
+              macro: "setDiffusionTime"
+            property:
+              type: text
+              default_value: [0]
+              units: TIME_UNITS
+              default_unit_index: 0
+          
+          # Dose Actor only
+
+          - label_list:
+            - label: "DoseActor specific properties"
+              macro: ""
+            property:
+              type: label
+        
+          - label_list:
+            - label: "Size of the Matrix"
+              macro: "setSize"
+            - label: "Size of the Voxel"
+              macro: "voxelsize"
+            - label: "Set Position"
+              macro: "setPosition"
+            - label: "Set Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+          
+        MergedVolumeActor:
+          - label_list:
+            - label: "Volume To Merge"
+              macro: "volumeToMerge"
+            property:
+              # TODO : Create a Qt ComboBox that is checkable, and the resulting selected string will be inside this empty list.
+              type: checkable_object_name_dropdown
+              default_value: [[]]
+              object_path: "/gate/world"
+
+        MuMapActor:
+          - label_list:
+            - label: "Energy"
+              macro: "setEnergy"
+            property:
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
+          
+          - label_list:
+            - label: "Mu Unit"
+              macro: "setMuUnit"
+            property:
+              type: text
+              default_value: [0]
+              units: LENGTH_INVERSE_UNITS
+          
+          # Dose Actor only
+
+          - label_list:
+            - label: "DoseActor specific properties"
+              macro: ""
+            property:
+              type: label
+        
+          - label_list:
+            - label: "Size of the Matrix"
+              macro: "setSize"
+            - label: "Size of the Voxel"
+              macro: "voxelsize"
+            - label: "Set Position"
+              macro: "setPosition"
+            - label: "Set Resolution"
+              macro: "setResolution"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: LENGTH_UNITS
+              default_unit_index: 3
+          
+          - label_list:
+            - label: "Hit Type"
+              macro: "setpHitType"
+            property:
+              type: dropdown
+              default_value: [3]
+              value_list: HIT_TYPE
+
+    filter:
+      filter_general:
+        - label_list:
+          - label: "Filter Type"
+            macro: ""
+          property:
+            type: macro
+            default_value: [""]
+        
+        - label_list:
+          - label: "&0 Properties"
+            macro: ""
+          property:
+            type: dynamic_label
+            object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
+            object_label: ["Filter Type"] # This is the label name in which the value_list is stored
+            object_label_index: [0] # Index of the field to get the value
+        
+        - label_list:
+          - label: "Invert Filter"
+            macro: "invert"
+          property:
+            type: checkable
+            default_value: [False]
+
+      filter_type:
+        particleFilter:
+          - label_list:
+            - label: "Particle Selection Method"
+              macro: ""
+            property:
+              type: "dropdown"
+              default_value: [0]
+              value_list: PARTICLE_SELECTION_METHOD
+
+          - label_list:
+            - label: "Particle Z Number"
+              macro: "addParticleZ"
+              multiplicity: True
+            - label: "Particle A Number"
+              macro: "addParticleA"
+              multiplicity: True
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Particle PDG"
+              macro: "addParticlePDG"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+        
+        IDFilter:
+          - label_list:
+            - label: "Particle ID"
+              macro: "selectID"
+              multiplicity: True
+            - label: "Particle Parent ID"
+              macro: "selectParentID"
+              multiplicity: True
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+        
+        volumeFilter:
+          - label_list:
+            - label: "Volume(s)"
+              macro: "addVolume"
+              multiplicity: False
+            property:
+              type: checkable_object_name_dropdown
+              default_value: [[]]
+              object_path: "/gate/world"
+          
+        energyFilter:
+          - label_list:
+            - label: "Enable Minimum"
+              macro: ""
+            - label: "Enable Maximum"
+              macro: ""
+            property:
+              type: checkbox
+              default_value: [False]
+
+          - label_list:
+            - label: "Energy Minimum"
+              macro: "setEmin"
+            - label: "Energy Maximum"
+              macro: "setEmax"
+            property: 
+              type: text
+              default_value: [0]
+              units: ENERGY_UNITS
+              default_unit_index: 2
+        
+        angleFilter:
+          - label_list:
+            - label: "Angle in degrees"
+              macro: "setAngle"
+            property:
+              type: text
+              default_value: [0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+          - label_list:
+            - label: "Direction (X, Y, Z)"
+              macro: "setDirection"
+            property:
+              type: text
+              default_value: [0, 0, 0]
+              units: NO_UNITS
+              default_unit_index: null
+          
+        materialFilter:
+          - label_list:
+            - label: "Material"
+              macro: "addMaterial"
+            property:
+              type: material_dropdown
+              default_value: [0]
+
+          
+              
+          
+
+          
+
+
+
+
+
+
+
+
+
     digitizer:
       digitizer_folder:
         - label_list:
@@ -2309,6 +3451,13 @@ gate:
     
       source_general:
         - label_list:
+          - label: "Source Type"
+            macro: ""
+          property:
+            type: macro
+            default_value: [""]
+
+        - label_list:
           - label: "Activity"
             macro: "setActivity"
             multiplicity: False
@@ -2375,7 +3524,10 @@ gate:
               value_list: SOURCE_PARTICLES
 
           - label_list:
-            - label: "Ion(Z,A,Q,E_keV)"
+            - label: "Use custom"
+
+          - label_list:
+            - label: "User Defined Ion(Z,A,Q,E_keV)"
               macro: "gps/ion"
               multiplicity: False
             property:
@@ -2449,16 +3601,16 @@ gate:
               value_list: SOURCE_ANG_TYPES
 
           - label_list:
-            - label: "min theta"
+            - label: "Min theta"
               macro: "gps/mintheta"
               multiplicity: False
-            - label: "max theta"
+            - label: "Max theta"
               macro: "gps/maxtheta"
               multiplicity: False
-            - label: "min phi"
+            - label: "Min phi"
               macro: "gps/minphi"
               multiplicity: False
-            - label: "max phi"
+            - label: "Max phi"
               macro: "gps/maxphi"
               multiplicity: False
             property:
@@ -2486,16 +3638,16 @@ gate:
               value_list: SOURCE_VOLUME_SHAPES
 
           - label_list:
-            - label: "radius"
+            - label: "Radius"
               macro: "gps/radius"
               multiplicity: False
-            - label: "half z"
+            - label: "Half z"
               macro: "gps/halfz"
               multiplicity: False
-            - label: "half x"
+            - label: "Half x"
               macro: "gps/halfx"
               multiplicity: False
-            - label: "half y"
+            - label: "Half y"
               macro: "gps/halfy"
               multiplicity: False
             property:
@@ -2505,7 +3657,7 @@ gate:
               default_unit_index: 3
 
           - label_list:
-            - label: "centre (x,y,z)"
+            - label: "Centre (x,y,z)"
               macro: "gps/centre"
               multiplicity: False
             property:
@@ -2669,6 +3821,15 @@ gate:
             property:
               type: checkbox
               default_value: [False]
+          
+          - label_list:
+            - label: "Total Number of Primaries"
+              macro: "setTotalNumberOfPrimaries"
+            property:
+              type: text
+              default_value: [2000]
+              units: NO_UNITS
+              default_unit_index: null
 
         tps_pencil_beam:
           - label_list:

@@ -241,6 +241,7 @@ class ControlAPI():
         gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData("gate/parameter/source/source_general"))
         gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData(f"gate/parameter/source/source_type/{sourceType}"))
         gateTree.initObjectParam(sourceObject)
+        sourceObject.param["Source Type"] = sourceType
 
     @staticmethod
     def createDigitizer(sensitiveDetectorName: str, digitizerType: str, singlesDigitizerName: str):

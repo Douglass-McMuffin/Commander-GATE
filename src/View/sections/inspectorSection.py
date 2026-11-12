@@ -12,9 +12,12 @@ from src.View.popups.SourcePopup import SourcePopup
 from .header import create_header_section
 from src.Model.StaticData.StaticData import SYSTEM_TYPES, SYSTEM_LEVELS_BY_TYPE, SYSTEM_LEVEL_SHAPES
 from src.View.parameters.BigPopupCombo import BigPopupCombo
+from src.View.parameters.CheckableComboBox import CheckableComboBox
 from src.View.parameters.ElidingLabel import ElidingLabel
 from src.View.popups.DistributionsPopup import DistributionPopup
 from src.View.popups.DigitizerPopup import DigitizerPopup
+from src.View.popups.ActorPopup import ActorPopup
+from src.View.popups.FilterPopup import FilterPopup
 from src.Model.DynamicData.Interface.GateObjectInterface import GateObjectInterface
 from src.Model.DynamicData.Interface.GateParameterInterface import GateParameterInterface
 from src.Control.ControlAPI import ControlAPI
@@ -129,6 +132,23 @@ class InspectorSection:
         if width:
             dd.setFixedWidth(width)
         return dd
+
+    def _checkable_combo(self, fs: int, items=None, checkedItems = [], width: int | None = None) -> CheckableComboBox:
+        """
+        Create the checkable combo widget.
+
+        Args:
+            fs: font size
+            items: list of items to put in the dropdown list
+            width: custom width of the widget
+        """
+        dd = CheckableComboBox()
+        dd.setFont(self._font(fs))
+        if items:
+            dd.addItems(items, checkedItems)
+        if width:
+            dd.setFixedWidth(width)
+        return dd
     
     def _button(self, text: str, fs: int, width: int | None, click):
         """
@@ -224,6 +244,8 @@ class InspectorSection:
         # special rows
         self._maybe_add_physics_plus(model, gateObject, font_size)
         self._maybe_add_source_plus(model, gateObject, font_size)
+        self._maybe_add_actor_plus(model, gateObject,font_size)
+        self._maybe_add_filter_plus(model, gateObject,font_size)
         self._maybe_add_distributions_plus(model, gateObject,font_size)
         self._maybe_add_digitizer_plus(model, gateObject,font_size)
         self._maybe_add_rename(model, gateObject, font_size)
@@ -324,6 +346,43 @@ class InspectorSection:
         )
         
         self._append_widget_row(model, btn, font_size)
+
+    def _maybe_add_actor_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the actor folder.
+
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
+        if gate_object.path != ControlAPI.getObjectPath("ACTOR"):
+            return
+        btn = self._button( "Add ➕", font_size, 120, click=lambda: ActorPopup(
+            self.host, self.host.populate_hierarchy_tree, []
+            ).exec()
+        )
+
+        self._append_widget_row(model, btn, font_size)
+
+    def _maybe_add_filter_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
+        """
+        Add the creation button for the actor folder.
+
+        Args:
+            model: model of the inspector section
+            gate_object: gate object associated with the current selected item
+            font_size: font size
+        """
+        actorPath, actorName = gate_object.path.rsplit("/", 1)
+        if actorPath == ControlAPI.getObjectPath("ACTOR"):
+
+            btn = self._button("Add Filter ➕", font_size, 120, click=lambda: FilterPopup(
+                self.host, actorName, self.host.populate_hierarchy_tree, []
+                ).exec()
+            )
+
+            self._append_widget_row(model, btn, font_size)
         
     def _maybe_add_distributions_plus(self, model: QStandardItemModel, gate_object: GateObjectInterface, font_size: int):
         """
@@ -582,6 +641,7 @@ class InspectorSection:
             "checkbox": self._build_checkbox_widget,
             "select": self._build_select_widget,
             "object_name_dropdown": self._build_dropdown_widget,
+            "checkable_object_name_dropdown": self._build_checkable_dropdown_widget,
             "children_name_dropdown": self._build_dropdown_widget,
             "attached_volume_dropdown": self._build_dropdown_widget,
             "attached_volume_checkbox": self._build_checkbox_widget,
@@ -628,6 +688,22 @@ class InspectorSection:
         w.setCurrentIndex(param.unitList.index(param.valueList[fieldIndex]))
         w.currentIndexChanged.connect(lambda index:
                                       self.updateParamValue(objectPath, param.displayedLabel, fieldIndex, param.unitList[index]))
+        w.setFixedWidth(120 + fontSize * 2)
+        return w
+
+    def _build_checkable_dropdown_widget(self, objectPath: str, param: GateParameterInterface, fieldIndex: int, fontSize: int):
+        """
+        Build the checkagbe dropdown input widget.
+
+        Args:
+            objectPath: path to the object selected in the hierarchy section
+            param: gate parameter representing the parameter row
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            fontSize: font size
+        """
+        w = self._checkable_combo(fontSize, items=param.unitList or [], checkedItems=param.valueList[fieldIndex], width=100)
+        w.model().dataChanged.connect(lambda:
+                                        self.updateParamCheckableDropdownValue(w, objectPath, param.displayedLabel, fieldIndex))
         w.setFixedWidth(120 + fontSize * 2)
         return w
 
@@ -714,6 +790,24 @@ class InspectorSection:
             widget._edited = False
             ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, value)
             self.updateView(objectPath)
+
+    def updateParamCheckableDropdownValue(self, widget, objectPath: str, paramName: str, fieldIndex: int):
+        """
+        Update data model with user selected value.
+        
+        Args:
+            widget: text widget that had its value changed
+            objectPath: path to the object selected in the hierarchy section
+            paramName: displayed label of the parameter in which the value is changed
+            fieldIndex: index of the value field (There can be multiple field possible, but generally, there is only one -> fieldIndex = 0)
+            value: new value
+        """
+        selected_items = [
+            widget.model().item(i).text() 
+            for i in range(widget.model().rowCount()) 
+            if widget.model().item(i).checkState() == Qt.CheckState.Checked
+        ]
+        ControlAPI.updateGateParamValue(objectPath, paramName, fieldIndex, selected_items)
 
 
     def browse_file_for_param(self, button, objectPath: str, paramName: str, fieldIndex: int):

@@ -53,8 +53,8 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
             if gateObject.path.startswith("/gate/world"):
                 self.addVolumeParam(gateObject, yamlPathToken[-2], yamlPathToken[-1])
                 self.initObjectParam(gateObject)
-                gateObject.param["Shape of the Volume"] = yamlPathToken[-2]
-                gateObject.param["Repeater Type"] = yamlPathToken[-1]
+                gateObject.param["Shape of the Volume"].updateValue(0, yamlPathToken[-2])
+                gateObject.param["Repeater Type"].updateValue(0, yamlPathToken[-1])
             else:
                 self.addParamFromYamlSection(gateObject, self._getYamlData(yamlPath))
                 self.initObjectParam(gateObject)
@@ -225,6 +225,7 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
         paramRowBuilder = {
             "dynamic_dropdown": self.createParamDynamicDropdown,
             "object_name_dropdown": self.createParamObjectNameDropdownRow,
+            "checkable_object_name_dropdown": self.createParamCheckableObjectNameDropdownRow,
             "children_name_dropdown": self.createParamChildrenNameDropdownRow,
             "attached_volume_dropdown": self.createParamAttachedVolumeDropdownRow,
             "digitizer_detector_dropdown": self.createParamDigitizerDetectorDropdownRow,
@@ -322,6 +323,45 @@ class GateTree(GateObjectInterface, metaclass=SingletonMeta):
             elif type(value) == int:
                 default_unit_index = value
                 default_value = [unit_list[value]]
+
+        for index, label_macro_dict in enumerate(param["label_list"]):
+            gateParameter = GateParameter(macroFormater(gateObject.name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, label_macro_dict["multiplicity"], unit_list, default_unit_index, param["property"])
+            gateObject.paramList.insert(paramIndex + index, gateParameter)
+            self.gateTreeSubscriber.append(gateParameter)
+
+    def createParamCheckableObjectNameDropdownRow(self, gateObject: GateObject, param: dict, paramIndex: int, macroFormater: function):
+        """
+        Add a checkable_object_name_dropdown input to selected gate object at a precise index.
+
+        Args:
+            gateObject: gate object to add the parameter
+            param: yaml information on the parameter's caracteristic
+            paramIndex: order of the parameter in the gate object paramete's list
+            macroFormater: function that renders the macro of the parameter
+        """
+        # Get the value out of "property"
+        type_input: str = param["property"]["type"]
+        default_value: list[any] = param["property"]["default_value"]
+        default_unit_index: int = 0
+        object_path: list[str] = param["property"]["object_path"]
+
+        observedObjectList = [self.getObjectFromGateObjectPath(gateObject, object_path)]
+        unit_list = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            unit_list.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+
+        # Transform every index in the default value to its string conterpart
+        for valueListIndex in range(len(default_value)):
+            valueList = default_value.pop(valueListIndex)
+
+            for valueIndex in range(len(valueList)):
+                if type(valueList[valueIndex]) == int:
+                    valueList[valueIndex] = unit_list[valueList[valueIndex]]
+            
+            default_value.insert(valueListIndex, valueList)
 
         for index, label_macro_dict in enumerate(param["label_list"]):
             gateParameter = GateParameter(macroFormater(gateObject.name, label_macro_dict["macro"]), label_macro_dict["label"], type_input, default_value, label_macro_dict["multiplicity"], unit_list, default_unit_index, param["property"])

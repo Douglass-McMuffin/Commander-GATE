@@ -13,6 +13,9 @@ gate:
     SOURCE:
       yaml_path: "gate/parameter/source/source_folder"
       object_path: "/gate/source"
+    ACTOR:
+      yaml_path: "gate/parameter/actor/actor_folder"
+      object_path: "/gate/actor"
     DIGITIZER: 
       yaml_path: "gate/parameter/digitizer/digitizer_folder"
       object_path: "/gate/digitizer"
@@ -1330,6 +1333,7 @@ gate:
         - label_list:
           - label: "Actor Folder"
             macro: ""
+            multiplicity: False
           property:
             type: label
       
@@ -1337,6 +1341,7 @@ gate:
         - label_list:
           - label: "Actor Type"
             macro: ""
+            multiplicity: False
           property:
             type: macro
             default_value: [""]
@@ -1344,6 +1349,7 @@ gate:
         - label_list:
           - label: "&0 General Properties"
             macro: ""
+            multiplicity: False
           property:
             type: dynamic_label
             object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
@@ -1353,6 +1359,7 @@ gate:
         - label_list:
           - label: "Volume Attached To"
             macro: "attachTo"
+            multiplicity: False
           property:
             type: object_name_dropdown    # Get the name of the object and of its children
             default_value: [0]
@@ -1361,6 +1368,7 @@ gate:
         - label_list:
           - label: "File Output"
             macro: "save"
+            multiplicity: False
           property:
             type: select
             default_value: [null]
@@ -1368,6 +1376,7 @@ gate:
         - label_list:
           - label: "Save Output Every N Events"
             macro: "saveEveryNEvents"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1377,6 +1386,7 @@ gate:
         - label_list:
           - label: "Save Output Every N Seconds"
             macro: "saveEveryNSeconds"
+            multiplicity: False
           property:
             type: text
             default_value: [0]
@@ -1390,12 +1400,16 @@ gate:
         - label_list:
           - label: "Size of the Matrix"
             macro: "setSize"
+            multiplicity: False
           - label: "Size of the Voxel"
             macro: "voxelsize"
+            multiplicity: False
           - label: "Set Position"
             macro: "setPosition"
+            multiplicity: False
           - label: "Set Resolution"
             macro: "setResolution"
+            multiplicity: False
           property:
             type: text
             default_value: [0, 0, 0]
@@ -1405,6 +1419,7 @@ gate:
         - label_list:
           - label: "Hit Type"
             macro: "setpHitType"
+            multiplicity: False
           property:
             type: dropdown
             default_value: [3]
@@ -1413,6 +1428,7 @@ gate:
         - label_list:
           - label: "&0 Specific Properties"
             macro: ""
+            multiplicity: False
           property:
             type: dynamic_label
             object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
@@ -1426,6 +1442,7 @@ gate:
           - label_list:
             - label: "Particle Name"
               macro: "setParticleName"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -1435,26 +1452,37 @@ gate:
           - label_list:
             - label: "Enable Edep"
               macro: "enableEdep"
+              multiplicity: False
             - label: "Enable Uncertainty Edep"
               macro: "enableUncertaintyEdep"
+              multiplicity: False
             - label: "Enable Squared Edep"
               macro: "enableSquaredEdep"
+              multiplicity: False
             - label: "Enable Dose"
               macro: "enableDose"
+              multiplicity: False
             - label: "Enable Uncertainty Dose"
               macro: "enableUncertaintyDose"
+              multiplicity: False
             - label: "Enable Squared Dose"
               macro: "enableSquaredDose"
+              multiplicity: False
             - label: "Enable Number Of Hits"
               macro: "enableNumberOfHits"
+              multiplicity: False
             - label: "Enable Dose To Water"
               macro: "enableDoseToWater"
+              multiplicity: False
             - label: "Normalise Dose To Max"
               macro: "normaliseDoseToMax"
+              multiplicity: False
             - label: "Normalise Dose To Water"
               macro: "normaliseDoseToWater"
+              multiplicity: False
             - label: "Normalise Dose To Integral"
               macro: "normaliseDoseToIntegral"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1462,12 +1490,16 @@ gate:
           - label_list:
             - label: "Size of the Matrix"
               macro: "setSize"
+              multiplicity: False
             - label: "Size of the Voxel"
               macro: "voxelsize"
+              multiplicity: False
             - label: "Set Position"
               macro: "setPosition"
+              multiplicity: False
             - label: "Set Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1477,6 +1509,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -1485,14 +1518,17 @@ gate:
           - label_list:
             - label: "Dose By Regions"
               macro: ""
+              multiplicity: False
             property:
               type : label
           
           - label_list:
             - label: "Input Dose By Regions"
               macro: "inputDoseByRegions"
+              multiplicity: False
             - label: "Output Dose By Regions"
               macro: "outputDoseByRegions"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1500,12 +1536,14 @@ gate:
           - label_list:
             - label: "Dose Calculation Algorithms"
               macro: ""
+              multiplicity: False
             property:
               type : label
 
           - label_list:
             - label: "Dose Algorithm"
               macro: "setDoseAlgorithm"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -1514,8 +1552,10 @@ gate:
           - label_list:
             - label: "Import Mass Image"
               macro: "importMassImage"
+              multiplicity: False
             - label: "Export Mass Image"
               macro: "exportMassImage"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1526,20 +1566,28 @@ gate:
           - label_list:
             - label: "Enable Edep"
               macro: "enableEdep"
+              multiplicity: False
             - label: "Enable Dose"
               macro: "enableDose"
+              multiplicity: False
             - label: "Enable Alpha Mix"
               macro: "enableAlphaMix"
+              multiplicity: False
             - label: "Enable Squared Beta Mix"
               macro: "enableSqrtBetaMix"
+              multiplicity: False
             - label: "Enable RBE"
               macro: "enableRBE"
+              multiplicity: False
             - label: "Enable Uncertainty"
               macro: "enableUncertainty"
+              multiplicity: False
             - label: "Enable Uncertainty Details"
               macro: "enableUncertaintyDetails"
+              multiplicity: False
             - label: "Enable Hit Even Count"
               macro: "enableHitEventCount"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1547,6 +1595,7 @@ gate:
           - label_list:
             - label: "Set Cell Line"
               macro: "setCellLine"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -1555,6 +1604,7 @@ gate:
           - label_list:
             - label: "Set Bio Physical Model"
               macro: "setBioPhysicalModel"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -1563,10 +1613,13 @@ gate:
           - label_list:
             - label: "Alpha Ref"
               macro: "setAlphaRef"
+              multiplicity: False
             - label: "Beta Ref"
               macro: "setBetaRef"
+              multiplicity: False
             - label: "Dose Scale Factor"
               macro: "setDoseScaleFactor"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1580,6 +1633,7 @@ gate:
           - label_list:
             - label: "Save All Actors"
               macro: "saveAllActors"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1588,8 +1642,10 @@ gate:
           - label_list:
             - label: "Minimum Length"
               macro: "setLmin"
+              multiplicity: False
             - label: "Maximum Length"
               macro: "setLmax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1610,6 +1666,7 @@ gate:
           - label_list:
             - label: "Enable Energy Spectrum"
               macro: "enableEnergySpectrum"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1617,8 +1674,10 @@ gate:
           - label_list:
             - label: "Energy Spectrum Minium"
               macro: "energySpectrum/setEmin"
+              multiplicity: False
             - label: "Energy Spectrum Maximum"
               macro: "energySpectrum/setEmax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1628,6 +1687,7 @@ gate:
           - label_list:
             - label: "Energy Spectrum Number of Bins"
               macro: "energySpectrum/setNumberOfBins"
+              multiplicity: False
             property:
               type: text
               default_value: [2000]
@@ -1638,6 +1698,7 @@ gate:
           - label_list:
             - label: "Enable LET Spectrum"
               macro: "enableLETSpectrum"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1645,8 +1706,10 @@ gate:
           - label_list:
             - label: "LET Spectrum Minium"
               macro: "LETSpectrum/setEmin"
+              multiplicity: False
             - label: "LET Spectrum Maximum"
               macro: "LETSpectrum/setEmax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1656,6 +1719,7 @@ gate:
           - label_list:
             - label: "LET Spectrum Number of Bins"
               macro: "LETSpectrum/setNumberOfBins"
+              multiplicity: False
             property:
               type: text
               default_value: [2000]
@@ -1666,6 +1730,7 @@ gate:
           - label_list:
             - label: "Enable Energy Loss Histogram"
               macro: "enableLossSpectrum"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1673,8 +1738,10 @@ gate:
           - label_list:
             - label: "Energy Loss Histogram Minium"
               macro: "energyLossHisto/setEdepmin"
+              multiplicity: False
             - label: "Energy Loss Histogram Maximum"
               macro: "energyLossHisto/setEdepmax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1684,6 +1751,7 @@ gate:
           - label_list:
             - label: "Energy Loss Spectrum Number of Bins"
               macro: "energyLossHisto/setNumberOfEdepBins"
+              multiplicity: False
             property:
               type: text
               default_value: [2000]
@@ -1695,28 +1763,40 @@ gate:
           - label_list:
             - label: "Save Output As Text"
               macro: "saveAsText"
+              multiplicity: False
             - label: "Enable Logarithmic Bin Width"
               macro: "setLogBinWidth"
+              multiplicity: False
             - label: "Normalize To Number Primary Events"
               macro: "normalizeToNbPrimaryEvents"
+              multiplicity: False
             - label: "Energy Per Unit Mass"
               macro: "setEnergyPerUnitMass"
+              multiplicity: False
             - label: "Enable Number Part Spectrum"
               macro: "enableNbPartSpectrum"
+              multiplicity: False
             - label: "Enable Fluence Track Spectrum"
               macro: "enableFluenceTrackSpectrum"
+              multiplicity: False
             - label: "Enable Edep Spectrum"
               macro: "enableEdepSpectrum"
+              multiplicity: False
             - label: "Enable Edep Histo"
               macro: "enableEdepHisto"
+              multiplicity: False
             - label: "Enable Edep Time Histo"
               macro: "enableEdepTimeHisto"
+              multiplicity: False
             - label: "Enable Edep Track Histo"
               macro: "enableEdepTrackHisto"
+              multiplicity: False
             - label: "Enable Edep Step Histo"
               macro: "enableEdepStepHisto"
+              multiplicity: False
             - label: "Enable Differential (Q) Spectrum"
               macro: "enableQSpectrum"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1725,6 +1805,7 @@ gate:
           - label_list:
             - label: "Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1734,6 +1815,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [1]
@@ -1745,6 +1827,7 @@ gate:
           - label_list:
             - label: "Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1754,6 +1837,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -1763,6 +1847,7 @@ gate:
           - label_list:
             - label: "Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1772,6 +1857,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [1]
@@ -1781,6 +1867,7 @@ gate:
           - label_list:
             - label: "Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1790,6 +1877,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -1799,8 +1887,10 @@ gate:
           - label_list:
             - label: "Add Oxygen 15"
               macro: "addO15"
+              multiplicity: False
             - label: "Add Carbon 11"
               macro: "addC11"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1810,6 +1900,7 @@ gate:
           - label_list:
             - label: "Voxel Size of the Actor in mm"
               macro: "setVoxelSize"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1820,6 +1911,7 @@ gate:
           - label_list:
             - label: "Import Table File"
               macro: "readTable"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1828,6 +1920,7 @@ gate:
           - label_list:
             - label: "Enable Scatter"
               macro: "enableScatter"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1835,12 +1928,16 @@ gate:
           - label_list:
             - label: "Size of the Matrix"
               macro: "setSize"
+              multiplicity: False
             - label: "Size of the Voxel"
               macro: "voxelsize"
+              multiplicity: False
             - label: "Set Position"
               macro: "setPosition"
+              multiplicity: False
             - label: "Set Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1850,6 +1947,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -1859,8 +1957,10 @@ gate:
           - label_list:
             - label: "Enable Dose"
               macro: "enableDose"
+              multiplicity: False
             - label: "Enable Hybridino"
               macro: "enableHybridino"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -1868,8 +1968,10 @@ gate:
           - label_list:
             - label: "Primary Multiplicity"
               macro: "setPrimaryMultiplicity"
+              multiplicity: False
             - label: "Secondary Multiplicity"
               macro: "setSecondaryMultiplicity"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -1879,32 +1981,44 @@ gate:
           - label_list:
             - label: "DoseActor specific properties"
               macro: ""
+              multiplicity: False
             property:
               type: label
 
           - label_list:
             - label: "Enable Edep"
               macro: "enableEdep"
+              multiplicity: False
             - label: "Enable Uncertainty Edep"
               macro: "enableUncertaintyEdep"
+              multiplicity: False
             - label: "Enable Squared Edep"
               macro: "enableSquaredEdep"
+              multiplicity: False
             - label: "Enable Dose"
               macro: "enableDose"
+              multiplicity: False
             - label: "Enable Uncertainty Dose"
               macro: "enableUncertaintyDose"
+              multiplicity: False
             - label: "Enable Squared Dose"
               macro: "enableSquaredDose"
+              multiplicity: False
             - label: "Enable Number Of Hits"
               macro: "enableNumberOfHits"
+              multiplicity: False
             - label: "Enable Dose To Water"
               macro: "enableDoseToWater"
+              multiplicity: False
             - label: "Normalise Dose To Max"
               macro: "normaliseDoseToMax"
+              multiplicity: False
             - label: "Normalise Dose To Water"
               macro: "normaliseDoseToWater"
+              multiplicity: False
             - label: "Normalise Dose To Integral"
               macro: "normaliseDoseToIntegral"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -1912,12 +2026,16 @@ gate:
           - label_list:
             - label: "Size of the Matrix"
               macro: "setSize"
+              multiplicity: False
             - label: "Size of the Voxel"
               macro: "voxelsize"
+              multiplicity: False
             - label: "Set Position"
               macro: "setPosition"
+              multiplicity: False
             - label: "Set Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -1927,6 +2045,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -1935,14 +2054,17 @@ gate:
           - label_list:
             - label: "Dose By Regions"
               macro: ""
+              multiplicity: False
             property:
               type : label
           
           - label_list:
             - label: "Input Dose By Regions"
               macro: "inputDoseByRegions"
+              multiplicity: False
             - label: "Output Dose By Regions"
               macro: "outputDoseByRegions"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1950,12 +2072,14 @@ gate:
           - label_list:
             - label: "Dose Calculation Algorithms"
               macro: ""
+              multiplicity: False
             property:
               type : label
 
           - label_list:
             - label: "Dose Algorithm"
               macro: "setDoseAlgorithm"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -1964,8 +2088,10 @@ gate:
           - label_list:
             - label: "Import Mass Image"
               macro: "importMassImage"
+              multiplicity: False
             - label: "Export Mass Image"
               macro: "exportMassImage"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -1974,6 +2100,7 @@ gate:
           - label_list:
             - label: "Detector"
               macro: "setDetector"
+              multiplicity: False
             property:
               type: object_name_dropdown
               default_value: [0]
@@ -1982,6 +2109,7 @@ gate:
           - label_list:
             - label: "Dectector Resolution"
               macro: "setDetectorResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0]
@@ -1991,6 +2119,7 @@ gate:
           - label_list:
             - label: "Detector Response Filename"
               macro: "responseDectectorFilename"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -2002,12 +2131,16 @@ gate:
           - label_list:
             - label: "Enable Overwrite Files"
               macro: "setOverWrtieFilesFlag"
+              multiplicity: False
             - label: "Reset Data At Each Run"
               macro: "setResetDataAtEachRunFlag"
+              multiplicity: False
             - label: "Enable Debug Output"
               macro: "enableDebugOutput"
+              multiplicity: False
             - label: "Enable Output Match"
               macro: "enableOutputMatch"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -2015,6 +2148,7 @@ gate:
           - label_list:
             - label: "Input Data File"
               macro: "setInputDataFile"
+              multiplicity: False
             property:
               type: select
               default_value: [null]
@@ -2022,6 +2156,7 @@ gate:
           - label_list:
             - label: "Number of Bins"
               macro: "setTimeNbBins"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2032,12 +2167,16 @@ gate:
           - label_list:
             - label: "Overwrite Files"
               macro: "setOverWriteFilesFlag"
+              multiplicity: False
             - label: "Reset Data At Each Run"
               macro: "setResetDataAtEachRunFlag"
+              multiplicity: False
             - label: "Enable LET to Water"
               macro: "setLETtoWater"
+              multiplicity: False
             - label: "Parallel Calculation"
               macro: "doParallelCalculation"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [True]
@@ -2045,6 +2184,7 @@ gate:
           - label_list:
             - label: "Half Size"
               macro: "setHalfSize"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -2054,6 +2194,7 @@ gate:
           - label_list:
             - label: "Averaging Method Type"
               macro: "setType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [0]
@@ -2062,27 +2203,31 @@ gate:
           - label_list:
             - label: "Cut Value"
               macro: "setCutVal"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
               units: ENERGY_UNITS
-              default_value: 2
+              default_unit_index: 2
           
           - label_list:
             - label: "LET Threshold Minimum"
               macro: "setLETthresholdMin"
+              multiplicity: False
             - label: "LET Threshold Maximum"
               macro: "setLETthresholdMax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
               units: ENERGY_LINEAR_DENSITY_UNITS
-              default_value: 2
+              default_unit_index: 2
           
         TEPCActor:
           - label_list:
             - label: "Pressure"
               macro: "setPressure"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2092,8 +2237,10 @@ gate:
           - label_list: 
             - label: "Energy Minimum"
               macro: "setEmin"
+              multiplicity: False
             - label: "Energy Maximum"
               macro: "setEmax"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2103,6 +2250,7 @@ gate:
           - label_list:
             - label: "Number of bins"
               macro: "setNumberOfBins"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2112,6 +2260,7 @@ gate:
           - label_list:
             - label: "Enable Log scale"
               macro: "setLogscale"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -2119,6 +2268,7 @@ gate:
           - label_list:
             - label: "Number of Order"
               macro: "setNOrders"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2128,8 +2278,10 @@ gate:
           - label_list:
             - label: "Normalise by Events"
               macro: "setNormByEvent"
+              multiplicity: False
             - label: "Save as Text"
               macro: "saveAsText"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -2138,40 +2290,58 @@ gate:
           - label_list:
             - label: "Enable Production Process"
               macro: "enableProductionProcess"
+              multiplicity: False
             - label: "Enable Direction"
               macro: "enableDirection"
+              multiplicity: False
             - label: "Use Volume Frame"
               macro: "useVolumeFrame"
+              multiplicity: False
             - label: "Enable Ekine"
               macro: "enableEkine"
+              multiplicity: False
             - label: "Enable X Position"
               macro: "enableXPosition"
+              multiplicity: False
             - label: "Enable Y Position"
               macro: "enableYPosition"
+              multiplicity: False
             - label: "Enable Z Position"
               macro: "enableZPosition"
+              multiplicity: False
             - label: "Enable X Direction"
               macro: "enableXDirection"
+              multiplicity: False
             - label: "Enable Y Direction"
               macro: "enableYDirection"
+              multiplicity: False
             - label: "Enable Z Direction"
               macro: "enableZDirection"
+              multiplicity: False
             - label: "Enable Production Volume"
               macro: "enableProductionVolume"
+              multiplicity: False
             - label: "Enable Production Process"
               macro: "enableProductionProcess"
+              multiplicity: False
             - label: "Enable Particle Name"
               macro: "enableParticleName"
+              multiplicity: False
             - label: "Enable Weight"
               macro: "enableWeight"
+              multiplicity: False
             - label: "Enable Track Length"
               macro: "enableTrackLength"
+              multiplicity: False
             - label: "Store Outgoing Particles"
               macro: "storeOutgoingParticles"
+              multiplicity: False
             - label: "Store Secondaries"
               macro: "storeSecondaries"
+              multiplicity: False
             - label: "Store All Step"
               macro: "storeAllStep"
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -2179,6 +2349,7 @@ gate:
           - label_list:
             - label: "Max File Size"
               macro: "setMaxFileSize"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2189,6 +2360,7 @@ gate:
           - label_list:
             - label: "Thermal Diffusivity"
               macro: "setThermalDiffusivity"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2198,16 +2370,22 @@ gate:
           - label_list:
             - label: "Blood Density in kg/mm3"
               macro: "setBloodDensity"
+              multiplicity: False
             - label: "Blood Heat Capacity in mJ/(kg*°C)"
               macro: "setBloodHeatCapacity"
+              multiplicity: False
             - label: "Tissue Density kg/mm3"
               macro: "setTissueDensity"
+              multiplicity: False
             - label: "Tissue Heat Capacity mJ/(kg*°C)"
               macro: "setTissueHeatCapacity"
+              multiplicity: False
             - label: "Blood Perfusion Rate"
               macro: "setBloodPerfusionRate"
+              multiplicity: False
             - label: "Number of Time Frames"
               macro: "setNumberOfTimeFrames"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2217,6 +2395,7 @@ gate:
           - label_list:
             - label: "Diffusion Time"
               macro: "setDiffusionTime"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2228,18 +2407,23 @@ gate:
           - label_list:
             - label: "DoseActor specific properties"
               macro: ""
+              multiplicity: False
             property:
               type: label
         
           - label_list:
             - label: "Size of the Matrix"
               macro: "setSize"
+              multiplicity: False
             - label: "Size of the Voxel"
               macro: "voxelsize"
+              multiplicity: False
             - label: "Set Position"
               macro: "setPosition"
+              multiplicity: False
             - label: "Set Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -2249,6 +2433,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -2258,6 +2443,7 @@ gate:
           - label_list:
             - label: "Volume To Merge"
               macro: "volumeToMerge"
+              multiplicity: False
             property:
               # TODO : Create a Qt ComboBox that is checkable, and the resulting selected string will be inside this empty list.
               type: checkable_object_name_dropdown
@@ -2268,6 +2454,7 @@ gate:
           - label_list:
             - label: "Energy"
               macro: "setEnergy"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2277,28 +2464,35 @@ gate:
           - label_list:
             - label: "Mu Unit"
               macro: "setMuUnit"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
               units: LENGTH_INVERSE_UNITS
+              default_unit_index: 3
           
           # Dose Actor only
 
           - label_list:
             - label: "DoseActor specific properties"
               macro: ""
+              multiplicity: False
             property:
               type: label
         
           - label_list:
             - label: "Size of the Matrix"
               macro: "setSize"
+              multiplicity: False
             - label: "Size of the Voxel"
               macro: "voxelsize"
+              multiplicity: False
             - label: "Set Position"
               macro: "setPosition"
+              multiplicity: False
             - label: "Set Resolution"
               macro: "setResolution"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -2308,6 +2502,7 @@ gate:
           - label_list:
             - label: "Hit Type"
               macro: "setpHitType"
+              multiplicity: False
             property:
               type: dropdown
               default_value: [3]
@@ -2318,6 +2513,7 @@ gate:
         - label_list:
           - label: "Filter Type"
             macro: ""
+            multiplicity: False
           property:
             type: macro
             default_value: [""]
@@ -2325,6 +2521,7 @@ gate:
         - label_list:
           - label: "&0 Properties"
             macro: ""
+            multiplicity: False
           property:
             type: dynamic_label
             object_path: ["."] # This path direct to the gateObject to search. A point refers to the object that hold the parameter
@@ -2334,6 +2531,7 @@ gate:
         - label_list:
           - label: "Invert Filter"
             macro: "invert"
+            multiplicity: False
           property:
             type: checkable
             default_value: [False]
@@ -2343,6 +2541,7 @@ gate:
           - label_list:
             - label: "Particle Selection Method"
               macro: ""
+              multiplicity: False
             property:
               type: "dropdown"
               default_value: [0]
@@ -2364,6 +2563,7 @@ gate:
           - label_list:
             - label: "Particle PDG"
               macro: "addParticlePDG"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2398,8 +2598,10 @@ gate:
           - label_list:
             - label: "Enable Minimum"
               macro: ""
+              multiplicity: False
             - label: "Enable Maximum"
               macro: ""
+              multiplicity: False
             property:
               type: checkbox
               default_value: [False]
@@ -2407,8 +2609,10 @@ gate:
           - label_list:
             - label: "Energy Minimum"
               macro: "setEmin"
+              multiplicity: False
             - label: "Energy Maximum"
               macro: "setEmax"
+              multiplicity: False
             property: 
               type: text
               default_value: [0]
@@ -2419,6 +2623,7 @@ gate:
           - label_list:
             - label: "Angle in degrees"
               macro: "setAngle"
+              multiplicity: False
             property:
               type: text
               default_value: [0]
@@ -2428,6 +2633,7 @@ gate:
           - label_list:
             - label: "Direction (X, Y, Z)"
               macro: "setDirection"
+              multiplicity: False
             property:
               type: text
               default_value: [0, 0, 0]
@@ -2438,6 +2644,7 @@ gate:
           - label_list:
             - label: "Material"
               macro: "addMaterial"
+              multiplicity: False
             property:
               type: material_dropdown
               default_value: [0]
@@ -3453,6 +3660,7 @@ gate:
         - label_list:
           - label: "Source Type"
             macro: ""
+            multiplicity: False
           property:
             type: macro
             default_value: [""]
@@ -3825,6 +4033,7 @@ gate:
           - label_list:
             - label: "Total Number of Primaries"
               macro: "setTotalNumberOfPrimaries"
+              multiplicity: False
             property:
               type: text
               default_value: [2000]

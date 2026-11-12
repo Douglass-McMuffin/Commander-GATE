@@ -86,6 +86,7 @@ class GateParameter(GateParameterInterface):
         notificationHandler = {
             "dynamic_dropdown": self._receiveNotificationDynamicDropdown,
             "object_name_dropdown": self._receiveNotificationObjectNameDropdown,
+            "checkable_object_name_dropdown": self._receiveNotificationCheckableObjectNameDropdown,
             "children_name_dropdown": self._receiveNotificationChildrenNameDropdown,
             "attached_volume_dropdown": self._receiveNotificationAttachedVolumeDropdown,
             "digitizer_detector_dropdown": self._receiveNotificationDigitizerDetectorDropdown,
@@ -134,6 +135,28 @@ class GateParameter(GateParameterInterface):
             self.unitList = gateTree._getYamlData("placeholder/empty_units")
         
         self._updateValueList()
+
+    def _receiveNotificationCheckableObjectNameDropdown(self):
+        from src.Model.DynamicData.Concreate.GateTree import GateTree
+        gateTree = GateTree()
+        objectPath: str               = self._yamlRawProperty["object_path"]
+
+        observedObjectList = [gateTree.getObjectFromGateObjectPath(self._gateObjectParent, objectPath)]
+        self.unitList = []
+        while len(observedObjectList) > 0:
+            observedObject = observedObjectList.pop(0)
+            self.unitList.append(observedObject.name)
+            for child in observedObject.children.values():
+                observedObjectList.append(child)
+
+        if len(self.unitList) == 0:
+            self.unitList = gateTree._getYamlData("placeholder/empty_units")
+
+        for fieldIndex, field in enumerate(self.valueList):
+            for value in field:
+                if value not in self.unitList:
+                    self.valueList[fieldIndex].remove(value)
+                    self.notifyAllSubscriber()
 
     def _receiveNotificationChildrenNameDropdown(self):
         from src.Model.DynamicData.Concreate.GateTree import GateTree
@@ -237,6 +260,7 @@ class GateParameter(GateParameterInterface):
         for index, value in enumerate(self.valueList):
             if value not in self.unitList:
                 self.valueList[index] = self.unitList[0]
+                self.notifyAllSubscriber()
 
     def updateValue(self, fieldIndex: int, newData: str | float | bool):
         """

@@ -55,6 +55,11 @@ class ControlAPI():
                 value = float(value)
         elif "checkbox" in param.inputType:
             value = value == "True"
+        elif "checkable" in param.inputType:
+            for val in value:
+                if val not in param.unitList:
+                    print(f"\033[33mCannot update valueList attribute of {param} with {value} since it is not a valid value.\033[0m", file=stderr)
+                    return
         elif "dropdown" in param.inputType:
             if value not in param.unitList:
                 print(f"\033[33mCannot update valueList attribute of {param} with {value} since it is not a valid value.\033[0m", file=stderr)
@@ -163,6 +168,20 @@ class ControlAPI():
         return list(ControlAPI._getYamlData("gate/parameter/digitizer/digitizer_type").keys())
 
     @staticmethod
+    def getActorTypes() -> list[str]:
+        """
+        Get every actor type available.
+        """
+        return list(ControlAPI._getYamlData("gate/parameter/actor/actor_type").keys())
+
+    @staticmethod
+    def getFilterTypes() -> list[str]:
+        """
+        Get every filter type available.
+        """
+        return list(ControlAPI._getYamlData("gate/parameter/filter/filter_type").keys())
+
+    @staticmethod
     def getSourceTypes() -> list[str]:
         """Get every source types available."""
         return list(ControlAPI._getYamlData("gate/parameter/source/source_type").keys())
@@ -241,7 +260,46 @@ class ControlAPI():
         gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData("gate/parameter/source/source_general"))
         gateTree.addParamFromYamlSection(sourceObject, ControlAPI._getYamlData(f"gate/parameter/source/source_type/{sourceType}"))
         gateTree.initObjectParam(sourceObject)
-        sourceObject.param["Source Type"] = sourceType
+        sourceObject.param["Source Type"].updateValue(0, sourceType)
+
+    @staticmethod
+    def createActor(actorName: str, actorType: str):
+        """
+        Create a new actor.
+
+        Args:
+            actorName: name of the new actor
+            actorType: type of the new actor
+        """
+        gateTree = GateTree()
+        actorInfo = ControlAPI._getYamlData("gate/object_path/ACTOR")
+        actorObject = gateTree.createGateObjectEmpty("/".join([actorInfo["object_path"], actorName]))
+        gateTree.addParamFromYamlSection(actorObject, ControlAPI._getYamlData("gate/parameter/actor/actor_general"))
+        paramSection = ControlAPI._getYamlData(f"gate/parameter/actor/actor_type/{actorType}")
+        if paramSection is not None:
+            gateTree.addParamFromYamlSection(actorObject, paramSection)
+        gateTree.initObjectParam(actorObject)
+        actorObject.param["Actor Type"].updateValue(0, actorType)
+
+    @staticmethod
+    def createFilter(actorName: str, filterName: str, filterType: str):
+        """
+        Create a new filter.
+
+        Args:
+            filterName: name of the new filter
+            filterType: type of the new filter
+        """
+        gateTree = GateTree()
+        actorInfo = ControlAPI._getYamlData("gate/object_path/ACTOR")
+
+        filterObject = gateTree.createGateObjectEmpty("/".join([actorInfo["object_path"], actorName, filterName]))
+        gateTree.addParamFromYamlSection(filterObject, ControlAPI._getYamlData("gate/parameter/filter/filter_general"))
+        paramSection = ControlAPI._getYamlData(f"gate/parameter/filter/filter_type/{filterType}")
+        if paramSection is not None:
+            gateTree.addParamFromYamlSection(filterObject, paramSection)
+        gateTree.initObjectParam(filterObject)
+        filterObject.param["Filter Type"].updateValue(0, filterType)
 
     @staticmethod
     def createDigitizer(sensitiveDetectorName: str, digitizerType: str, singlesDigitizerName: str):
